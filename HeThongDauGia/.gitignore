@@ -37,3 +37,10 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+# Bo qua file chay cua Maven
+target/
+
+# Bo qua file cau hinh rieng cua IntelliJ
+.idea/
+*.iml
