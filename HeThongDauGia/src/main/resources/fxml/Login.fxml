@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.auction.client.controllers.LoginController"
-            prefHeight="400.0" prefWidth="600.0">
-
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
+   <children>
+      <Label layoutX="202.0" layoutY="39.0" prefHeight="58.0" prefWidth="195.0" text="ĐĂNG NHẬP HỆ THỐNG" textAlignment="CENTER">
+         <font>
+            <Font name="Calibri Bold" size="19.0" />
+         </font></Label>
+      <PasswordField fx:id="txtPassword" layoutX="295.0" layoutY="192.0" prefHeight="34.0" prefWidth="179.0" />
+      <TextField fx:id="txtUsername" layoutX="295.0" layoutY="143.0" prefHeight="34.0" prefWidth="179.0" />
+      <Button layoutX="394.0" layoutY="239.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="33.0" prefWidth="80.0" text="Đăng nhập" />
+   </children>
 </AnchorPane>

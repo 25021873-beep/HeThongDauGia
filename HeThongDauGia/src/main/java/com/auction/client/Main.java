@@ -1,20 +1,25 @@
 package com.auction.client;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.util.Objects;
 
 public class Main extends Application {
     @Override
-    public void start(Stage primaryStage) {
-        Label label = new Label("Chào cốt, JavaFX lên hinh rồi nhé!");
-        StackPane root = new StackPane(label);
-        Scene scene = new Scene(root, 400, 300);
+    public void start(Stage primaryStage) throws Exception {
+        // Lệnh này sẽ đi tìm file Login.fxml trong thư mục resources để nạp lên giao diện
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/Login.fxml")));
 
-        primaryStage.setTitle("Hệ thống Đấu giá - Client");
+        // Nhét bộ khung giao diện vào Scene
+        Scene scene = new Scene(root);
+
+        primaryStage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
         primaryStage.setScene(scene);
+        primaryStage.setResizable(false); // Khóa người dùng kéo giãn màn hình lung tung
         primaryStage.show();
     }
 
