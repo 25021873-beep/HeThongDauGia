@@ -1,0 +1,52 @@
+Index: src/main/java/org/example/network/BroadcastManager.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/network/BroadcastManager.java b/src/main/java/org/example/network/BroadcastManager.java
+new file mode 100644
+--- /dev/null	(date 1776679990229)
++++ b/src/main/java/org/example/network/BroadcastManager.java	(date 1776679990229)
+@@ -0,0 +1,4 @@
++package org.example.network;
++
++public class BroadcastManager {
++}
+Index: src/main/java/org/example/Cilent/SocketClient.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/org/example/Cilent/SocketClient.java b/src/main/java/org/example/Cilent/SocketClient.java
+new file mode 100644
+--- /dev/null	(date 1776679990257)
++++ b/src/main/java/org/example/Cilent/SocketClient.java	(date 1776679990257)
+@@ -0,0 +1,4 @@
++package org.example.Cilent;
++
++public class SocketClient {
++}
+Index: pom.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project xmlns=\"http://maven.apache.org/POM/4.0.0\"\r\n         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\r\n    <modelVersion>4.0.0</modelVersion>\r\n\r\n    <groupId>org.example</groupId>\r\n    <artifactId>HeThongDauGia</artifactId>\r\n    <version>1.0-SNAPSHOT</version>\r\n\r\n    <properties>\r\n        <maven.compiler.source>25</maven.compiler.source>\r\n        <maven.compiler.target>25</maven.compiler.target>\r\n        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>\r\n    </properties>\r\n\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/pom.xml b/pom.xml
+--- a/pom.xml	(revision 279824568727a7212e7012580a33b0b56c1772d5)
++++ b/pom.xml	(date 1776679990278)
+@@ -14,4 +14,12 @@
+         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+     </properties>
+ 
++    <dependencies>
++        <dependency>
++            <groupId>com.google.code.gson</groupId>
++            <artifactId>gson</artifactId>
++            <version>2.10.1</version>
++        </dependency>
++    </dependencies>
++
+ </project>
+\ No newline at end of file
