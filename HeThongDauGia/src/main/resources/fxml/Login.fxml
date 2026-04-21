@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.PasswordField?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #2C3947;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #2C3947;" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
    <children>
       <Label alignment="CENTER" layoutX="201.0" layoutY="54.0" text="ĐĂNG NHẬP HỆ THỐNG" textFill="#e8edf2">
          <font>
@@ -21,17 +17,17 @@
             <Image url="@../images/360_F_203669387_m7IvXlkV0FQwA69Xpt8AwlAdO5Ih05Mc.jpg" />
          </image>
       </ImageView>
-      <PasswordField layoutX="204.0" layoutY="214.0" prefHeight="38.0" prefWidth="192.0" promptText="Mật khẩu">
+      <PasswordField fx:id="txtPassword" layoutX="204.0" layoutY="214.0" prefHeight="38.0" prefWidth="192.0" promptText="Mật khẩu">
          <font>
             <Font name="Calibri" size="12.0" />
          </font>
       </PasswordField>
-      <Button layoutX="228.0" layoutY="265.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="143.0" style="-fx-background-color: #547A95;" text="Đăng nhập" textFill="#e8edf2">
+      <Button fx:id="btnLogin" layoutX="228.0" layoutY="265.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="30.0" prefWidth="143.0" style="-fx-background-color: #547A95;" text="Đăng nhập" textFill="#e8edf2">
          <font>
             <Font name="Calibri" size="15.0" />
          </font>
       </Button>
-      <TextField layoutX="205.0" layoutY="161.0" prefHeight="38.0" prefWidth="192.0" promptText="Tên đăng nhập">
+      <TextField id="txtUsername" fx:id="txtUsername" layoutX="205.0" layoutY="161.0" prefHeight="38.0" prefWidth="192.0" promptText="Tên đăng nhập">
          <font>
             <Font name="Calibri" size="12.0" />
          </font>
