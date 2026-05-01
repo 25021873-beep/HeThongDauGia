@@ -1,5 +1,7 @@
 import org.example.dao.UserDAO;
 import org.example.entity.User;
+import org.example.dao.ItemDAO;
+import org.example.entity.Item;
 import java.util.List;
 
 public class Main {
@@ -41,5 +43,49 @@ public class Main {
         }
 
         System.out.println("--- KẾT THÚC TEST ---");
+
+        ItemDAO itemDAO = new ItemDAO();
+
+        System.out.println("--- BẮT ĐẦU TEST ITEM_DAO ---");
+
+        // 1. Test thêm Item
+        Item newItem = new Item();
+        newItem.setName("Bình gốm Bát Tràng cổ");
+        newItem.setDescription("Hàng limited, không sứt mẻ");
+        newItem.setStartingPrice(500000);
+        newItem.setSellerId(1);
+
+        boolean isAdded = itemDAO.addItem(newItem);
+        System.out.println("1. Thêm sản phẩm thành công? " + isAdded);
+
+        // 2. Test lấy danh sách
+        List<Item> items = itemDAO.getAllItems();
+        System.out.println("2. Tổng số món hàng trên hệ thống: " + items.size());
+        for (Item i : items) {
+            System.out.println("   -> [" + i.getId() + "] " + i.getName() + " (Giá KĐ: " + i.getStartingPrice() + ") - Của người bán ID: " + i.getSellerId());
+        }
+
+        int testItemId = 1; // Giả sử ID của món hàng m muốn test là 1
+
+        System.out.println("--- BẮT ĐẦU TEST BỔ SUNG ITEM_DAO ---");
+
+        // 1. Test lấy chi tiết Item
+        Item foundItem = itemDAO.getItemById(testItemId);
+        if (foundItem != null) {
+            System.out.println("1. Tìm thấy hàng: " + foundItem.getName());
+
+            // 2. Test sửa Item (Cập nhật giá và mô tả)
+            foundItem.setStartingPrice(600000);
+            foundItem.setDescription("Đã sửa: Hàng chốt giá cao hơn tí nhé");
+            boolean isUpdated = itemDAO.updateItem(foundItem);
+            System.out.println("2. Cập nhật thông tin thành công? " + isUpdated);
+
+        } else {
+            System.out.println("1. Không tìm thấy Item nào có ID = " + testItemId);
+        }
+
+        // 3. Test xóa Item (Cẩn thận chạy xong là bay luôn dòng data trong DB)
+        // boolean isDeleted = itemDAO.deleteItem(testItemId);
+        // System.out.println("3. Xóa Item thành công? " + isDeleted);
     }
 }
