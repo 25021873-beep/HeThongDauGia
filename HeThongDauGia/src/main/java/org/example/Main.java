@@ -1,3 +1,5 @@
+package org.example;
+
 import org.example.dao.UserDAO;
 import org.example.entity.User;
 import org.example.dao.ItemDAO;
