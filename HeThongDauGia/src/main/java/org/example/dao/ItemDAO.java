@@ -21,7 +21,7 @@ public class ItemDAO {
 
             pstmt.setString(1, item.getName());
             pstmt.setString(2, item.getDescription());
-            pstmt.setDouble(3, item.getStartingPrice());
+            pstmt.setBigDecimal(3, item.getStartingPrice());
             pstmt.setInt(4, item.getSellerId());
 
             return pstmt.executeUpdate() > 0;
@@ -46,7 +46,7 @@ public class ItemDAO {
                 item.setId(rs.getInt("id"));
                 item.setName(rs.getString("name"));
                 item.setDescription(rs.getString("description"));
-                item.setStartingPrice(rs.getDouble("starting_price"));
+                item.setStartingPrice(rs.getBigDecimal("starting_price"));
                 item.setSellerId(rs.getInt("seller_id"));
                 itemList.add(item);
             }
@@ -72,7 +72,7 @@ public class ItemDAO {
                     item.setId(rs.getInt("id"));
                     item.setName(rs.getString("name"));
                     item.setDescription(rs.getString("description"));
-                    item.setStartingPrice(rs.getDouble("starting_price"));
+                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
                     item.setSellerId(rs.getInt("seller_id"));
                     itemList.add(item);
                 }
@@ -98,7 +98,7 @@ public class ItemDAO {
                     item.setId(rs.getInt("id"));
                     item.setName(rs.getString("name"));
                     item.setDescription(rs.getString("description"));
-                    item.setStartingPrice(rs.getDouble("starting_price"));
+                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
                     item.setSellerId(rs.getInt("seller_id"));
                     return item;
                 }
@@ -118,7 +118,7 @@ public class ItemDAO {
 
             pstmt.setString(1, item.getName());
             pstmt.setString(2, item.getDescription());
-            pstmt.setDouble(3, item.getStartingPrice());
+            pstmt.setBigDecimal(3, item.getStartingPrice());
             pstmt.setInt(4, item.getId());
 
             int rowsAffected = pstmt.executeUpdate();

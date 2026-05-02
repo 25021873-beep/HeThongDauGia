@@ -1,11 +1,23 @@
 package org.example.entity;
 
+import java.math.BigDecimal;
+
 public class Item {
     private int id;
     private String name;
     private String description;
     private BigDecimal startingPrice;
     private int sellerId; // Cái này dùng để nối với ID của User
+
+    public Item(int id, String name, String description, BigDecimal startingPrice, int sellerId) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.startingPrice = startingPrice;
+        this.sellerId = sellerId;
+    }
+
+    public Item() {}
 
     public int getId() {
         return id;
@@ -19,7 +31,7 @@ public class Item {
         return description;
     }
 
-    public double getStartingPrice() {
+    public BigDecimal getStartingPrice() {
         return startingPrice;
     }
 
@@ -39,7 +51,7 @@ public class Item {
         this.description = description;
     }
 
-    public void setStartingPrice(double startingPrice) {
+    public void setStartingPrice(BigDecimal startingPrice) {
         this.startingPrice = startingPrice;
     }
 
