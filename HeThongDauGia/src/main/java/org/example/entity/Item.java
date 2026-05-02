@@ -4,7 +4,7 @@ public class Item {
     private int id;
     private String name;
     private String description;
-    private double startingPrice;
+    private BigDecimal startingPrice;
     private int sellerId; // Cái này dùng để nối với ID của User
 
     public int getId() {
