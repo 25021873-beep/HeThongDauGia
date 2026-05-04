@@ -64,6 +64,7 @@ public class AuctionServer {
         System.out.println("Broadcast phiên [" + auctionId + "] đến " + count + " client");
     }
 //Hàm xóa client
+
     public static void removeClient(ClientHandler client) {
         clients.remove(client);
         System.out.println("Đã xóa client: " + client.getClientId()
