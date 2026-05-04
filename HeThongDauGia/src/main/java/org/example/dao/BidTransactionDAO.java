@@ -32,6 +32,18 @@ public class BidTransactionDAO {
         }
     }
 
+    // Thêm lượt trả giá mới nhưng nhận Connection từ ngoài truyền vào, có throws SQLException
+    public boolean addBid(Connection conn, BidTransaction bid) throws SQLException {
+        String sql = "INSERT INTO BidTransactions (auction_id, user_id, bid_price, bid_time) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, bid.getAuctionId());
+            pstmt.setInt(2, bid.getBidderId());
+            pstmt.setBigDecimal(3, bid.getBidPrice());
+            pstmt.setObject(4, bid.getBidTime());
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
     // Lấy lịch sử trả giá của một phiên đấu giá
     public List<BidTransaction> getBidsByAuction(int auctionId) {
         List<BidTransaction> list = new ArrayList<>();

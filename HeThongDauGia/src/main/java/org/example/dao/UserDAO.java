@@ -126,6 +126,31 @@ public class UserDAO {
         return null;
     }
 
+    // Hàm lấy thông tin User qua username
+    public User getUserByUsername(String username) {
+        String sql = "SELECT * FROM Users WHERE username = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, username);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    User user = new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPassword(rs.getString("password"));
+                    user.setRole(rs.getString("role"));
+                    return user;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm User ID " + username + ": " + e.getMessage());
+        }
+        return null;
+    }
+
     // Hàm đổi mật khẩu
     public boolean changePassword(String newpass, String username) {
         String sql = "UPDATE Users SET password = ? WHERE username = ?";

@@ -105,6 +105,16 @@ public class AuctionDAO {
         }
     }
 
+    // Cập nhật giá hiện tại nhưng nhận Connection từ ngoài truyền vào, có throws SQLException
+    public boolean updateCurrentPrice(Connection conn, int id, BigDecimal newPrice) throws SQLException {
+        String sql = "UPDATE Auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBigDecimal(1, newPrice);
+            pstmt.setInt(2, id);
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
     // Chốt phiên đấu giá (Khi hết giờ, hàm này sẽ được gọi để đổi trạng thái và ghi nhận người thắng)
     public boolean closeAuction(int auctionId, int winnerId) {
             String sql = "UPDATE Auctions SET status = 'FINISHED', winner_id = ? WHERE id = ?";
