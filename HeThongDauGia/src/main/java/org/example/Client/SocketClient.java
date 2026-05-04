@@ -17,6 +17,7 @@ public class SocketClient {
     private final String userId;
 
     // Frontend đăng ký hàm này để nhận tin nhắn từ server
+    //Chuông báo tại giao diện, có tin từ server chuoong sẽ reo
     private Consumer<Message> onMessageReceived;
 
     public SocketClient(String userId) {
@@ -42,6 +43,8 @@ public class SocketClient {
     private void listenFromServer() {
         try {
             String raw;
+            //Loong này liên tục đọc tin nhắn từ ống nghe
+            //Khi có một chuỗi đến, sẽ chuyển thành obj và bấm cái chuông để gửi về giao diện
             while ((raw = in.readLine()) != null) {
                 Message msg = Message.fromJson(raw);
                 System.out.println("Nhận từ server: " + msg.getType());
