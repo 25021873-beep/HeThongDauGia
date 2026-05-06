@@ -58,4 +58,12 @@ public class Item {
     public void setSellerId(int sellerId) {
         this.sellerId = sellerId;
     }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
