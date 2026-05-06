@@ -21,6 +21,24 @@ public class TestConnection {
         // Bước 4: Kết nối và đăng nhập
         client.connect();
         client.login("alice", "123");
+        // Thêm vào TestConnection.java sau dòng login
+        SocketClient client2 = new SocketClient("user2");
+        client2.setOnMessageReceived(msg ->
+                System.out.println(">>> Client2 nhận: " + msg.getType() + " | " + msg.getPayload())
+        );
+        client2.connect();
+        client2.login("bob", "456");
+
+        Thread.sleep(200);
+
+// Cả 2 vào cùng phòng
+        client.joinAuction("auction-001");
+        client2.joinAuction("auction-001");
+
+        Thread.sleep(200);
+
+// Client1 đặt giá → Client2 có nhận được không?
+        client.placeBid("auction-001", 500000);
 
         Thread.sleep(1000);
         System.out.println("=== Test xong ===");
