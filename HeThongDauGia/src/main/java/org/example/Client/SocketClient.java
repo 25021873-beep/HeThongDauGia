@@ -1,7 +1,5 @@
 package org.example.Client;
 
-import org.example.model.Message;
-
 import java.io.*;
 import java.net.Socket;
 import java.util.function.Consumer;
@@ -14,17 +12,9 @@ public class SocketClient {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private final String userId;
+    private Consumer<String> onMessageReceived;
 
-    // Frontend đăng ký hàm này để nhận tin nhắn từ server
-    //Chuông báo tại giao diện, có tin từ server chuoong sẽ reo
-    private Consumer<Message> onMessageReceived;
-
-    public SocketClient(String userId) {
-        this.userId = userId;
-    }
-
-    public void setOnMessageReceived(Consumer<Message> callback) {
+    public void setOnMessageReceived(Consumer<String> callback) {
         this.onMessageReceived = callback;
     }
 
@@ -32,9 +22,8 @@ public class SocketClient {
         socket = new Socket(HOST, PORT);
         out = new PrintWriter(socket.getOutputStream(), true);
         in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        System.out.println("Đã kết nối đến server");
+        System.out.println("[CLIENT] Đã kết nối server cổng " + PORT);
 
-        // Thread riêng lắng nghe tin từ server liên tục
         Thread listener = new Thread(this::listenFromServer);
         listener.setDaemon(true);
         listener.start();
@@ -43,41 +32,49 @@ public class SocketClient {
     private void listenFromServer() {
         try {
             String raw;
-            //Loong này liên tục đọc tin nhắn từ ống nghe
-            //Khi có một chuỗi đến, sẽ chuyển thành obj và bấm cái chuông để gửi về giao diện
             while ((raw = in.readLine()) != null) {
-                Message msg = Message.fromJson(raw);
-                System.out.println("Nhận từ server: " + msg.getType());
+                System.out.println("[CLIENT] Nhận: " + raw);
                 if (onMessageReceived != null) {
+                    final String msg = raw;
                     onMessageReceived.accept(msg);
                 }
             }
         } catch (IOException e) {
-            System.out.println("Mất kết nối server");
+            System.out.println("[CLIENT] Mất kết nối server");
         }
     }
 
-    public void send(Message msg) {
-        if (out != null) out.println(msg.toJson());
+    private void sendRaw(String text) {
+        if (out != null) {
+            out.println(text);
+            System.out.println("[CLIENT] Gửi: " + text);
+        }
     }
 
-    // Các hàm tiện ích cho Frontend gọi
+    // Gửi đúng format Backend yêu cầu
     public void login(String username, String password) {
-        String payload = "{\"username\":\"" + username + "\",\"password\":\"" + password + "\"}";
-        send(new Message(Message.LOGIN, payload, userId));
+        sendRaw("LOGIN|" + username + "|" + password);
     }
 
     public void joinAuction(String auctionId) {
-        send(new Message(Message.JOIN_AUCTION, auctionId, userId));
+        sendRaw("JOIN|" + auctionId);
     }
 
     public void placeBid(String auctionId, double amount) {
-        String payload = "{\"auctionId\":\"" + auctionId + "\",\"amount\":" + amount + "}";
-        send(new Message(Message.PLACE_BID, payload, userId));
+        sendRaw("BID|" + auctionId + "|" + amount);
+    }
+
+    public void getAllAuctions() {
+        sendRaw("GET_ALL_AUCTIONS");
+    }
+
+    public void logout() {
+        sendRaw("LOGOUT");
     }
 
     public void disconnect() {
-        try { if (socket != null) socket.close(); }
-        catch (IOException ignored) {}
+        try {
+            if (socket != null) socket.close();
+        } catch (IOException ignored) {}
     }
 }
