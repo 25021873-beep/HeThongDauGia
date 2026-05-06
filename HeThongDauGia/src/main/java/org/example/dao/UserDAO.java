@@ -1,8 +1,12 @@
 package org.example.dao;
 
-import org.example.entity.User;
+import org.example.entity.user.Admin;
+import org.example.entity.user.Bidder;
+import org.example.entity.user.Seller;
+import org.example.entity.user.User;
 import org.example.utils.DatabaseConnection;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,6 +15,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserDAO {
+
+    // Helper method để tránh lặp code khởi tạo
+    private User mapUser(ResultSet rs) throws SQLException {
+        String role = rs.getString("role");
+        User user;
+
+        // Đúc đúng loại object dựa trên role trong DB
+        switch (role) {
+            case "ADMIN": user = new Admin(); break;
+            case "SELLER":
+                user = new Seller();
+                ((Seller) user).setRating(rs.getDouble("rating"));
+                break;
+            case "BIDDER":
+                user = new Bidder();
+                ((Bidder) user).setBalance(rs.getBigDecimal("balance"));
+                break;
+            default: return null;
+        }
+
+        user.setId(rs.getInt("id"));
+        user.setUsername(rs.getString("username"));
+        user.setPassword(rs.getString("password"));
+        user.setEmail(rs.getString("email"));
+        return user;
+    }
 
     // Hàm lấy danh sách người dùng
     public List<User> getAllUsers() {
@@ -22,12 +52,7 @@ public class UserDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                User user = new User();
-                user.setId(rs.getInt("id"));
-                user.setUsername(rs.getString("username"));
-                user.setPassword(rs.getString("password"));
-                user.setRole(rs.getString("role"));
-
+                User user = mapUser(rs);
                 userList.add(user);
             }
         } catch (SQLException e) {
@@ -56,19 +81,27 @@ public class UserDAO {
 
     // Hàm Đăng ký người dùng mới
     public boolean addUser(User user) {
-        String sql = "INSERT INTO Users (username, password, role) VALUES (?, ?, ?)";
-
+        String sql = "INSERT INTO Users (username, password, email, role, balance, rating) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
-            pstmt.setString(3, user.getRole()); // role là 'ADMIN', 'SELLER', hoặc 'BIDDER'
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getRole());
 
-            // executeUpdate() dùng cho lệnh INSERT, UPDATE, DELETE. Trả về số dòng bị ảnh hưởng.
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0; // Nếu > 0 tức là insert thành công
+            if (user instanceof Bidder) {
+                pstmt.setBigDecimal(5, ((Bidder) user).getBalance());
+                pstmt.setNull(6, java.sql.Types.DOUBLE);
+            } else if (user instanceof Seller) {
+                pstmt.setNull(5, java.sql.Types.DECIMAL);
+                pstmt.setDouble(6, ((Seller) user).getRating());
+            } else {
+                pstmt.setNull(5, java.sql.Types.DECIMAL);
+                pstmt.setNull(6, java.sql.Types.DOUBLE);
+            }
 
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Lỗi khi thêm User: " + e.getMessage());
             return false;
@@ -87,12 +120,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    User loggedInUser = new User();
-                    loggedInUser.setId(rs.getInt("id"));
-                    loggedInUser.setUsername(rs.getString("username"));
-                    loggedInUser.setPassword(rs.getString("password"));
-                    loggedInUser.setRole(rs.getString("role"));
-                    return loggedInUser;
+                    return mapUser(rs);
                 }
             }
         } catch (SQLException e) {
@@ -112,12 +140,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
-                    user.setRole(rs.getString("role"));
-                    return user;
+                    return mapUser(rs);
                 }
             }
         } catch (SQLException e) {
@@ -137,12 +160,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    User user = new User();
-                    user.setId(rs.getInt("id"));
-                    user.setUsername(rs.getString("username"));
-                    user.setPassword(rs.getString("password"));
-                    user.setRole(rs.getString("role"));
-                    return user;
+                    return mapUser(rs);
                 }
             }
         } catch (SQLException e) {

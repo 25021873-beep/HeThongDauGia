@@ -1,6 +1,6 @@
 package org.example.dao;
 
-import org.example.entity.Item;
+import org.example.entity.item.Item;
 import org.example.utils.DatabaseConnection;
 
 import java.sql.Connection;
@@ -175,5 +175,39 @@ public class ItemDAO {
             System.err.println("Lỗi khi tìm status " + status + ": " + e.getMessage());
         }
         return null;
+    }
+
+    // Tìm sản phẩm theo tên
+    public List<Item> searchItems(String keyword) {
+        List<Item> searchResults = new ArrayList<>();
+
+        String sql = "SELECT * FROM Items WHERE name LIKE ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, keyword);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    Item item = new Item();
+                    item.setId(rs.getInt("id"));
+                    item.setName(rs.getString("name"));
+                    item.setDescription(rs.getString("description"));
+
+                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
+
+                    // Map thêm cái cột status m vừa đẻ ra lúc nãy
+                    item.setStatus(rs.getString("status"));
+
+                    searchResults.add(item);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Lỗi mẹ nó lúc tìm kiếm đồ cổ rồi!");
+            e.printStackTrace();
+        }
+
+        return searchResults;
     }
 }

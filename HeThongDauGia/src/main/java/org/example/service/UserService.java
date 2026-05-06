@@ -1,7 +1,9 @@
 package org.example.service;
 
 import org.example.dao.UserDAO;
-import org.example.entity.User;
+import org.example.entity.user.User;
+
+import java.math.BigDecimal;
 
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
@@ -44,6 +46,31 @@ public class UserService {
             System.out.println("Lỗi Database rồi!");
         }
 
+        return isSuccess;
+    }
+
+    // Lấy thông tin profile user
+    public User getUserProfile(int userId) {
+        User user = userDAO.getUserById(userId);
+        if (user == null) {
+            System.out.println("Lỗi: Không tìm thấy data của user ID " + userId);
+        }
+        return user;
+    }
+
+    // Hàm nạp tiền vào ví
+    public boolean topUpWallet(int userId, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            System.out.println("Từ chối nạp: Số tiền nạp vào phải lớn hơn 0!");
+            return false;
+        }
+
+        boolean isSuccess = userDAO.addBalance(amount, userId);
+        if (isSuccess) {
+            System.out.println("Nạp thành công " + amount + " vào ví của User ID: " + userId);
+        } else {
+            System.out.println("Nạp tạch: Lỗi CSDL hoặc không tìm thấy User.");
+        }
         return isSuccess;
     }
 }

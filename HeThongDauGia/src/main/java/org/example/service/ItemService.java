@@ -1,8 +1,8 @@
 package org.example.service;
 
 import org.example.dao.ItemDAO;
-import org.example.entity.Item;
-import org.example.entity.User;
+import org.example.entity.item.Item;
+import org.example.entity.user.User;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,7 +13,7 @@ public class ItemService {
     // Hàm lấy tất cả Item
     public List<Item> getAllItems() {
         System.out.println("Đang tải danh sách mặt hàng từ Database...");
-        return itemDAO.getAllItems(); // Bản DAO dùng try-catch bình thường
+        return itemDAO.getAllItems();
     }
 
     // Hàm thêm Item mới
@@ -58,7 +58,7 @@ public class ItemService {
     public List<Item> getActiveItems() {
         System.out.println("Đang tải danh sách đồ cổ đang chờ lên thớt...");
         // Giả sử database m lưu trạng thái là 'OPEN' hoặc 'AVAILABLE'
-        return itemDAO.getItemsByStatus("OPEN");
+        return itemDAO.getItemsByStatus("AVAILABLE");
     }
 
     // Hàm hiện Item chi tiết theo Id
