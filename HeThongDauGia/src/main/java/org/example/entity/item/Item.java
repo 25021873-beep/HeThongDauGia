@@ -2,10 +2,12 @@ package org.example.entity.item;
 
 import org.example.entity.BaseEntity;
 
+import java.math.BigDecimal;
+
 public abstract class Item extends BaseEntity {
     protected String name;
     protected String description;
-    protected double startingPrice;
+    protected BigDecimal startingPrice;
     protected int sellerId;
     protected String status;
     protected String itemType;
@@ -26,11 +28,11 @@ public abstract class Item extends BaseEntity {
         this.description = description;
     }
 
-    public double getStartingPrice() {
+    public BigDecimal getStartingPrice() {
         return startingPrice;
     }
 
-    public void setStartingPrice(double startingPrice) {
+    public void setStartingPrice(BigDecimal startingPrice) {
         this.startingPrice = startingPrice;
     }
 
