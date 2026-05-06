@@ -1,83 +1,145 @@
 package org.example.service;
 
-import org.example.dao.ItemDAO;
+import org.example.dao.item.ItemDAO;
+import org.example.dao.user.UserDAO;
+import org.example.entity.item.Art;
+import org.example.entity.item.Electronics;
 import org.example.entity.item.Item;
+import org.example.entity.item.Vehicle;
+import org.example.entity.user.Seller;
 import org.example.entity.user.User;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemService {
-    private final ItemDAO itemDAO = new ItemDAO();
+    private ItemDAO itemDAO = new ItemDAO();
+    private UserDAO userDAO = new UserDAO();
 
-    // Hàm lấy tất cả Item
-    public List<Item> getAllItems() {
-        System.out.println("Đang tải danh sách mặt hàng từ Database...");
-        return itemDAO.getAllItems();
+    // Hàm đăng bán
+    public boolean postItem(Item newItem) {
+        if (newItem.getStartingPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            System.err.println("Từ chối: Giá khởi điểm phải lớn hơn 0!");
+            return false;
+        }
+        if (newItem.getName() == null || newItem.getName().trim().isEmpty()) {
+            System.err.println("Từ chối: Tên sản phẩm không được để trống!");
+            return false;
+        }
+
+        User user = userDAO.getUserById(newItem.getSellerId());
+        if (!(user instanceof Seller)) {
+            System.err.println("Từ chối: Mày không phải Seller, lấy tư cách gì đăng bán?");
+            return false;
+        }
+
+        newItem.setStatus("AVAILABLE");
+
+        return itemDAO.addItem(newItem);
     }
 
-    // Hàm thêm Item mới
-    public boolean addNewItem(String itemName, String description, BigDecimal startingPrice, User currentUser) {
-        if (currentUser == null) {
-            System.out.println("Từ chối: Chưa đăng nhập");
+    // Hàm chỉnh sửa thông tin
+    public boolean updateItem(Item updatedItem, int requesterId) {
+        Item existingItem = itemDAO.getItemById(updatedItem.getId());
+
+        if (existingItem == null) {
+            System.err.println("Lỗi: Không tìm thấy món hàng này trong kho!");
             return false;
         }
 
-        if (currentUser.getRole().equals("BIDDER")) {
-            System.out.println("Bidder thêm Item được");
+        User requester = userDAO.getUserById(requesterId);
+        boolean isAdmin = requester != null && requester.getRole().equals("ADMIN");
+
+        if (!isAdmin && existingItem.getSellerId() != requesterId) {
+            System.err.println("Từ chối: Mày không phải chủ món hàng, cấm sửa!");
             return false;
         }
 
-        if (itemName == null || itemName.trim().isEmpty()) {
-            System.out.println("Từ chối: Tên món hàng không được để trống!");
+        if (!existingItem.getStatus().equals("AVAILABLE")) {
+            System.err.println("Từ chối: Hàng đang đấu giá hoặc đã bán, không được phép sửa!");
             return false;
         }
 
-        if (startingPrice.compareTo(BigDecimal.ZERO) <= 0) {
-            System.out.println("Từ chối: Đăng bán mà giá khởi điểm <= 0 thì bán làm mẹ gì!");
+        updatedItem.setSellerId(existingItem.getSellerId());
+        return itemDAO.updateItem(updatedItem);
+    }
+
+    // Hàm đổi trạng thái (AVAILABLE -> IN_AUCTION -> SOLD/UNSOLD)
+    public boolean changeItemStatus(int itemId, String newStatus) {
+        Item existingItem = itemDAO.getItemById(itemId);
+        if (existingItem == null) return false;
+
+        String currentStatus = existingItem.getStatus();
+
+        if (currentStatus.equals("SOLD") && newStatus.equals("IN_AUCTION")) {
+            System.err.println("Lỗi Logic: Hàng đã bán sao quay lại đấu giá được!");
             return false;
         }
 
-        Item newItem = new Item();
-        newItem.setName(itemName);
-        newItem.setDescription(description);
-        newItem.setStartingPrice(startingPrice);
+        return itemDAO.updateItemStatus(itemId, newStatus);
+    }
 
-        boolean isSuccess = itemDAO.addItem(newItem);
+    // 4. Xóa/Rút món hàng
+    public boolean deleteItem(int itemId, int requesterId) {
+        Item existingItem = itemDAO.getItemById(itemId);
+        if (existingItem == null) return false;
 
-        if (isSuccess) {
-            System.out.println("Ngon: Đại gia " + currentUser.getUsername() + " vừa nhập kho món " + itemName);
+        User requester = userDAO.getUserById(requesterId);
+        boolean isAdmin = requester != null && requester.getRole().equals("ADMIN");
+
+        // Admin xóa thằng nào cũng được, user thường thì chỉ được xóa đồ của mình
+        if (!isAdmin && existingItem.getSellerId() != requesterId) {
+            System.err.println("Không được xóa đồ của người khác");
+            return false;
+        }
+
+        if (!existingItem.getStatus().equals("AVAILABLE") && !isAdmin) {
+            System.err.println("Từ chối: Đồ đang có người giành nhau, m không được phép rút!");
+            return false;
+        }
+
+        return itemDAO.deleteItem(itemId);
+    }
+
+    // 5. Hiển thị đồ cho trang chủ Bidder
+    public List<Item> getHomepageItems(String keyword, String category) {
+        List<Item> rawItems;
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            rawItems = itemDAO.searchItems(keyword);
         } else {
-            System.out.println("Có biến ở tầng Database rồi!");
+            rawItems = itemDAO.getAllItems();
         }
 
-        return isSuccess;
-    }
+        List<Item> filteredItems = new ArrayList<>();
 
-    // Hàm hiện các Items đang active
-    public List<Item> getActiveItems() {
-        System.out.println("Đang tải danh sách đồ cổ đang chờ lên thớt...");
-        // Giả sử database m lưu trạng thái là 'OPEN' hoặc 'AVAILABLE'
-        return itemDAO.getItemsByStatus("AVAILABLE");
-    }
+        for (Item item : rawItems) {
 
-    // Hàm hiện Item chi tiết theo Id
-    public Item getItemById(int itemId) {
-        Item item = itemDAO.getItemById(itemId);
-        if (item == null) {
-            System.out.println("Lỗi: Mặt hàng ID " + itemId + " không tồn tại hoặc đã bị xóa!");
-        }
-        return item;
-    }
+            if (item.getStatus().equals("SOLD")) {
+                continue;
+            }
 
-    // Hàm hiện Items theo tên
-    public List<Item> searchItemsByName(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return getActiveItems();
+            if (category == null || category.trim().isEmpty()) {
+                filteredItems.add(item);
+            } else {
+                if (category.equalsIgnoreCase("ELECTRONICS") && item instanceof Electronics) {
+                    filteredItems.add(item);
+                }
+                else if (category.equalsIgnoreCase("ART") && item instanceof Art) {
+                    filteredItems.add(item);
+                }
+                else if (category.equalsIgnoreCase("VEHICLE") && item instanceof Vehicle) {
+                    filteredItems.add(item);
+                }
+            }
         }
 
-        System.out.println("Đang tìm kiếm mặt hàng chứa từ khóa: " + keyword);
-        String sqlKeyword = "%" + keyword.trim() + "%";
-        return itemDAO.searchItems(sqlKeyword);
+        return filteredItems;
     }
 }
+
+
+
+
