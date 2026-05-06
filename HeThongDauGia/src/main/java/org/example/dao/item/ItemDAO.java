@@ -1,12 +1,12 @@
-package org.example.dao;
+package org.example.dao.item;
 
+import org.example.entity.item.Art;
+import org.example.entity.item.Electronics;
 import org.example.entity.item.Item;
+import org.example.entity.item.Vehicle;
 import org.example.utils.DatabaseConnection;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,23 +14,46 @@ public class ItemDAO {
 
     // Thêm/Đăng bán sản phẩm mới
     public boolean addItem(Item item) {
-        String sql = "INSERT INTO Items (name, description, starting_price, seller_id) VALUES (?, ?, ?, ?)";
+            // Tọng cả 4 cột dữ liệu đặc thù vào chung 1 lệnh INSERT
+            String sql = "INSERT INTO Items (name, description, starting_price, status, item_type, warranty_months, author, engine_type) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            try (Connection conn = DatabaseConnection.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, item.getName());
-            pstmt.setString(2, item.getDescription());
-            pstmt.setBigDecimal(3, item.getStartingPrice());
-            pstmt.setInt(4, item.getSellerId());
+                // Tham số chung
+                pstmt.setString(1, item.getName());
+                pstmt.setString(2, item.getDescription());
+                pstmt.setBigDecimal(3, item.getStartingPrice());
+                pstmt.setString(4, item.getStatus()); // 'AVAILABLE', 'IN_AUCTION', 'SOLD'
 
-            return pstmt.executeUpdate() > 0;
+                if (item instanceof Electronics) {
+                    pstmt.setString(5, "ELECTRONICS");
+                    pstmt.setInt(6, ((Electronics) item).getWarrantyMonths());
 
-        } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm Item: " + e.getMessage());
-            return false;
+                    pstmt.setNull(7, Types.VARCHAR);
+                    pstmt.setNull(8, Types.INTEGER);
+                }
+                else if (item instanceof Art) {
+                    pstmt.setString(5, "ART");
+                    pstmt.setNull(6, Types.INTEGER);
+
+                    pstmt.setString(7, ((Art) item).getAuthor());
+                    pstmt.setNull(8, Types.VARCHAR);
+                }
+                else if (item instanceof Vehicle) {
+                    pstmt.setString(5, "VEHICLE");
+                    pstmt.setNull(6, Types.INTEGER);
+                    pstmt.setNull(7, Types.VARCHAR);
+                    pstmt.setString(8, ((Vehicle) item).getEngineType());
+                }
+
+                return pstmt.executeUpdate() > 0;
+            } catch (SQLException e) {
+                System.err.println("Lỗi khi thêm Item: " + e.getMessage());
+                return false;
+            }
         }
-    }
 
     // Lấy toàn bộ sản phẩm (Dành cho trang chủ của Bidder)
     public List<Item> getAllItems() {
@@ -42,12 +65,7 @@ public class ItemDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                Item item = new Item();
-                item.setId(rs.getInt("id"));
-                item.setName(rs.getString("name"));
-                item.setDescription(rs.getString("description"));
-                item.setStartingPrice(rs.getBigDecimal("starting_price"));
-                item.setSellerId(rs.getInt("seller_id"));
+                Item item = ItemFactory.createItem(rs);
                 itemList.add(item);
             }
         } catch (SQLException e) {
@@ -68,12 +86,7 @@ public class ItemDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Item item = new Item();
-                    item.setId(rs.getInt("id"));
-                    item.setName(rs.getString("name"));
-                    item.setDescription(rs.getString("description"));
-                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
-                    item.setSellerId(rs.getInt("seller_id"));
+                    Item item = ItemFactory.createItem(rs);
                     itemList.add(item);
                 }
             }
@@ -94,12 +107,7 @@ public class ItemDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    Item item = new Item();
-                    item.setId(rs.getInt("id"));
-                    item.setName(rs.getString("name"));
-                    item.setDescription(rs.getString("description"));
-                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
-                    item.setSellerId(rs.getInt("seller_id"));
+                    Item item = ItemFactory.createItem(rs);
                     return item;
                 }
             }
@@ -111,7 +119,9 @@ public class ItemDAO {
 
     // Sửa thông tin sản phẩm
     public boolean updateItem(Item item) {
-        String sql = "UPDATE Items SET name = ?, description = ?, starting_price = ? WHERE id = ?";
+        String sql = "UPDATE Items SET name = ?, description = ?, starting_price = ?, " +
+                "warranty_months = ?, author = ?, engine_type = ? " +
+                "WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -119,7 +129,29 @@ public class ItemDAO {
             pstmt.setString(1, item.getName());
             pstmt.setString(2, item.getDescription());
             pstmt.setBigDecimal(3, item.getStartingPrice());
-            pstmt.setInt(4, item.getId());
+
+            if (item instanceof Electronics) {
+                pstmt.setInt(4, ((Electronics) item).getWarrantyMonths());
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+                pstmt.setNull(6, java.sql.Types.VARCHAR);
+            }
+            else if (item instanceof Art) {
+                pstmt.setNull(4, java.sql.Types.INTEGER);
+                pstmt.setString(5, ((Art) item).getAuthor());
+                pstmt.setNull(6, java.sql.Types.VARCHAR);
+            }
+            else if (item instanceof Vehicle) {
+                pstmt.setNull(4, java.sql.Types.INTEGER);
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+                pstmt.setString(6, ((Vehicle) item).getEngineType());
+            }
+            else {
+                pstmt.setNull(4, java.sql.Types.INTEGER);
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+                pstmt.setNull(6, java.sql.Types.VARCHAR);
+            }
+
+            pstmt.setInt(7, item.getId());
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -159,14 +191,8 @@ public class ItemDAO {
             pstmt.setString(1, status);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    Item item = new Item();
-                    item.setId(rs.getInt("id"));
-                    item.setName(rs.getString("name"));
-                    item.setDescription(rs.getString("description"));
-                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
-                    item.setSellerId(rs.getInt("seller_id"));
-                    item.setStatus(rs.getString("status"));
+                while (rs.next()) {
+                    Item item = ItemFactory.createItem(rs);
                     itemsList.add(item);
                 }
                 return itemsList;
@@ -186,28 +212,38 @@ public class ItemDAO {
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, keyword);
+            pstmt.setString(1, '%' + keyword + '%');
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    Item item = new Item();
-                    item.setId(rs.getInt("id"));
-                    item.setName(rs.getString("name"));
-                    item.setDescription(rs.getString("description"));
-
-                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
-
-                    // Map thêm cái cột status m vừa đẻ ra lúc nãy
-                    item.setStatus(rs.getString("status"));
-
+                    Item item = ItemFactory.createItem(rs);
                     searchResults.add(item);
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Lỗi mẹ nó lúc tìm kiếm đồ cổ rồi!");
+            System.out.println("Lỗi!");
             e.printStackTrace();
         }
 
         return searchResults;
+    }
+
+    // Hàm thay đổi trạng thái Item
+    public boolean updateItemStatus(int itemId, String newStatus) {
+        String sql = "UPDATE Items SET status = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, newStatus);
+            pstmt.setInt(2, itemId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật trạng thái Item (ID: " + itemId + "): " + e.getMessage());
+            return false;
+        }
     }
 }

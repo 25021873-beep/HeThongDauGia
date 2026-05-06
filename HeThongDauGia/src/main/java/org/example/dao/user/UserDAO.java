@@ -1,6 +1,5 @@
-package org.example.dao;
+package org.example.dao.user;
 
-import org.example.entity.user.Admin;
 import org.example.entity.user.Bidder;
 import org.example.entity.user.Seller;
 import org.example.entity.user.User;
@@ -16,32 +15,6 @@ import java.util.List;
 
 public class UserDAO {
 
-    // Helper method để tránh lặp code khởi tạo
-    private User mapUser(ResultSet rs) throws SQLException {
-        String role = rs.getString("role");
-        User user;
-
-        // Đúc đúng loại object dựa trên role trong DB
-        switch (role) {
-            case "ADMIN": user = new Admin(); break;
-            case "SELLER":
-                user = new Seller();
-                ((Seller) user).setRating(rs.getDouble("rating"));
-                break;
-            case "BIDDER":
-                user = new Bidder();
-                ((Bidder) user).setBalance(rs.getBigDecimal("balance"));
-                break;
-            default: return null;
-        }
-
-        user.setId(rs.getInt("id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password"));
-        user.setEmail(rs.getString("email"));
-        return user;
-    }
-
     // Hàm lấy danh sách người dùng
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
@@ -52,7 +25,7 @@ public class UserDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                User user = mapUser(rs);
+                User user = UserFactory.createUser(rs);
                 userList.add(user);
             }
         } catch (SQLException e) {
@@ -120,7 +93,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapUser(rs);
+                    return UserFactory.createUser(rs);
                 }
             }
         } catch (SQLException e) {
@@ -140,7 +113,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapUser(rs);
+                    return UserFactory.createUser(rs);
                 }
             }
         } catch (SQLException e) {
@@ -160,7 +133,7 @@ public class UserDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return mapUser(rs);
+                    return UserFactory.createUser(rs);
                 }
             }
         } catch (SQLException e) {
@@ -188,21 +161,49 @@ public class UserDAO {
         }
     }
 
-    // Hàm nạp tiền
-    public boolean addBalance(BigDecimal amount, int userId) {
-        String sql = "UPDATE Users SET balance = balance + ? WHERE id = ?";
+    // Hàm thay đổi balance, phục vụ ĐỘC QUYỀN cho luồng Đặt giá (Nằm chung trong 1 Transaction)
+    public boolean updateBalance(Connection conn, int userId, BigDecimal newBalance) throws SQLException {
+        String sql = "UPDATE Users SET balance = ? WHERE id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBigDecimal(1, newBalance);
+            pstmt.setInt(2, userId);
+
+            return pstmt.executeUpdate() > 0;
+        }
+    }
+
+    // Hàm cập nhật thông tin User
+    public boolean updateUser(User user) {
+        // Câu SQL update toàn bộ các cột trong bảng Users
+        String sql = "UPDATE Users SET username = ?, password = ?, email = ?, role = ?, balance = ?, rating = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setBigDecimal(1, amount);
-            pstmt.setInt(2, userId);
+            pstmt.setString(1, user.getUsername());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getEmail());
+            pstmt.setString(4, user.getRole()); // ADMIN, BIDDER, hoặc SELLER
+
+            if (user instanceof Bidder) {
+                pstmt.setBigDecimal(5, ((Bidder) user).getBalance());
+                pstmt.setNull(6, java.sql.Types.DOUBLE);
+            } else if (user instanceof Seller) {
+                pstmt.setNull(5, java.sql.Types.DECIMAL);
+                pstmt.setDouble(6, ((Seller) user).getRating());
+            } else {
+                pstmt.setNull(5, java.sql.Types.DECIMAL);
+                pstmt.setNull(6, java.sql.Types.DOUBLE);
+            }
+
+            pstmt.setInt(7, user.getId());
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi đổi mật khẩu: " + e.getMessage());
+            System.err.println("Lỗi khi update User (ID: " + user.getId() + "): " + e.getMessage());
             return false;
         }
     }

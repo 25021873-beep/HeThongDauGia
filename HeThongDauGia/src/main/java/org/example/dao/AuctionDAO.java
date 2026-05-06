@@ -136,8 +136,7 @@ public class AuctionDAO {
     // Lấy danh sách các phiên đã thắng
     public List<Auction> getWonAuctions(int userId) {
         List<Auction> list = new ArrayList<>();
-        // Chỉ lấy những phiên đã chốt (CLOSED) và người thắng trùng với ID truyền vào
-        String sql = "SELECT * FROM Auctions WHERE winner_id = ? AND status = 'CLOSED'";
+        String sql = "SELECT * FROM Auctions WHERE winner_id = ? AND status = 'FINISHED'";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -192,20 +191,22 @@ public class AuctionDAO {
         return list;
     }
 
-    // Xóa phiên đấu giá
-    public boolean deleteAuction(int id) {
-        String sql = "DELETE FROM Auctions WHERE id = ?";
+    // Hàm thay đổi trạng thái đấu giá
+    public boolean updateAuctionStatus(String status, int auctionId) {
+        String sql = "UPDATE Auctions SET status = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setString(1, status);
+            pstmt.setInt(2, auctionId);
 
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa phiên đấu giá: " + e.getMessage());
+            System.err.println("Lỗi khi chốt phiên đấu giá: " + e.getMessage());
             return false;
         }
     }
-}
+
+    }
