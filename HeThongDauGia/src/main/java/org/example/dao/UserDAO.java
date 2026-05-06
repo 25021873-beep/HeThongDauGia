@@ -170,6 +170,25 @@ public class UserDAO {
         }
     }
 
+    // Hàm nạp tiền
+    public boolean addBalance(BigDecimal amount, int userId) {
+        String sql = "UPDATE Users SET balance = balance + ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBigDecimal(1, amount);
+            pstmt.setInt(2, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi đổi mật khẩu: " + e.getMessage());
+            return false;
+        }
+    }
+
 }
 
 
