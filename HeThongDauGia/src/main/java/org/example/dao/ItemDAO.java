@@ -147,4 +147,33 @@ public class ItemDAO {
             return false;
         }
     }
+
+    // Tìm sản phẩm dựa theo trạng thái hiện tại
+    public List<Item> getItemsByStatus(String status) {
+        String sql = "SELECT * FROM Items WHERE status = ?";
+        ArrayList<Item> itemsList = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, status);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    Item item = new Item();
+                    item.setId(rs.getInt("id"));
+                    item.setName(rs.getString("name"));
+                    item.setDescription(rs.getString("description"));
+                    item.setStartingPrice(rs.getBigDecimal("starting_price"));
+                    item.setSellerId(rs.getInt("seller_id"));
+                    item.setStatus(rs.getString("status"));
+                    itemsList.add(item);
+                }
+                return itemsList;
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tìm status " + status + ": " + e.getMessage());
+        }
+        return null;
+    }
 }
