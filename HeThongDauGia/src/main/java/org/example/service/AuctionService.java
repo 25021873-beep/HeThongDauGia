@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.example.AuctionEngine;
 import org.example.dao.*;
 import org.example.dao.item.ItemDAO;
 import org.example.dao.user.UserDAO;
@@ -21,6 +22,7 @@ public class AuctionService {
     private BidTransactionDAO bidDAO = new BidTransactionDAO();
     private ItemDAO itemDAO = new ItemDAO();
     private UserDAO userDAO = new UserDAO();
+    private AuctionEngine engine;
 
 
     // Hàm đưa Item lên sàn và tạo phiên đấu giá
@@ -40,7 +42,13 @@ public class AuctionService {
         newAuction.setStatus("RUNNING");
 
         if (auctionDAO.createAuction(newAuction)) {
-            return itemDAO.updateItemStatus(itemId, "IN_AUCTION");
+            itemDAO.updateItemStatus(itemId, "IN_AUCTION");
+            if (this.engine != null) {
+                this.engine.addAuction(newAuction);
+            } else {
+                System.err.println("Lỗi: Quên chưa tiêm (inject) AuctionEngine vào AuctionService!");
+            }
+            return true;
         }
         return false;
     }

@@ -15,28 +15,19 @@ import java.util.concurrent.TimeUnit;
 
 public class AuctionEngine {
 
-    // ========================================================
-    // 1. TÀI NGUYÊN HỆ THỐNG (SYSTEM RESOURCES)
-    // ========================================================
-    // Tối ưu: Chỉ cần 1 công nhân (Thread) để đếm thời gian là đủ, đỡ tốn RAM
+    //Khởi tạo tài nguyên hệ thống
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    // RAM List: Chứa các phiên đang chạy để check nhanh mà không cần query DB liên tục
     private final List<Auction> activeAuctions = new CopyOnWriteArrayList<>();
 
-    // Các Service/DAO được tiêm (Inject) vào để Engine có thể thao tác với Database
     private final AuctionService auctionService;
     private final AuctionDAO auctionDAO;
 
-    // Khởi tạo Engine bắt buộc phải truyền Service và DAO vào
     public AuctionEngine(AuctionService auctionService, AuctionDAO auctionDAO) {
         this.auctionService = auctionService;
         this.auctionDAO = auctionDAO;
     }
 
-    // ========================================================
-    // 2. VÒNG ĐỜI VẬN HÀNH (ENGINE LIFECYCLE)
-    // ========================================================
 
     public void startEngine() {
         System.out.println("[ENGINE] Đang khởi động hệ thống...");
@@ -54,13 +45,8 @@ public class AuctionEngine {
             List<Auction> finishedAuctions = new ArrayList<>();
 
             for (Auction auction : activeAuctions) {
-                // Nếu thời gian hiện tại đã vượt qua hạn chót của phiên
                 if (now.isAfter(auction.getEndTime())) {
-                    System.out.println("[ENGINE - CHỐT SỔ] Đã hết giờ phiên ID: " + auction.getId());
-
-                    // Gọi Tầng Service để xử lý tiền bạc, cộng trừ, update Database
                     boolean isClosed = auctionService.closeAuction(auction.getId());
-
                     if (isClosed) {
                         // TODO: Chỗ này sau cắm Socket thì bắn sự kiện (Broadcast) báo có người thắng
                         finishedAuctions.add(auction);
@@ -70,7 +56,6 @@ public class AuctionEngine {
                 }
             }
 
-            // Dọn dẹp: Xóa các phiên đã chốt khỏi bộ nhớ RAM
             if (!finishedAuctions.isEmpty()) {
                 activeAuctions.removeAll(finishedAuctions);
             }
@@ -94,29 +79,27 @@ public class AuctionEngine {
         System.out.println("[ENGINE] Đã tắt an toàn.");
     }
 
-    // ========================================================
-    // 3. API CHO CÁC TẦNG KHÁC SỬ DỤNG (PUBLIC API)
-    // ========================================================
 
-    /**
-     * Tầng Service gọi hàm này ngay sau khi tạo phiên đấu giá mới thành công
-     */
+    // Các hàm public API để liên kết Engine với các tầng khác
+
+    // Dùng cho Tầng Service: Nạp thêm Auction
     public void addAuction(Auction auction) {
+        if (auction == null || !"RUNNING".equals(auction.getStatus())){
+            throw new IllegalArgumentException("[ENGINE TỪ CHỐI] Chỉ được phép nạp phiên đấu giá có trạng thái RUNNING!");
+        }
         activeAuctions.add(auction);
         System.out.println("[ENGINE] Đã nạp phiên đấu giá mới vào hệ thống giám sát: ID " + auction.getId());
     }
 
-    /**
-     * Dùng cho Tầng Mạng: Trả về danh sách các phiên đang mở (Chỉ đọc, không cho sửa)
-     */
+
+   // Dùng cho Tầng Mạng: Trả về danh sách các phiên đang mở (Chỉ đọc, không cho sửa)
     public List<Auction> getActiveAuctions() {
         return Collections.unmodifiableList(activeAuctions);
     }
 
-    /**
-     * Dùng cho Tầng Mạng: Tìm kiếm phiên bằng ID chuẩn xác
-     */
-    public Auction findAuctionById(int auctionId) {
+
+     // Dùng cho Tầng Mạng: Tìm kiếm phiên bằng ID chuẩn xác
+    public Auction findActiveAuctionById(int auctionId) {
         for (Auction auction : activeAuctions) {
             if (auction.getId() == auctionId) {
                 return auction;

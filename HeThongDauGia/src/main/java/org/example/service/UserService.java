@@ -1,9 +1,11 @@
 package org.example.service;
 
 import org.example.dao.user.UserDAO;
+import org.example.dto.RegisterRequest;
 import org.example.entity.user.Bidder;
 import org.example.entity.user.Seller;
 import org.example.entity.user.User;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.math.BigDecimal;
 
@@ -28,14 +30,26 @@ public class UserService {
     }
 
     // Hàm đăng ký
-    public boolean register(User user) {
-        User existingUser = userDAO.getUserByUsername(user.getUsername());
-        if (existingUser != null) {
-            System.out.println("Đăng ký xịt: Tên tài khoản '" + user.getUsername() + "' đã có thằng xài rồi!");
+    public boolean register(RegisterRequest request) {
+        if (userDAO.getUserByUsername(request.getUsername()) != null) {
             return false;
         }
 
-        return userDAO.addUser(user);
+        String hashedPassword = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt(12));
+
+        User newUser;
+        if ("SELLER".equalsIgnoreCase(request.getRole())) {
+            newUser = new Seller(); // Khởi tạo con của User
+        } else {
+            newUser = new Bidder(); // Mặc định là Bidder
+        }
+
+        newUser.setUsername(request.getUsername());
+        newUser.setPassword(hashedPassword);
+        newUser.setRole(request.getRole().toUpperCase()); // Lưu role để tí nữa ném xuống DB
+
+        // 5. Lưu xuống Database
+        return userDAO.addUser(newUser);
     }
 
     // Lấy thông tin profile user
