@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
@@ -15,9 +17,17 @@
     <top>
         <HBox alignment="CENTER_LEFT" prefHeight="60.0" style="-fx-background-color: white; -fx-border-color: #e4e6eb; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;" BorderPane.alignment="CENTER">
             <children>
-                <Label text="⚖ HỆ THỐNG ĐẤU GIÁ" textFill="#5c3a21">
+                <ImageView fitHeight="45.0" fitWidth="90.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png"/>
+                    </image>
+                    <HBox.margin>
+                        <Insets right="10.0"/>
+                    </HBox.margin>
+                </ImageView>
+                <Label text="HỆ THỐNG ĐẤU GIÁ" textFill="#5c3a21">
                     <font>
-                        <Font name="System Bold" size="24.0" />
+                        <Font name="System Bold" size="22.0" />
                     </font>
                 </Label>
 
@@ -55,7 +65,13 @@
                     </padding>
                 </Button>
 
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-cursor: hand;" text="👤  Tài khoản của tôi">
+                <Button fx:id="btnProductMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowProductMgmt" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-cursor: hand;" text="📦  Quản lý Sản phẩm">
+                    <padding>
+                        <Insets bottom="12.0" left="15.0" right="15.0" top="12.0" />
+                    </padding>
+                </Button>
+
+                <Button fx:id="btnUserMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowUserMgmt" style="-fx-background-color: transparent; -fx-text-fill: #333333; -fx-font-size: 14px; -fx-cursor: hand;" text="👤  Quản lý Người dùng">
                     <padding>
                         <Insets bottom="12.0" left="15.0" right="15.0" top="12.0" />
                     </padding>

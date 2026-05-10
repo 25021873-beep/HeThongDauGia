@@ -4,9 +4,12 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.io.IOException;
 
@@ -41,10 +44,12 @@ public class MainController {
             handleShowAuctionList(); // Mặc định mở Danh sách đấu giá cho Bidder
 
         } else if ("Seller".equalsIgnoreCase(role)) {
+            setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnProductMgmt, true);
             handleShowProductMgmt(); // Mặc định mở Quản lý sản phẩm cho Seller
 
         } else if ("Admin".equalsIgnoreCase(role)) {
+            setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnUserMgmt, true);
             handleShowUserMgmt(); // Mặc định mở Quản lý người dùng cho Admin
         }
@@ -60,9 +65,10 @@ public class MainController {
     }
 
     /**
-     * Hoán đổi nội dung vào Center StackPane
+     * Hoán đổi nội dung vào Center StackPane.
+     * Public để các controller con (VD: AuctionDetailController) có thể gọi.
      */
-    private void loadContent(String fxmlFileName) {
+    public void loadContent(String fxmlFileName) {
         try {
             // Nạp file giao diện con từ thư mục /fxml/
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + fxmlFileName));
@@ -76,6 +82,13 @@ public class MainController {
             e.printStackTrace();
             System.err.println("Lỗi nạp file: " + fxmlFileName);
         }
+    }
+
+    /**
+     * Lấy StackPane contentArea để các controller con có thể sử dụng.
+     */
+    public StackPane getContentArea() {
+        return contentArea;
     }
 
     // =========================================================
@@ -108,7 +121,22 @@ public class MainController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // Xử lý chuyển về màn hình Login
-        System.out.println("Đăng xuất thành công!");
+        try {
+            // Nạp lại màn hình Login
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+            Scene scene = new Scene(root);
+            stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.centerOnScreen();
+            stage.show();
+
+            System.out.println("Đăng xuất thành công!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi khi đăng xuất: " + e.getMessage());
+        }
     }
 }

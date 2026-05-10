@@ -26,56 +26,71 @@ public class LoginController {
         String username = txtUsername.getText();
         String password = txtPassword.getText();
 
-        // 1. Xác thực người dùng và lấy Role (Tạm thời dùng Mock Data)
+        //xac thuc nguoi dung
         String userRole = authenticateUser(username, password);
 
         if (userRole != null) {
-            // 2. Nếu đăng nhập thành công, chuyển sang MainLayout
+            //dnhap tcong -> mainlayout
             loadMainLayout(event, userRole);
         } else {
-            // 3. Nếu sai tài khoản/mật khẩu, hiện thông báo lỗi
+            //dnhap fail -> loi
             showAlert("Đăng nhập thất bại", "Tên đăng nhập hoặc mật khẩu không chính xác!");
         }
     }
 
-    /**
-     * Hàm giả lập (Mock) gọi Server để xác thực.
-     * Sau này bạn sẽ thay bằng logic gọi qua Socket hoặc REST API.
-     */
+    //fake data
     private String authenticateUser(String username, String password) {
-        // Tài khoản mặc định: mật khẩu là "123"
         if ("bidder".equals(username) && "123".equals(password)) return "Bidder";
         if ("seller".equals(username) && "123".equals(password)) return "Seller";
         if ("admin".equals(username) && "123".equals(password)) return "Admin";
 
-        return null; // Trả về null nếu sai
+        return null;
     }
 
-    /**
-     * Nạp MainLayout và chuyển cảnh (Scene Switch)
-     */
+
     private void loadMainLayout(ActionEvent event, String role) {
         try {
-            // Tải file bộ khung chung MainLayout.fxml
+            //load mainlayout
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/MainLayout.fxml"));
             Parent root = loader.load();
 
-            // Lấy MainController để cấu hình Sidebar dựa theo Role
+            //load maincontroller de lay sidebar theo role
             MainController mainController = loader.getController();
             mainController.configureSidebar(role);
 
-            // Lấy Stage (cửa sổ) hiện tại từ nút bấm
+            //lay stage tu button
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             // Tạo Scene mới với MainLayout và thiết lập lên Stage
             Scene scene = new Scene(root);
+            stage.setTitle("Hệ thống Đấu giá trực tuyến - " + role);
             stage.setScene(scene);
+            stage.setResizable(true);
             stage.centerOnScreen(); // Đưa cửa sổ ra giữa màn hình
             stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Lỗi hệ thống", "Không thể tải giao diện Dashboard: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Chuyển sang màn hình đăng ký
+     */
+    @FXML
+    public void handleGoToRegister(ActionEvent event) {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/fxml/Register.fxml"));
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng ký");
+            stage.setScene(scene);
+            stage.centerOnScreen();
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Lỗi hệ thống", "Không thể tải màn hình đăng ký: " + e.getMessage());
         }
     }
 
