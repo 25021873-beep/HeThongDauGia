@@ -38,7 +38,7 @@
     </ImageView>
 
     <!-- Layer 4: Decorative glow circles -->
-    <AnchorPane mouseTransparent="true">
+    <AnchorPane>
         <children>
             <Circle layoutX="680" layoutY="80" opacity="0.06" radius="200" style="-fx-fill: #FCBF49;" />
             <Circle layoutX="50" layoutY="550" opacity="0.05" radius="180" style="-fx-fill: #F57D1F;" />
