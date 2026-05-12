@@ -18,48 +18,45 @@ public class MainController {
     @FXML private Label lblUserInfo;
     @FXML private StackPane contentArea;
 
-    // Các nút trên Sidebar
+    //nut sidebar
     @FXML private Button btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt;
 
     @FXML
     public void initialize() {
-        // 1. Khởi tạo ban đầu: Ẩn tất cả các nút trước khi nhận Role từ màn Login
+        //an tat ca cac nut
         setButtonVisible(btnAuctionList, false);
         setButtonVisible(btnBidHistory, false);
         setButtonVisible(btnProductMgmt, false);
         setButtonVisible(btnUserMgmt, false);
     }
 
-    /**
-     * Hàm này được LoginController gọi để truyền Role sang sau khi đăng nhập thành công.
-     * Cấu hình ẩn/hiện Sidebar và tự động nạp màn hình mặc định.
-     */
+//ham dc goi de truyen role sau khi dang nhap
     public void configureSidebar(String role) {
         lblUserInfo.setText("Xin chào, " + role);
 
-        // 2. Bật các menu tương ứng và nạp màn hình mặc định bằng các hàm chuẩn xác
+        //bat cac menu tuong ung role
         if ("Bidder".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnBidHistory, true);
-            handleShowAuctionList(); // Mặc định mở Danh sách đấu giá cho Bidder
+            handleShowAuctionList(); //mac dinh dsach dau gia cho bidder
 
         } else if ("Seller".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnProductMgmt, true);
-            handleShowProductMgmt(); // Mặc định mở Quản lý sản phẩm cho Seller
+            handleShowProductMgmt(); // mac dinh mh qly spham cho seller
 
         } else if ("Admin".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnUserMgmt, true);
-            handleShowUserMgmt(); // Mặc định mở Quản lý người dùng cho Admin
+            handleShowUserMgmt(); // mac dinh qly user cho admin
         }
     }
 
-    // Hàm tiện ích bật/tắt nút
+    //ham bat/tat nut
     private void setButtonVisible(Button btn, boolean isVisible) {
         if (btn != null) {
             btn.setVisible(isVisible);
-            // Quan trọng: setManaged(false) để Layout tự động thu hồi khoảng trống của nút bị ẩn
+
             btn.setManaged(isVisible);
         }
     }

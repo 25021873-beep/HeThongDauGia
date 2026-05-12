@@ -74,8 +74,11 @@ public class DashboardController {
         productGridPane.getChildren().removeIf(node -> {
             if (node instanceof VBox) {
                 VBox card = (VBox) node;
-                Label nameLabel = (Label) card.getChildren().get(0);
-                return !nameLabel.getText().toLowerCase().contains(lower);
+                // The name label is the second child (index 1), after category badge
+                if (card.getChildren().size() > 1) {
+                    Label nameLabel = (Label) card.getChildren().get(1);
+                    return !nameLabel.getText().toLowerCase().contains(lower);
+                }
             }
             return false;
         });
@@ -85,45 +88,51 @@ public class DashboardController {
     private VBox createProductCard(String name, String description, double currentPrice,
                                     String status, String countdown, String category, String seller) {
         VBox card = new VBox(10);
-        card.setPadding(new Insets(15));
-        card.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 10, 0, 0, 4);");
-        card.setPrefWidth(250);
+        card.setPadding(new Insets(16));
+        card.setStyle("-fx-background-color: #FFFDF9; -fx-background-radius: 12; "
+                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3); "
+                + "-fx-border-color: #E8DDD0; -fx-border-radius: 12; -fx-border-width: 1;");
+        card.setPrefWidth(255);
 
         //badge
         Label lblCategory = new Label(category);
-        lblCategory.setStyle("-fx-background-color: #E8F0FE; -fx-text-fill: #1877F2; -fx-padding: 3 10; -fx-background-radius: 12; -fx-font-size: 11px; -fx-font-weight: bold;");
+        lblCategory.setStyle("-fx-background-color: #1A1A1A; -fx-text-fill: #FCBF49; -fx-padding: 4 12; "
+                + "-fx-background-radius: 12; -fx-font-size: 11px; -fx-font-weight: bold;");
 
         //name
         Label lblName = new Label(name);
         lblName.setFont(Font.font("System", FontWeight.BOLD, 15));
+        lblName.setTextFill(Color.web("#1A1A1A"));
         lblName.setWrapText(true);
         lblName.setMaxHeight(40);
 
         //des
         Label lblDesc = new Label(description);
         lblDesc.setWrapText(true);
-        lblDesc.setTextFill(Color.GRAY);
+        lblDesc.setTextFill(Color.web("#8B7B6E"));
         lblDesc.setMaxHeight(35);
         lblDesc.setStyle("-fx-font-size: 12px;");
 
         //status
         Label lblStatus = new Label(status.equals("RUNNING") ? "🟢 Đang diễn ra" : "🟡 Sắp bắt đầu");
-        lblStatus.setTextFill(status.equals("RUNNING") ? Color.web("#27AE60") : Color.web("#F39C12"));
+        lblStatus.setTextFill(status.equals("RUNNING") ? Color.web("#2E8B57") : Color.web("#F57D1F"));
         lblStatus.setFont(Font.font("System", FontWeight.BOLD, 12));
 
         //current price
         Label lblPrice = new Label(String.format("💰 %,.0f VNĐ", currentPrice));
-        lblPrice.setTextFill(Color.web("#D32F2F"));
+        lblPrice.setTextFill(Color.web("#F57D1F"));
         lblPrice.setFont(Font.font("System", FontWeight.BOLD, 14));
 
         //countdown time
         Label lblTime = new Label("⏱ Còn lại: " + countdown);
-        lblTime.setStyle("-fx-text-fill: #E67E22; -fx-font-weight: bold; -fx-font-size: 12px;");
+        lblTime.setStyle("-fx-text-fill: #FCBF49; -fx-font-weight: bold; -fx-font-size: 12px; "
+                + "-fx-background-color: #1A1A1A; -fx-padding: 3 10; -fx-background-radius: 6;");
 
         //button
         Button btnAction = new Button("🔍 Xem chi tiết / Đấu giá");
         btnAction.setMaxWidth(Double.MAX_VALUE);
-        btnAction.setStyle("-fx-background-color: #1877F2; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8;");
+        btnAction.setStyle("-fx-background-color: linear-gradient(to right, #F57D1F, #FCBF49); "
+                + "-fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8;");
         btnAction.setPadding(new Insets(8, 15, 8, 15));
 
         //bam nut chuyen sang auction detail

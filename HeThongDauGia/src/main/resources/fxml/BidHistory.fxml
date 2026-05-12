@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #F5F0EB;"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controllers.BidHistoryController">
+    <children>
+        <VBox spacing="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <VBox spacing="2.0">
+                    <Label text="🕒 Lịch sử Đấu giá của tôi" textFill="#1A1A1A">
+                        <font>
+                            <Font name="System Bold" size="22.0"/>
+                        </font>
+                    </Label>
+                    <Label text="Xem lại các phiên đấu giá bạn đã tham gia" textFill="#8B7B6E">
+                        <font>
+                            <Font size="13.0"/>
+                        </font>
+                    </Label>
+                </VBox>
+
+                <TableView fx:id="tableBidHistory" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: #FFFDF9; -fx-border-color: #E8DDD0; -fx-background-radius: 10; -fx-border-radius: 10;">
+                    <columns>
+                        <TableColumn fx:id="colProductName" text="Sản phẩm" prefWidth="200.0"/>
+                        <TableColumn fx:id="colBidAmount" text="Giá đấu (VNĐ)" prefWidth="150.0"/>
+                        <TableColumn fx:id="colBidTime" text="Thời gian đấu" prefWidth="170.0"/>
+                        <TableColumn fx:id="colAuctionStatus" text="Trạng thái phiên" prefWidth="120.0"/>
+                        <TableColumn fx:id="colResult" text="Kết quả" prefWidth="120.0"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Chưa có lịch sử đấu giá nào." textFill="#A09080"/>
+                    </placeholder>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

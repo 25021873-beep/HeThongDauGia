@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="650.0" prefWidth="850.0" style="-fx-background-color: #F5F0EB;"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controllers.AuctionDetailController">
+    <children>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent;"
+                    AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+                    AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <content>
+                <VBox spacing="18.0">
+                    <padding>
+                        <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+                    </padding>
+                    <children>
+                        <!-- Back button -->
+                        <Button fx:id="btnBack" onAction="#handleBack" text="⬅ Quay lại danh sách"
+                                style="-fx-background-color: transparent; -fx-text-fill: #F57D1F; -fx-font-weight: bold; -fx-cursor: hand; -fx-font-size: 14px;"/>
+
+                        <!-- Product Info Card -->
+                        <VBox spacing="12.0" style="-fx-background-color: #FFFDF9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3);">
+                            <padding>
+                                <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
+                            </padding>
+                            <children>
+                                <HBox spacing="20.0">
+                                    <children>
+                                        <VBox spacing="8.0" HBox.hgrow="ALWAYS">
+                                            <Label fx:id="lblProductName" text="Tên sản phẩm" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                            <Label fx:id="lblCategory" text="Danh mục: Electronics" style="-fx-text-fill: #8B7B6E; -fx-font-size: 13px;"/>
+                                            <Label fx:id="lblDescription" text="Mô tả sản phẩm..." wrapText="true" style="-fx-text-fill: #555555; -fx-font-size: 14px;"/>
+                                            <Label fx:id="lblSeller" text="Người bán: seller01" style="-fx-text-fill: #8B7B6E; -fx-font-size: 13px;"/>
+                                        </VBox>
+                                        <!-- Countdown Box -->
+                                        <VBox spacing="8.0" alignment="CENTER" minWidth="200.0"
+                                              style="-fx-background-color: #1A1A1A; -fx-background-radius: 12; -fx-padding: 18;">
+                                            <Label fx:id="lblStatus" text="🟢 RUNNING" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2E8B57;"/>
+                                            <Label fx:id="lblCountdown" text="⏱ 00:15:30" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FCBF49;"/>
+                                            <Label text="Thời gian còn lại" style="-fx-text-fill: #888888; -fx-font-size: 12px;"/>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Price + Bid Section -->
+                        <HBox spacing="18.0">
+                            <children>
+                                <!-- Current Price Card -->
+                                <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color: #FFFDF9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3);">
+                                    <padding>
+                                        <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
+                                    </padding>
+                                    <children>
+                                        <Label text="Giá hiện tại" style="-fx-text-fill: #8B7B6E; -fx-font-size: 14px;"/>
+                                        <Label fx:id="lblCurrentPrice" text="0 VNĐ" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #F57D1F;"/>
+                                        <Label fx:id="lblLeader" text="Người dẫn đầu: ---" style="-fx-text-fill: #8B7B6E; -fx-font-size: 13px;"/>
+                                        <Separator style="-fx-padding: 4 0;"/>
+                                        <Label text="Đặt giá của bạn:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                        <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                            <TextField fx:id="txtBidAmount" promptText="Nhập giá đấu (VNĐ)" prefWidth="200.0"
+                                                       style="-fx-font-size: 15px;"/>
+                                            <Button fx:id="btnPlaceBid" onAction="#handlePlaceBid" text="🔨 Đặt giá"
+                                                    style="-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 14px;">
+                                                <padding>
+                                                    <Insets bottom="10.0" left="20.0" right="20.0" top="10.0"/>
+                                                </padding>
+                                            </Button>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+
+                                <!-- Auto-Bid Card -->
+                                <VBox spacing="10.0" minWidth="250.0"
+                                      style="-fx-background-color: #FFFDF9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3);">
+                                    <padding>
+                                        <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
+                                    </padding>
+                                    <children>
+                                        <Label text="🤖 Auto-Bid" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F57D1F;"/>
+                                        <Label text="Giá tối đa:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                        <TextField fx:id="txtMaxBid" promptText="Giá tối đa (VNĐ)"/>
+                                        <Label text="Bước giá:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                        <TextField fx:id="txtIncrement" promptText="Bước nhảy (VNĐ)"/>
+                                        <Button fx:id="btnAutoBid" onAction="#handleAutoBid" text="⚡ Bật Auto-Bid"
+                                                style="-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
+                                                maxWidth="Infinity">
+                                            <padding>
+                                                <Insets bottom="10.0" left="15.0" right="15.0" top="10.0"/>
+                                            </padding>
+                                        </Button>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <!-- Price Chart -->
+                        <VBox style="-fx-background-color: #FFFDF9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3);">
+                            <padding>
+                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                            </padding>
+                            <children>
+                                <LineChart fx:id="priceChart" prefHeight="250.0" title="Biểu đồ giá đấu theo thời gian">
+                                    <xAxis>
+                                        <CategoryAxis label="Thời gian" fx:id="xAxis"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="Giá (VNĐ)" fx:id="yAxis"/>
+                                    </yAxis>
+                                </LineChart>
+                            </children>
+                        </VBox>
+
+                        <!-- Bid History Table -->
+                        <VBox spacing="10.0" style="-fx-background-color: #FFFDF9; -fx-background-radius: 12; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3);">
+                            <padding>
+                                <Insets bottom="18.0" left="18.0" right="18.0" top="18.0"/>
+                            </padding>
+                            <children>
+                                <Label text="📋 Lịch sử đấu giá phiên này" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                <TableView fx:id="tableBids" prefHeight="200.0"
+                                           style="-fx-background-color: #FFFDF9;">
+                                    <columns>
+                                        <TableColumn fx:id="colBidder" text="Người đấu" prefWidth="180.0"/>
+                                        <TableColumn fx:id="colAmount" text="Giá đấu (VNĐ)" prefWidth="180.0"/>
+                                        <TableColumn fx:id="colTime" text="Thời gian" prefWidth="200.0"/>
+                                    </columns>
+                                    <placeholder>
+                                        <Label text="Chưa có lượt đấu giá nào." textFill="#A09080"/>
+                                    </placeholder>
+                                </TableView>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

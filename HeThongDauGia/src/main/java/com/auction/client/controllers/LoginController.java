@@ -75,9 +75,7 @@ public class LoginController {
         }
     }
 
-    /**
-     * Chuyển sang màn hình đăng ký
-     */
+//mhinh dki
     @FXML
     public void handleGoToRegister(ActionEvent event) {
         try {
@@ -94,9 +92,7 @@ public class LoginController {
         }
     }
 
-    /**
-     * Hàm tiện ích để hiển thị thông báo lỗi (Alert Dialog)
-     */
+//hien thi tbao loi
     private void showAlert(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #F5F0EB;"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controllers.UserManagementController">
+    <children>
+        <VBox spacing="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <VBox spacing="2.0">
+                    <Label text="👤 Quản lý Người dùng" textFill="#1A1A1A">
+                        <font>
+                            <Font name="System Bold" size="22.0"/>
+                        </font>
+                    </Label>
+                    <Label text="Quản lý tài khoản và phân quyền người dùng" textFill="#8B7B6E">
+                        <font>
+                            <Font size="13.0"/>
+                        </font>
+                    </Label>
+                </VBox>
+
+                <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: #FFFDF9; -fx-border-color: #E8DDD0; -fx-background-radius: 10; -fx-border-radius: 10;">
+                    <columns>
+                        <TableColumn fx:id="colUsername" text="Tên đăng nhập" prefWidth="150.0"/>
+                        <TableColumn fx:id="colFullName" text="Họ và tên" prefWidth="180.0"/>
+                        <TableColumn fx:id="colEmail" text="Email" prefWidth="200.0"/>
+                        <TableColumn fx:id="colRole" text="Vai trò" prefWidth="100.0"/>
+                        <TableColumn fx:id="colUserStatus" text="Trạng thái" prefWidth="100.0"/>
+                        <TableColumn fx:id="colAction" text="Hành động" prefWidth="120.0"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Chưa có người dùng nào." textFill="#A09080"/>
+                    </placeholder>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
