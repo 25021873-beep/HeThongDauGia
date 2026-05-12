@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #F5F0EB;"
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: transparent;"
             xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controllers.UserManagementController">
     <children>
@@ -16,12 +16,12 @@
             </padding>
             <children>
                 <VBox spacing="2.0">
-                    <Label text="👤 Quản lý Người dùng" textFill="#1A1A1A">
+                    <Label text="👤 Quản lý Người dùng" textFill="#FCBF49">
                         <font>
                             <Font name="System Bold" size="22.0"/>
                         </font>
                     </Label>
-                    <Label text="Quản lý tài khoản và phân quyền người dùng" textFill="#8B7B6E">
+                    <Label text="Quản lý tài khoản và phân quyền người dùng" textFill="#AAAAAA">
                         <font>
                             <Font size="13.0"/>
                         </font>
@@ -29,7 +29,7 @@
                 </VBox>
 
                 <TableView fx:id="tableUsers" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: #FFFDF9; -fx-border-color: #E8DDD0; -fx-background-radius: 10; -fx-border-radius: 10;">
+                           style="-fx-background-color: rgba(30,30,30,0.7); -fx-border-color: rgba(245,125,31,0.15); -fx-background-radius: 10; -fx-border-radius: 10;">
                     <columns>
                         <TableColumn fx:id="colUsername" text="Tên đăng nhập" prefWidth="150.0"/>
                         <TableColumn fx:id="colFullName" text="Họ và tên" prefWidth="180.0"/>

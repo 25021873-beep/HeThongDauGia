@@ -8,6 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -17,9 +18,15 @@ public class MainController {
 
     @FXML private Label lblUserInfo;
     @FXML private StackPane contentArea;
+    @FXML private StackPane rootPane;
+    @FXML private ImageView bgTexture;
+    @FXML private ImageView bgPattern;
 
     //nut sidebar
     @FXML private Button btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt;
+
+    private static final String ACTIVE_STYLE = "-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;";
+    private static final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;";
 
     @FXML
     public void initialize() {
@@ -28,6 +35,14 @@ public class MainController {
         setButtonVisible(btnBidHistory, false);
         setButtonVisible(btnProductMgmt, false);
         setButtonVisible(btnUserMgmt, false);
+
+        //bind background images to window size
+        if (rootPane != null && bgTexture != null && bgPattern != null) {
+            bgTexture.fitWidthProperty().bind(rootPane.widthProperty());
+            bgTexture.fitHeightProperty().bind(rootPane.heightProperty());
+            bgPattern.fitWidthProperty().bind(rootPane.widthProperty());
+            bgPattern.fitHeightProperty().bind(rootPane.heightProperty());
+        }
     }
 
 //ham dc goi de truyen role sau khi dang nhap
@@ -56,8 +71,20 @@ public class MainController {
     private void setButtonVisible(Button btn, boolean isVisible) {
         if (btn != null) {
             btn.setVisible(isVisible);
-
             btn.setManaged(isVisible);
+        }
+    }
+
+    //ham highlight nut dang active
+    private void setActiveButton(Button activeBtn) {
+        Button[] allButtons = {btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt};
+        for (Button btn : allButtons) {
+            if (btn != null) {
+                btn.setStyle(INACTIVE_STYLE);
+            }
+        }
+        if (activeBtn != null) {
+            activeBtn.setStyle(ACTIVE_STYLE);
         }
     }
 
@@ -94,24 +121,28 @@ public class MainController {
 
     @FXML
     private void handleShowAuctionList() {
+        setActiveButton(btnAuctionList);
         // Tải màn hình Dashboard của Bidder
         loadContent("Dashboard.fxml");
     }
 
     @FXML
     private void handleShowBidHistory() {
+        setActiveButton(btnBidHistory);
         // Tải màn hình Lịch sử đấu giá của Bidder
         loadContent("BidHistory.fxml");
     }
 
     @FXML
     private void handleShowProductMgmt() {
+        setActiveButton(btnProductMgmt);
         // Tải màn hình Quản lý sản phẩm của Seller
         loadContent("ProductManagement.fxml");
     }
 
     @FXML
     private void handleShowUserMgmt() {
+        setActiveButton(btnUserMgmt);
         // Tải màn hình Quản lý người dùng của Admin
         loadContent("UserManagement.fxml");
     }
@@ -124,6 +155,7 @@ public class MainController {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
             Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
             stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
             stage.setScene(scene);
             stage.setResizable(false);

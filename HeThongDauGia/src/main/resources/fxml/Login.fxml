@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
@@ -9,142 +11,92 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.shape.Circle?>
-<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="520.0" prefWidth="750.0"
-           xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.auction.client.controllers.LoginController">
+<StackPane prefHeight="520.0" prefWidth="750.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.LoginController">
 
     <!-- Layer 1: Gradient background -->
-    <AnchorPane style="-fx-background-color: linear-gradient(to bottom right, #0D0D0D, #1A1000, #2B1400, #1A0A00, #0D0D0D);">
-    </AnchorPane>
+    <Region style="-fx-background-color: linear-gradient(to bottom right, #0D0D0D, #1A1000, #2B1400, #1A0A00, #0D0D0D);" />
 
-    <!-- Layer 2: Background image with low opacity for texture -->
-    <AnchorPane>
-        <children>
-            <ImageView fitHeight="520.0" fitWidth="750.0" opacity="0.08" pickOnBounds="true"
-                        AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
-                <image>
-                    <Image url="@../images/360_F_203669387_m7IvXlkV0FQwA69Xpt8AwlAdO5Ih05Mc.jpg"/>
-                </image>
-            </ImageView>
-        </children>
-    </AnchorPane>
+    <!-- Layer 2: Background image texture (stretched to fill) -->
+    <ImageView fitHeight="696.0" fitWidth="828.0" mouseTransparent="true" opacity="0.08" pickOnBounds="true" preserveRatio="false">
+        <image>
+            <Image url="@../images/360_F_203669387_m7IvXlkV0FQwA69Xpt8AwlAdO5Ih05Mc.jpg" />
+        </image>
+    </ImageView>
 
-    <!-- Layer 3: Geometric pattern overlay -->
-    <AnchorPane>
-        <children>
-            <ImageView fitHeight="520.0" fitWidth="750.0" opacity="0.04" pickOnBounds="true"
-                        AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0">
-                <image>
-                    <Image url="@../images/pattern.png"/>
-                </image>
-            </ImageView>
-        </children>
-    </AnchorPane>
+    <!-- Layer 3: Geometric pattern overlay (stretched to fill) -->
+    <ImageView fitHeight="699.0" fitWidth="829.0" mouseTransparent="true" opacity="0.04" pickOnBounds="true" preserveRatio="false">
+        <image>
+            <Image url="@../images/pattern.png" />
+        </image>
+    </ImageView>
 
     <!-- Layer 4: Decorative orange glow circles -->
-    <AnchorPane mouseTransparent="true">
-        <children>
-            <!-- Top-right glow -->
-            <Circle radius="180" layoutX="650" layoutY="60" opacity="0.06"
-                    style="-fx-fill: #F57D1F;"/>
-            <!-- Bottom-left glow -->
-            <Circle radius="220" layoutX="80" layoutY="480" opacity="0.05"
-                    style="-fx-fill: #FCBF49;"/>
-            <!-- Center subtle glow -->
-            <Circle radius="120" layoutX="375" layoutY="260" opacity="0.04"
-                    style="-fx-fill: #F57D1F;"/>
-        </children>
-    </AnchorPane>
-
-    <!-- Layer 5: Main content -->
     <AnchorPane>
         <children>
-            <!-- Logo top-left (white) -->
-            <ImageView fitHeight="32.0" fitWidth="130.0" layoutX="24.0" layoutY="20.0" pickOnBounds="true" preserveRatio="true">
-                <image>
-                    <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png"/>
-                </image>
-                <effect>
-                    <ColorAdjust brightness="1.0"/>
-                </effect>
-            </ImageView>
-
-            <!-- Login Card -->
-            <VBox alignment="CENTER" layoutX="200.0" layoutY="60.0" prefWidth="350.0" spacing="12.0"
-                  style="-fx-background-color: rgba(30,30,30,0.75); -fx-background-radius: 20; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 20; -fx-border-width: 1; -fx-effect: dropshadow(three-pass-box, rgba(245,125,31,0.08), 30, 0, 0, 0);">
-                <padding>
-                    <Insets top="30" bottom="30" left="40" right="40"/>
-                </padding>
-                <children>
-                    <!-- Title -->
-                    <Label alignment="CENTER" text="ĐĂNG NHẬP" textFill="#FCBF49">
-                        <font>
-                            <Font name="Calibri Bold" size="28.0"/>
+            <Circle layoutX="650" layoutY="60" opacity="0.06" radius="180" style="-fx-fill: #F57D1F;" />
+            <Circle layoutX="80" layoutY="480" opacity="0.05" radius="220" style="-fx-fill: #FCBF49;" />
+            <Circle layoutX="375" layoutY="260" opacity="0.04" radius="120" style="-fx-fill: #F57D1F;" />
+      
+          <!-- Layer 5: Centered Login Card -->
+            <VBox alignment="TOP_CENTER" layoutX="216.0" layoutY="79.0" pickOnBounds="false" prefHeight="547.0" prefWidth="406.0" spacing="12.0" style="-fx-background-color: rgba(30,30,30,0.75); -fx-background-radius: 16; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 16; -fx-border-width: 1;">
+                    <padding>
+                        <Insets bottom="25" left="35" right="35" top="25" />
+                    </padding>
+                    <children>
+                        <ImageView fitHeight="122.0" fitWidth="321.0" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png" />
+                            </image>
+                            <effect>
+                                <ColorAdjust brightness="1.0" />
+                            </effect>
+                        </ImageView>
+                        <Label alignment="CENTER" text="ĐĂNG NHẬP" textFill="#FCBF49">
+                            <font>
+                           <Font name="Calibri Bold" size="37.0" />
                         </font>
-                    </Label>
-
-                    <!-- Subtitle -->
-                    <Label alignment="CENTER" text="Chào mừng bạn trở lại" textFill="#888888">
-                        <font>
-                            <Font name="Calibri" size="13.0"/>
+                        </Label>
+            
+                              <Region maxWidth="182.0" prefHeight="2.0" prefWidth="182.0" style="-fx-background-color: linear-gradient(to right, #F57D1F, #FCBF49); -fx-background-radius: 1;" />
+            
+                              <Region prefHeight="4.0" prefWidth="334.0" />
+            
+                              <TextField id="txtUsername" fx:id="txtUsername" prefHeight="40.0" promptText="Tên đăng nhập" style="-fx-background-color: rgba(255,255,255,0.07); -fx-text-fill: white; -fx-prompt-text-fill: #777777; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 1; -fx-padding: 8 14;">
+                            <font>
+                           <Font name="Calibri" size="14.0" />
                         </font>
-                    </Label>
-
-                    <!-- Orange accent line -->
-                    <Region prefHeight="2.0" prefWidth="60.0" maxWidth="60.0"
-                            style="-fx-background-color: linear-gradient(to right, #F57D1F, #FCBF49); -fx-background-radius: 1;">
-                    </Region>
-
-                    <Region prefHeight="6.0"/>
-
-                    <!-- Username -->
-                    <TextField id="txtUsername" fx:id="txtUsername" promptText="Tên đăng nhập"
-                               prefHeight="42.0"
-                               style="-fx-background-color: rgba(255,255,255,0.07); -fx-text-fill: white; -fx-prompt-text-fill: #777777; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 1; -fx-padding: 10 16;">
-                        <font>
-                            <Font name="Calibri" size="14.0"/>
+                        </TextField>
+            
+                              <PasswordField fx:id="txtPassword" prefHeight="40.0" promptText="Mật khẩu" style="-fx-background-color: rgba(255,255,255,0.07); -fx-text-fill: white; -fx-prompt-text-fill: #777777; -fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 1; -fx-padding: 8 14;">
+                            <font>
+                           <Font name="Calibri" size="14.0" />
                         </font>
-                    </TextField>
-
-                    <!-- Password -->
-                    <PasswordField fx:id="txtPassword" promptText="Mật khẩu"
-                                   prefHeight="42.0"
-                                   style="-fx-background-color: rgba(255,255,255,0.07); -fx-text-fill: white; -fx-prompt-text-fill: #777777; -fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: rgba(255,255,255,0.12); -fx-border-width: 1; -fx-padding: 10 16;">
-                        <font>
-                            <Font name="Calibri" size="14.0"/>
+                        </PasswordField>
+            
+                              <Region prefHeight="2.0" />
+            
+                              <Button fx:id="btnLogin" maxWidth="Infinity" onAction="#handleLogin" prefHeight="38.0" style="-fx-background-color: linear-gradient(to right, #F57D1F, #FCBF49); -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Đăng nhập">
+                            <font>
+                           <Font name="Calibri Bold" size="16.0" />
                         </font>
-                    </PasswordField>
-
-                    <Region prefHeight="4.0"/>
-
-                    <!-- Login Button -->
-                    <Button fx:id="btnLogin" onAction="#handleLogin" prefHeight="42.0" maxWidth="Infinity"
-                            style="-fx-background-color: linear-gradient(to right, #F57D1F, #FCBF49); -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 10; -fx-cursor: hand;"
-                            text="Đăng nhập">
-                        <font>
-                            <Font name="Calibri Bold" size="16.0"/>
+                        </Button>
+            
+                              <Hyperlink fx:id="linkRegister" onAction="#handleGoToRegister" text="Chưa có tài khoản? Đăng ký ngay" textFill="#F57D1F">
+                            <font>
+                           <Font name="Calibri" size="13.0" />
                         </font>
-                    </Button>
-
-                    <Region prefHeight="2.0"/>
-
-                    <!-- Register link -->
-                    <Hyperlink fx:id="linkRegister" onAction="#handleGoToRegister"
-                               text="Chưa có tài khoản? Đăng ký ngay" textFill="#F57D1F">
-                        <font>
-                            <Font name="Calibri" size="13.0"/>
-                        </font>
-                    </Hyperlink>
-                </children>
-            </VBox>
+                        </Hyperlink>
+                    </children>
+                  <cursor>
+                     <Cursor fx:constant="MOVE" />
+                  </cursor>
+                </VBox>
         </children>
     </AnchorPane>
 </StackPane>

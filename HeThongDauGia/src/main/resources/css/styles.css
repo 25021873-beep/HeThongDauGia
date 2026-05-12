@@ -1,35 +1,20 @@
 /* ============================================
    HỆ THỐNG ĐẤU GIÁ TRỰC TUYẾN - Global Styles
-   Orange / Yellow / Black Theme
+   Dark Theme: Orange / Yellow / Black
    ============================================ */
-
-/* --- Color Palette ---
-   Primary Orange:   #F57D1F
-   Amber Gold:       #FCBF49
-   Deep Black:       #1A1A1A
-   Dark Charcoal:    #2D2D2D
-   Soft Black:       #333333
-   Off-White BG:     #F5F0EB
-   Warm White Card:  #FFFDF9
-   Light Cream:      #FFF8EE
-   Warm Border:      #E8DDD0
-   Warm Gray Text:   #6B5B4F
-   Success Green:    #2E8B57
-   Danger Red:       #C0392B
-*/
 
 /* === ROOT / GENERAL === */
 .root {
     -fx-font-family: "Segoe UI", "Calibri", sans-serif;
     -fx-font-size: 14px;
-    -fx-background-color: #F5F0EB;
+    -fx-background-color: transparent;
 }
 
 /* === LABELS === */
 .label-title {
     -fx-font-size: 24px;
     -fx-font-weight: bold;
-    -fx-text-fill: #1A1A1A;
+    -fx-text-fill: #FCBF49;
 }
 
 .label-subtitle {
@@ -55,7 +40,7 @@
 }
 
 .label-countdown {
-    -fx-text-fill: #F57D1F;
+    -fx-text-fill: #FCBF49;
     -fx-font-weight: bold;
     -fx-font-size: 16px;
 }
@@ -143,32 +128,32 @@
 .text-field,
 .password-field,
 .text-area {
-    -fx-background-color: #FFFDF9;
+    -fx-background-color: rgba(255,255,255,0.07);
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #E8DDD0;
-    -fx-border-width: 1.5;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1;
     -fx-padding: 10 14;
     -fx-font-size: 14px;
-    -fx-text-fill: #1A1A1A;
-    -fx-prompt-text-fill: #A09080;
+    -fx-text-fill: #EEEEEE;
+    -fx-prompt-text-fill: #777777;
 }
 
 .text-field:focused,
 .password-field:focused,
 .text-area:focused {
     -fx-border-color: #F57D1F;
-    -fx-border-width: 2;
+    -fx-border-width: 1.5;
     -fx-effect: dropshadow(three-pass-box, rgba(245, 125, 31, 0.2), 6, 0, 0, 0);
 }
 
 /* === COMBO BOX === */
 .combo-box {
-    -fx-background-color: #FFFDF9;
+    -fx-background-color: rgba(255,255,255,0.07);
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-border-color: #E8DDD0;
-    -fx-border-width: 1.5;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1;
     -fx-padding: 4 8;
 }
 
@@ -178,19 +163,19 @@
 
 /* === TABLE VIEW === */
 .table-view {
-    -fx-background-color: #FFFDF9;
-    -fx-border-color: #E8DDD0;
+    -fx-background-color: rgba(30,30,30,0.7);
+    -fx-border-color: rgba(245,125,31,0.15);
     -fx-border-radius: 10;
     -fx-background-radius: 10;
 }
 
 .table-view .column-header-background {
-    -fx-background-color: #1A1A1A;
+    -fx-background-color: rgba(20,20,20,0.9);
 }
 
 .table-view .column-header {
-    -fx-background-color: #1A1A1A;
-    -fx-border-color: #333333;
+    -fx-background-color: rgba(20,20,20,0.9);
+    -fx-border-color: rgba(255,255,255,0.08);
 }
 
 .table-view .column-header .label {
@@ -200,56 +185,103 @@
 }
 
 .table-row-cell {
-    -fx-border-color: transparent transparent #F0E8DD transparent;
-    -fx-background-color: #FFFDF9;
+    -fx-border-color: transparent transparent rgba(255,255,255,0.05) transparent;
+    -fx-background-color: rgba(30,30,30,0.5);
+    -fx-text-fill: #DDDDDD;
+}
+
+.table-row-cell .text {
+    -fx-fill: #DDDDDD;
 }
 
 .table-row-cell:odd {
-    -fx-background-color: #FFF8EE;
+    -fx-background-color: rgba(40,40,40,0.5);
 }
 
 .table-row-cell:selected {
-    -fx-background-color: rgba(245, 125, 31, 0.15);
+    -fx-background-color: rgba(245, 125, 31, 0.2);
 }
 
 .table-row-cell:hover {
-    -fx-background-color: rgba(252, 191, 73, 0.12);
+    -fx-background-color: rgba(252, 191, 73, 0.1);
 }
 
 /* === CARDS === */
 .card {
-    -fx-background-color: #FFFDF9;
+    -fx-background-color: rgba(30,30,30,0.75);
     -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.06), 8, 0, 0, 3);
+    -fx-border-color: rgba(245,125,31,0.15);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
     -fx-padding: 18;
 }
 
 .card:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(245, 125, 31, 0.15), 12, 0, 0, 5);
+    -fx-border-color: rgba(245,125,31,0.3);
 }
 
 /* === SCROLL PANE === */
 .scroll-pane {
+    -fx-background: transparent;
     -fx-background-color: transparent;
 }
 
-.scroll-pane>.viewport {
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .corner {
     -fx-background-color: transparent;
 }
 
 /* === CHART === */
 .chart {
-    -fx-background-color: #FFFDF9;
+    -fx-background-color: transparent;
 }
 
 .chart-plot-background {
-    -fx-background-color: #FFF8EE;
+    -fx-background-color: rgba(30,30,30,0.3);
+}
+
+.chart-content {
+    -fx-background-color: transparent;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
 }
 
 .chart-title {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: #1A1A1A;
+    -fx-text-fill: #FCBF49;
+}
+
+.axis {
+    -fx-tick-label-fill: #AAAAAA;
+}
+
+.axis-label {
+    -fx-text-fill: #AAAAAA;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255,255,255,0.08);
+}
+
+.chart-alternative-row-fill {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+}
+
+/* === TABLE VIEW internals === */
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .virtual-flow .clipped-container .sheet .cell {
+    -fx-text-fill: #DDDDDD;
 }
 
 /* === HYPERLINK === */
@@ -260,17 +292,17 @@
 }
 
 .hyperlink:hover {
-    -fx-text-fill: #E06A10;
+    -fx-text-fill: #FCBF49;
 }
 
 /* === SEPARATOR === */
 .separator .line {
-    -fx-border-color: #E8DDD0;
+    -fx-border-color: rgba(255,255,255,0.1);
 }
 
 /* === TITLED PANE === */
 .titled-pane > .title {
-    -fx-background-color: #1A1A1A;
+    -fx-background-color: rgba(20,20,20,0.9);
     -fx-background-radius: 8 8 0 0;
 }
 
@@ -280,7 +312,7 @@
 }
 
 .titled-pane > .content {
-    -fx-background-color: #FFFDF9;
-    -fx-border-color: #E8DDD0;
+    -fx-background-color: rgba(30,30,30,0.7);
+    -fx-border-color: rgba(245,125,31,0.15);
     -fx-border-radius: 0 0 8 8;
 }

@@ -16,6 +16,7 @@ public class Main extends Application {
 
         // Nhét bộ khung giao diện vào Scene
         Scene scene = new Scene(root);
+        scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
 
         primaryStage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
         primaryStage.setScene(scene);

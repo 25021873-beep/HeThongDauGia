@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.Rectangle2D?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.effect.ColorAdjust?>
@@ -11,99 +12,119 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="768.0" prefWidth="1366.0" style="-fx-background-color: #F5F0EB;" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.MainController">
+<StackPane fx:id="rootPane" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.MainController">
 
-    <!-- TOP HEADER BAR -->
-    <top>
-        <HBox alignment="CENTER_LEFT" prefHeight="56.0" style="-fx-background-color: #1A1A1A; -fx-padding: 0 24 0 20;" BorderPane.alignment="CENTER">
-            <children>
-                <!-- Logo (white) on top-left -->
-                <ImageView fitHeight="36.0" fitWidth="140.0" pickOnBounds="true" preserveRatio="true">
-                    <image>
-                        <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png"/>
-                    </image>
-                    <effect>
-                        <ColorAdjust brightness="1.0"/>
-                    </effect>
-                </ImageView>
+    <!-- Layer 1: Gradient background -->
+    <Region style="-fx-background-color: linear-gradient(to bottom right, #0D0D0D, #1A1000, #2B1400, #1A0A00, #0D0D0D);"/>
 
-                <Region HBox.hgrow="ALWAYS" />
+    <!-- Layer 2: Background image texture -->
+    <ImageView fx:id="bgTexture" fitHeight="768.0" fitWidth="1366.0" opacity="0.06" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
+        <image>
+            <Image url="@../images/360_F_203669387_m7IvXlkV0FQwA69Xpt8AwlAdO5Ih05Mc.jpg"/>
+        </image>
+    </ImageView>
 
-                <Label fx:id="lblUserInfo" text="Xin chào, User" textFill="#CCCCCC">
-                    <font>
-                        <Font size="14.0" />
-                    </font>
-                    <HBox.margin>
-                        <Insets right="16.0" />
-                    </HBox.margin>
-                </Label>
-                <Button mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;" text="Đăng xuất">
-                    <padding>
-                        <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
-                    </padding>
-                </Button>
-            </children>
-        </HBox>
-    </top>
+    <!-- Layer 3: Geometric pattern overlay -->
+    <ImageView fx:id="bgPattern" fitHeight="768.0" fitWidth="1366.0" opacity="0.03" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
+        <image>
+            <Image url="@../images/pattern.png"/>
+        </image>
+    </ImageView>
 
-    <!-- LEFT SIDEBAR -->
-    <left>
-        <VBox prefWidth="250.0" spacing="4.0" style="-fx-background-color: #2D2D2D; -fx-padding: 20 12 20 12;" BorderPane.alignment="CENTER">
-            <children>
-                <!-- Sidebar Section Label -->
-                <Label text="MENU CHÍNH" textFill="#888888" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 0 8 6;">
-                </Label>
+    <!-- Layer 4: Decorative glow circles -->
+    <Region mouseTransparent="true"/>
 
-                <Button fx:id="btnAuctionList" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowAuctionList" style="-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="🏠  Trang chủ / Danh sách">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
+    <!-- Layer 5: Main layout -->
+    <BorderPane>
 
-                <Button fx:id="btnBidHistory" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowBidHistory" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🕒  Lịch sử Đấu giá">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
+        <!-- TOP HEADER BAR -->
+        <top>
+            <HBox alignment="CENTER_LEFT" prefHeight="56.0" style="-fx-background-color: rgba(26,26,26,0.85); -fx-border-color: rgba(245,125,31,0.1); -fx-border-width: 0 0 1 0; -fx-padding: 0 24 0 20;" BorderPane.alignment="CENTER">
+                <children>
+                    <!-- Gavel icon cropped from logo (white) -->
+                    <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                            <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png"/>
+                        </image>
+                        <viewport>
+                            <Rectangle2D minX="1300" minY="80" width="748" height="900"/>
+                        </viewport>
+                        <effect>
+                            <ColorAdjust brightness="1.0"/>
+                        </effect>
+                    </ImageView>
+                    <Label text="HỆ THỐNG ĐẤU GIÁ" textFill="white">
+                        <font>
+                            <Font name="System Bold" size="18.0"/>
+                        </font>
+                        <HBox.margin>
+                            <Insets left="8.0"/>
+                        </HBox.margin>
+                    </Label>
 
-                <Button fx:id="btnProductMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowProductMgmt" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="📦  Quản lý Sản phẩm">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
+                    <Region HBox.hgrow="ALWAYS" />
 
-                <Button fx:id="btnUserMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowUserMgmt" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="👤  Quản lý Người dùng">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
+                    <Label fx:id="lblUserInfo" text="Xin chào, User" textFill="#CCCCCC">
+                        <font>
+                            <Font size="14.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets right="16.0" />
+                        </HBox.margin>
+                    </Label>
+                    <Button mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6; -fx-cursor: hand;" text="Đăng xuất">
+                        <padding>
+                            <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
+                        </padding>
+                    </Button>
+                </children>
+            </HBox>
+        </top>
 
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🔔  Thông báo">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
+        <!-- LEFT SIDEBAR -->
+        <left>
+            <VBox prefWidth="250.0" spacing="4.0" style="-fx-background-color: rgba(30,30,30,0.8); -fx-border-color: rgba(245,125,31,0.08); -fx-border-width: 0 1 0 0; -fx-padding: 20 12 20 12;" BorderPane.alignment="CENTER">
+                <children>
+                    <Label text="MENU CHÍNH" textFill="#888888" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 0 8 6;"/>
 
-                <Region VBox.vgrow="ALWAYS" />
+                    <Button fx:id="btnAuctionList" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowAuctionList" style="-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="🏠  Trang chủ / Danh sách">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
 
-                <!-- Bottom section label -->
-                <Label text="TÀI KHOẢN" textFill="#888888" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 0 4 6;">
-                </Label>
+                    <Button fx:id="btnBidHistory" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowBidHistory" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🕒  Lịch sử Đấu giá">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
 
-                <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: transparent; -fx-text-fill: #FF6B6B; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🚪  Đăng xuất">
-                    <padding>
-                        <Insets bottom="12.0" left="14.0" right="14.0" top="12.0" />
-                    </padding>
-                </Button>
-            </children>
-        </VBox>
-    </left>
+                    <Button fx:id="btnProductMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowProductMgmt" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="📦  Quản lý Sản phẩm">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
 
-    <!-- CENTER CONTENT -->
-    <center>
-        <StackPane fx:id="contentArea" style="-fx-background-color: #F5F0EB;" BorderPane.alignment="CENTER" />
-    </center>
+                    <Button fx:id="btnUserMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowUserMgmt" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="👤  Quản lý Người dùng">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
 
-</BorderPane>
+                    <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🔔  Thông báo">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
+
+                    <Region VBox.vgrow="ALWAYS" />
+
+                    <Label text="TÀI KHOẢN" textFill="#888888" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-padding: 0 0 4 6;"/>
+
+                    <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: transparent; -fx-text-fill: #FF6B6B; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🚪  Đăng xuất">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
+                </children>
+            </VBox>
+        </left>
+
+        <!-- CENTER CONTENT -->
+        <center>
+            <StackPane fx:id="contentArea" style="-fx-background-color: transparent;" BorderPane.alignment="CENTER" />
+        </center>
+
+    </BorderPane>
+</StackPane>

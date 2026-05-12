@@ -80,6 +80,7 @@ public class RegisterController {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
             stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
             stage.setScene(scene);
             stage.show();

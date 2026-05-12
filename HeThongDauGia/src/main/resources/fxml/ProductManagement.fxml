@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #F5F0EB;"
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: transparent;"
             xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.auction.client.controllers.ProductManagementController">
     <children>
@@ -19,12 +19,12 @@
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
                         <VBox spacing="2.0">
-                            <Label text="📦 Quản lý Sản phẩm" textFill="#1A1A1A">
+                            <Label text="📦 Quản lý Sản phẩm" textFill="#FCBF49">
                                 <font>
                                     <Font name="System Bold" size="22.0"/>
                                 </font>
                             </Label>
-                            <Label text="Thêm và quản lý sản phẩm đấu giá của bạn" textFill="#8B7B6E">
+                            <Label text="Thêm và quản lý sản phẩm đấu giá của bạn" textFill="#AAAAAA">
                                 <font>
                                     <Font size="13.0"/>
                                 </font>
@@ -42,7 +42,7 @@
 
                 <!-- Product Table -->
                 <TableView fx:id="tableProducts" VBox.vgrow="ALWAYS"
-                           style="-fx-background-color: #FFFDF9; -fx-border-color: #E8DDD0; -fx-background-radius: 10; -fx-border-radius: 10;">
+                           style="-fx-background-color: rgba(30,30,30,0.7); -fx-border-color: rgba(245,125,31,0.15); -fx-background-radius: 10; -fx-border-radius: 10;">
                     <columns>
                         <TableColumn fx:id="colName" text="Tên sản phẩm" prefWidth="180.0"/>
                         <TableColumn fx:id="colCategory" text="Danh mục" prefWidth="100.0"/>
@@ -58,7 +58,7 @@
 
                 <!-- Add/Edit Form -->
                 <TitledPane fx:id="formPane" text="Thông tin sản phẩm" expanded="false"
-                            style="-fx-background-color: #FFFDF9;">
+                            style="-fx-background-color: rgba(30,30,30,0.7);">
                     <content>
                         <VBox spacing="12.0">
                             <padding>
@@ -68,28 +68,28 @@
                                 <HBox spacing="15.0">
                                     <children>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="Tên sản phẩm:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                            <Label text="Tên sản phẩm:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                             <TextField fx:id="txtProductName" promptText="Nhập tên sản phẩm"/>
                                         </VBox>
                                         <VBox spacing="5.0">
-                                            <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                            <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                             <ComboBox fx:id="cboCategory" promptText="Chọn danh mục" prefWidth="150.0"/>
                                         </VBox>
                                     </children>
                                 </HBox>
                                 <VBox spacing="5.0">
-                                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                     <TextArea fx:id="txtDescription" promptText="Nhập mô tả sản phẩm"
                                               prefRowCount="3" wrapText="true"/>
                                 </VBox>
                                 <HBox spacing="15.0">
                                     <children>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="Giá khởi điểm (VNĐ):" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                            <Label text="Giá khởi điểm (VNĐ):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                             <TextField fx:id="txtStartPrice" promptText="Ví dụ: 1000000"/>
                                         </VBox>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="Thời gian đấu giá (phút):" style="-fx-font-weight: bold; -fx-text-fill: #1A1A1A;"/>
+                                            <Label text="Thời gian đấu giá (phút):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                             <TextField fx:id="txtDuration" promptText="Ví dụ: 30"/>
                                         </VBox>
                                     </children>

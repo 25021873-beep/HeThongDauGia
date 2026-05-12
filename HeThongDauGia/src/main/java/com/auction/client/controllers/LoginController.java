@@ -63,6 +63,7 @@ public class LoginController {
 
             // Tạo Scene mới với MainLayout và thiết lập lên Stage
             Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
             stage.setTitle("Hệ thống Đấu giá trực tuyến - " + role);
             stage.setScene(scene);
             stage.setResizable(true);
@@ -82,6 +83,7 @@ public class LoginController {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Register.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);
+            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
             stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng ký");
             stage.setScene(scene);
             stage.centerOnScreen();

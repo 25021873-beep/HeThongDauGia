@@ -4,6 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
@@ -11,44 +12,37 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: #F5F0EB;"
-            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="com.auction.client.controllers.DashboardController">
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: transparent;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.DashboardController">
     <children>
-        <VBox spacing="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox spacing="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <padding>
-                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0" />
             </padding>
             <children>
                 <!-- Header Row -->
                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                     <children>
                         <VBox spacing="2.0">
-                            <Label text="Phiên đấu giá đang mở" textFill="#1A1A1A">
+                            <Label text="Phiên đấu giá đang mở" textFill="#FCBF49">
                                 <font>
-                                    <Font name="System Bold" size="22.0"/>
+                                    <Font name="System Bold" size="22.0" />
                                 </font>
                             </Label>
-                            <Label text="Khám phá và tham gia đấu giá ngay" textFill="#8B7B6E">
+                            <Label text="Khám phá và tham gia đấu giá ngay" textFill="#AAAAAA">
                                 <font>
-                                    <Font size="13.0"/>
+                                    <Font size="13.0" />
                                 </font>
                             </Label>
                         </VBox>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <TextField fx:id="txtSearch" promptText="🔍 Tìm kiếm sản phẩm..."
-                                   prefHeight="38.0" prefWidth="260.0"
-                                   style="-fx-background-color: #FFFDF9; -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: #E8DDD0; -fx-border-width: 1.5; -fx-padding: 6 18; -fx-prompt-text-fill: #A09080;"/>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <TextField fx:id="txtSearch" prefHeight="38.0" prefWidth="260.0" promptText="🔍 Tìm kiếm sản phẩm..." style="-fx-background-color: rgba(255,255,255,0.08); -fx-background-radius: 20; -fx-border-radius: 20; -fx-border-color: rgba(255,255,255,0.15); -fx-border-width: 1; -fx-padding: 6 18; -fx-prompt-text-fill: #888888; -fx-text-fill: white;" />
                     </children>
                 </HBox>
 
                 <!-- Product Grid -->
-                <ScrollPane fitToWidth="true"
-                            style="-fx-background-color: transparent; -fx-control-inner-background: transparent;"
-                            VBox.vgrow="ALWAYS">
+                <ScrollPane fitToWidth="true" style="-fx-background: transparent; -fx-background-color: transparent;" VBox.vgrow="ALWAYS">
                     <content>
-                        <FlowPane fx:id="productGridPane" hgap="20.0" vgap="20.0"/>
+                        <FlowPane fx:id="productGridPane" hgap="20.0" vgap="20.0" style="-fx-background-color: transparent;" />
                     </content>
                 </ScrollPane>
             </children>

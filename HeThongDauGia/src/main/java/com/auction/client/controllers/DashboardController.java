@@ -89,9 +89,8 @@ public class DashboardController {
                                     String status, String countdown, String category, String seller) {
         VBox card = new VBox(10);
         card.setPadding(new Insets(16));
-        card.setStyle("-fx-background-color: #FFFDF9; -fx-background-radius: 12; "
-                + "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.06), 8, 0, 0, 3); "
-                + "-fx-border-color: #E8DDD0; -fx-border-radius: 12; -fx-border-width: 1;");
+        card.setStyle("-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; "
+                + "-fx-border-color: rgba(245,125,31,0.12); -fx-border-radius: 12; -fx-border-width: 1;");
         card.setPrefWidth(255);
 
         //badge
@@ -102,14 +101,14 @@ public class DashboardController {
         //name
         Label lblName = new Label(name);
         lblName.setFont(Font.font("System", FontWeight.BOLD, 15));
-        lblName.setTextFill(Color.web("#1A1A1A"));
+        lblName.setTextFill(Color.web("#FFFFFF"));
         lblName.setWrapText(true);
         lblName.setMaxHeight(40);
 
         //des
         Label lblDesc = new Label(description);
         lblDesc.setWrapText(true);
-        lblDesc.setTextFill(Color.web("#8B7B6E"));
+        lblDesc.setTextFill(Color.web("#AAAAAA"));
         lblDesc.setMaxHeight(35);
         lblDesc.setStyle("-fx-font-size: 12px;");
 
