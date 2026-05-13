@@ -1,13 +1,11 @@
 package org.example.service;
 
-import org.example.AuctionEngine;
 import org.example.dao.*;
 import org.example.dao.item.ItemDAO;
 import org.example.dao.user.UserDAO;
 import org.example.entity.Auction;
 import org.example.entity.BidTransaction;
 import org.example.entity.item.Item;
-import org.example.entity.Auction.*;
 import org.example.entity.user.User;
 import org.example.utils.DatabaseConnection;
 

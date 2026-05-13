@@ -1,6 +1,6 @@
 package org.example.network;
 
-import org.example.AuctionEngine;
+import org.example.service.AuctionEngine;
 import org.example.entity.Auction;
 import org.example.entity.user.User;
 import org.example.service.AuctionService;

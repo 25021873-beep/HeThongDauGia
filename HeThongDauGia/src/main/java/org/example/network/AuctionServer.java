@@ -1,7 +1,7 @@
 package org.example.network;
 
 
-import org.example.AuctionEngine;
+import org.example.service.AuctionEngine;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,12 +19,8 @@ public class AuctionServer {
 
     public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
-            System.out.println("[SERVER] Đã mở cổng " + port + ". Đang chờ kết nối...");
-
-            // Vòng lặp chính tiếp nhận kết nối từ Client
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                System.out.println("[SERVER] Có kết nối mới từ IP: " + clientSocket.getInetAddress().getHostAddress());
 
                 ClientHandler handler = new ClientHandler(clientSocket, engine);
                 new Thread(handler).start();
