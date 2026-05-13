@@ -18,6 +18,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Xử lý kết nối từng client.
+ * Nhận lệnh dạng JSON 1 dòng, trả về JSON 1 dòng.
+ *
+ * Lệnh client gửi lên vẫn giữ pipe-delimited để đơn giản:
+ *   "LOGIN|username|password"
+ *   "BID|auctionId|amount"
+ * Response server trả về là JSON:
+ *   {"status":"SUCCESS","message":"...","userId":5,...}
+ */
 public class ClientHandler implements Runnable {
 
     private final Socket         clientSocket;
@@ -35,14 +45,11 @@ public class ClientHandler implements Runnable {
         this.auctionService = new AuctionService();
     }
 
-    // ── Gửi response ──────────────────────────────────────────────────────────
+    // ── Gửi response JSON xuống client ────────────────────────────────────────
 
+    /** Gửi BaseResponse (serialize() → JSON 1 dòng) */
     public void send(BaseResponse response) {
         if (out != null) out.println(response.serialize());
-    }
-
-    public void sendMessage(String message) {
-        if (out != null) out.println(message);
     }
 
     // ── Vòng lặp chính ────────────────────────────────────────────────────────
@@ -55,9 +62,9 @@ public class ClientHandler implements Runnable {
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             send(SimpleResponse.success("Ket noi Server thanh cong"));
 
-            String clientMessage;
-            while ((clientMessage = in.readLine()) != null) {
-                String[] parts = clientMessage.split("\\|");
+            String line;
+            while ((line = in.readLine()) != null) {
+                String[] parts = line.split("\\|");
                 if (parts.length == 0) continue;
 
                 String command = parts[0].trim().toUpperCase();
@@ -89,7 +96,6 @@ public class ClientHandler implements Runnable {
             send(SimpleResponse.error("Sai cu phap: LOGIN|username|password"));
             return;
         }
-        // Chặn đăng nhập kép trong cùng session
         if (currentUser != null) {
             send(SimpleResponse.error("Ban da dang nhap roi. Hay LOGOUT truoc."));
             return;
@@ -119,7 +125,6 @@ public class ClientHandler implements Runnable {
 
         boolean success = userService.register(request);
         if (success) {
-            // BUG FIX: dùng getUserByUsername() thay vì gọi login() 2 lần
             User newUser = userService.getUserByUsername(request.getUsername());
             if (newUser != null) {
                 send(new RegisterResponse(newUser.getId(), newUser.getUsername(), newUser.getRole()));
@@ -175,10 +180,12 @@ public class ClientHandler implements Runnable {
 
         boolean success = auctionService.placeBid(currentUser.getId(), auctionId, amount);
         if (success) {
-            LocalDateTime bidTime = LocalDateTime.now();
-            send(new BidResponse(auctionId, currentUser.getUsername(), amount, bidTime));
+            // Phản hồi riêng cho người đặt
+            send(new BidResponse(auctionId, currentUser.getUsername(), amount, LocalDateTime.now()));
 
-            BidUpdateResponse update = new BidUpdateResponse(auctionId, currentUser.getUsername(), amount);
+            // Broadcast UPDATE tới tất cả viewer trong phòng
+            BidUpdateResponse update = new BidUpdateResponse(
+                    auctionId, currentUser.getUsername(), amount);
             for (ClientHandler viewer : auction.getViewers()) {
                 viewer.send(update);
             }
@@ -188,12 +195,12 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleGetAllAuctions() {
-        List<Auction> activeAuctions = engine.getActiveAuctions();
-        if (activeAuctions.isEmpty()) {
+        List<Auction> active = engine.getActiveAuctions();
+        if (active.isEmpty()) {
             send(SimpleResponse.info("Hien khong co phien dau gia nao"));
             return;
         }
-        List<AuctionSummary> summaries = activeAuctions.stream()
+        List<AuctionSummary> summaries = active.stream()
                 .map(a -> new AuctionSummary(a.getId(), a.getName(), a.getCurrentPrice(), a.getStatus()))
                 .collect(Collectors.toList());
         send(new AuctionListResponse(summaries));
@@ -273,7 +280,7 @@ public class ClientHandler implements Runnable {
             auction.removeViewer(this);
         }
         try {
-            if (out != null)   out.close();
+            if (out != null) out.close();
             if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
         } catch (IOException e) {
             System.err.println("[NETWORK] Loi khi dong ket noi: " + e.getMessage());

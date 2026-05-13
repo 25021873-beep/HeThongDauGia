@@ -5,24 +5,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Response trả về sau lệnh BID thành công (chỉ gửi riêng cho người đặt giá).
- * Thông báo multicast cho các viewer dùng BidUpdateResponse riêng.
+ * Gửi riêng cho người vừa đặt giá thành công.
  *
- * Serialize format:
- *   "SUCCESS|Dat gia thanh cong|<auctionId>|<bidderUsername>|<amount>|<bidTime>"
- *
- * Ví dụ:
- *   "SUCCESS|Dat gia thanh cong|3|alice|6000000|2025-12-01T19:45:30"
+ * JSON output:
+ * {"status":"SUCCESS","message":"Dat gia thanh cong",
+ *  "auctionId":3,"bidderUsername":"alice","amount":6000000,
+ *  "bidTime":"2025-12-01T19:45:30"}
  */
 public class BidResponse extends BaseResponse {
 
-    private static final DateTimeFormatter FORMATTER =
+    private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private final int           auctionId;
-    private final String        bidderUsername;
-    private final BigDecimal    amount;
-    private final LocalDateTime bidTime;
+    private final int        auctionId;
+    private final String     bidderUsername;
+    private final BigDecimal amount;
+    private final String     bidTime;
 
     public BidResponse(int auctionId, String bidderUsername,
                        BigDecimal amount, LocalDateTime bidTime) {
@@ -30,25 +28,11 @@ public class BidResponse extends BaseResponse {
         this.auctionId      = auctionId;
         this.bidderUsername = bidderUsername;
         this.amount         = amount;
-        this.bidTime        = bidTime;
+        this.bidTime        = bidTime != null ? bidTime.format(FMT) : null;
     }
 
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    public int           getAuctionId()      { return auctionId; }
-    public String        getBidderUsername() { return bidderUsername; }
-    public BigDecimal    getAmount()         { return amount; }
-    public LocalDateTime getBidTime()        { return bidTime; }
-
-    // ── Serialize ─────────────────────────────────────────────────────────────
-
-    @Override
-    public String serialize() {
-        return STATUS_SUCCESS    + DELIMITER
-                + getMessage()   + DELIMITER
-                + auctionId      + DELIMITER
-                + bidderUsername + DELIMITER
-                + amount         + DELIMITER
-                + (bidTime != null ? bidTime.format(FORMATTER) : "N/A");
-    }
+    public int        getAuctionId()      { return auctionId; }
+    public String     getBidderUsername() { return bidderUsername; }
+    public BigDecimal getAmount()         { return amount; }
+    public String     getBidTime()        { return bidTime; }
 }

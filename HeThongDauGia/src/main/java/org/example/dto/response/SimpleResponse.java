@@ -1,20 +1,17 @@
 package org.example.dto.response;
 
 /**
- * Response đơn giản chỉ có status + message.
- * Dùng cho: ERROR, INFO, LOGOUT, CHANGE_PASSWORD, TOP_UP.
+ * Response đơn giản không có data field.
+ * Dùng cho: ERROR, INFO, LOGOUT, thông báo chung.
  *
- * Ví dụ serialize:
- *   "ERROR|Sai ten dang nhap hoac mat khau"
- *   "SUCCESS|Dang xuat thanh cong"
+ * JSON output:
+ * {"status":"ERROR","message":"Ban chua dang nhap"}
  */
 public class SimpleResponse extends BaseResponse {
 
     public SimpleResponse(String status, String message) {
         super(status, message);
     }
-
-    // ── Static factories tiện dụng ───────────────────────────────────────────
 
     public static SimpleResponse success(String message) {
         return new SimpleResponse(STATUS_SUCCESS, message);
@@ -27,6 +24,4 @@ public class SimpleResponse extends BaseResponse {
     public static SimpleResponse info(String message) {
         return new SimpleResponse(STATUS_INFO, message);
     }
-
-    // serialize() dùng mặc định của BaseResponse: "STATUS|message"
 }

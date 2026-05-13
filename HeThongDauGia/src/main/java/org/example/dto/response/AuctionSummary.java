@@ -3,14 +3,11 @@ package org.example.dto.response;
 import java.math.BigDecimal;
 
 /**
- * Đại diện thông tin tóm tắt của MỘT phiên đấu giá trong danh sách.
- * Được dùng bên trong AuctionListResponse.
+ * Thông tin tóm tắt 1 phiên đấu giá - dùng trong AuctionListResponse.
+ * Không extends BaseResponse vì đây là data object thuần túy.
  *
- * Serialize 1 item (dùng dấu ':' phân cách field nội bộ):
- *   "<id>:<name>:<currentPrice>:<status>"
- *
- * Ví dụ:
- *   "3:Tranh Son Dau:5000000:ACTIVE"
+ * JSON của 1 item (nằm trong mảng "auctions"):
+ * {"id":3,"name":"Tranh Son Dau","currentPrice":5000000,"status":"RUNNING"}
  */
 public class AuctionSummary {
 
@@ -30,9 +27,4 @@ public class AuctionSummary {
     public String     getName()         { return name; }
     public BigDecimal getCurrentPrice() { return currentPrice; }
     public String     getStatus()       { return status; }
-
-    /** Serialize 1 item, dùng ':' làm field separator (không xung đột với '|' của protocol) */
-    public String serialize() {
-        return id + ":" + name + ":" + currentPrice + ":" + status;
-    }
 }

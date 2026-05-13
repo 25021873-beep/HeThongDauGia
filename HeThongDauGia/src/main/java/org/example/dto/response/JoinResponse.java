@@ -5,54 +5,35 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Response trả về sau lệnh JOIN thành công.
- * Gửi đầy đủ thông tin phòng đấu giá để client hiển thị.
- *
- * Serialize format:
- *   "SUCCESS|Vao phong thanh cong|<auctionId>|<auctionName>|<currentPrice>|<endTime>|<status>"
- *
- * Ví dụ:
- *   "SUCCESS|Vao phong thanh cong|3|Tranh Son Dau|5000000|2025-12-01T20:00:00|ACTIVE"
+ * JSON output:
+ * {"status":"SUCCESS","message":"Vao phong thanh cong",
+ *  "auctionId":3,"auctionName":"Tranh Son Dau",
+ *  "currentPrice":5000000,"endTime":"2025-12-01T20:00:00","auctionStatus":"RUNNING"}
  */
 public class JoinResponse extends BaseResponse {
 
-    private static final DateTimeFormatter FORMATTER =
+    private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private final int           auctionId;
-    private final String        auctionName;
-    private final BigDecimal    currentPrice;
-    private final LocalDateTime endTime;
-    private final String        status;
+    private final int        auctionId;
+    private final String     auctionName;
+    private final BigDecimal currentPrice;
+    private final String     endTime;      // String để Gson serialize gọn
+    private final String     auctionStatus;
 
     public JoinResponse(int auctionId, String auctionName,
-                        BigDecimal currentPrice, LocalDateTime endTime, String status) {
+                        BigDecimal currentPrice, LocalDateTime endTime, String auctionStatus) {
         super(STATUS_SUCCESS, "Vao phong thanh cong");
-        this.auctionId    = auctionId;
-        this.auctionName  = auctionName;
-        this.currentPrice = currentPrice;
-        this.endTime      = endTime;
-        this.status       = status;
+        this.auctionId     = auctionId;
+        this.auctionName   = auctionName;
+        this.currentPrice  = currentPrice;
+        this.endTime       = endTime != null ? endTime.format(FMT) : null;
+        this.auctionStatus = auctionStatus;
     }
 
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    public int           getAuctionId()   { return auctionId; }
-    public String        getAuctionName() { return auctionName; }
-    public BigDecimal    getCurrentPrice(){ return currentPrice; }
-    public LocalDateTime getEndTime()     { return endTime; }
-    public String        getStatus()      { return status; }
-
-    // ── Serialize ─────────────────────────────────────────────────────────────
-
-    @Override
-    public String serialize() {
-        return STATUS_SUCCESS  + DELIMITER
-                + getMessage() + DELIMITER
-                + auctionId    + DELIMITER
-                + auctionName  + DELIMITER
-                + currentPrice + DELIMITER
-                + (endTime != null ? endTime.format(FORMATTER) : "N/A") + DELIMITER
-                + status;
-    }
+    public int        getAuctionId()    { return auctionId; }
+    public String     getAuctionName()  { return auctionName; }
+    public BigDecimal getCurrentPrice() { return currentPrice; }
+    public String     getEndTime()      { return endTime; }
+    public String     getAuctionStatus(){ return auctionStatus; }
 }
