@@ -11,7 +11,7 @@ public class Vehicle extends Item {
         return engineType;
     }
 
-    public void setEngineType(String engine_type) {
+    public void setEngineType(String engineType) {
         this.engineType = engineType;
     }
 }

@@ -1,4 +1,4 @@
-package org.example.dto;
+package org.example.dto.request;
 
 public class ChangePasswordRequest {
     private String username;

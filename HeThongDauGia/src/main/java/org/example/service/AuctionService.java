@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
+
 public class AuctionService {
 
     private AuctionDAO auctionDAO = new AuctionDAO();
@@ -22,8 +23,12 @@ public class AuctionService {
     private UserDAO userDAO = new UserDAO();
     private AuctionEngine engine;
 
+    public void setEngine(AuctionEngine engine) {
+        this.engine = engine;
+    }
 
-    // Hàm đưa Item lên sàn và tạo phiên đấu giá
+    // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
+
     public boolean openAuction(int itemId, LocalDateTime endTime) {
         Item item = itemDAO.getItemById(itemId);
         if (item == null || !item.getStatus().equals("AVAILABLE")) {
@@ -31,7 +36,6 @@ public class AuctionService {
             return false;
         }
 
-        // Tạo đối tượng Auction
         Auction newAuction = new Auction();
         newAuction.setItemId(itemId);
         newAuction.setStartTime(LocalDateTime.now());
@@ -39,79 +43,94 @@ public class AuctionService {
         newAuction.setCurrentPrice(item.getStartingPrice());
         newAuction.setStatus("RUNNING");
 
-        if (auctionDAO.createAuction(newAuction)) {
-            itemDAO.updateItemStatus(itemId, "IN_AUCTION");
-            if (this.engine != null) {
-                this.engine.addAuction(newAuction);
-            } else {
-                System.err.println("Lỗi: Quên chưa tiêm (inject) AuctionEngine vào AuctionService!");
-            }
-            return true;
+        if (!auctionDAO.createAuction(newAuction)) {
+            return false;
         }
-        return false;
+
+        itemDAO.updateItemStatus(itemId, "IN_AUCTION");
+
+        if (this.engine != null) {
+            this.engine.addAuction(newAuction);
+        } else {
+            System.err.println("[AUCTION] Canh bao: AuctionEngine chua duoc inject!");
+        }
+        return true;
     }
 
-    // Hàm đặt giá
+    // ── Đặt giá ───────────────────────────────────────────────────────────────
+
     public boolean placeBid(int bidderId, int auctionId, BigDecimal bidAmount) {
         Connection conn = null;
-
         try {
+            // Lấy 1 connection riêng cho toàn bộ transaction này
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // I. KIỂM TRA ĐIỀU KIỆN
+            // I. KIỂM TRA ĐIỀU KIỆN ─────────────────────────────────────────
+
             Auction auction = auctionDAO.getAuctionById(auctionId);
-            if (auction == null || !auction.getStatus().equals("RUNNING")) {
-                throw new RuntimeException("Phiên đấu giá đã kết thúc hoặc không tồn tại.");
+            if (auction == null || !"RUNNING".equals(auction.getStatus())) {
+                throw new RuntimeException("Phien dau gia da ket thuc hoac khong ton tai.");
             }
             if (auction.getEndTime().isBefore(LocalDateTime.now())) {
-                throw new RuntimeException("Hết giờ rồi, m không được phép đặt nữa!");
+                throw new RuntimeException("Het gio! Khong the dat gia them.");
             }
             if (bidAmount.compareTo(auction.getCurrentPrice()) <= 0) {
-                throw new RuntimeException("Tiền mỏng thế? Phải trả cao hơn giá hiện tại!");
+                throw new RuntimeException("Gia dat phai cao hon gia hien tai: " + auction.getCurrentPrice());
             }
 
+            // BUG FIX 3: kiểm tra null trước khi dùng bidder
             User bidder = userDAO.getUserById(bidderId);
-            if (bidder.getBalance().compareTo(bidAmount) < 0) {
-                throw new RuntimeException("Ví không đủ tiền! Đi nạp thêm đi đại gia.");
+            if (bidder == null) {
+                throw new RuntimeException("Khong tim thay nguoi dung ID: " + bidderId);
             }
 
-            // II. XỬ LÝ TIỀN NONG
+            BigDecimal bidderBalance = bidder.getBalance() != null ? bidder.getBalance() : BigDecimal.ZERO;
+            if (bidderBalance.compareTo(bidAmount) < 0) {
+                throw new RuntimeException("Vi khong du tien! Can: " + bidAmount + " | Co: " + bidderBalance);
+            }
 
-            // 1. Trừ tiền thằng mới bấm đặt giá
-            BigDecimal newBalance = bidder.getBalance().subtract(bidAmount);
+            // II. XỬ LÝ TIỀN NONG ───────────────────────────────────────────
+
+            // 1. Trừ tiền người đặt mới
+            BigDecimal newBalance = bidderBalance.subtract(bidAmount);
             userDAO.updateBalance(conn, bidderId, newBalance);
 
-            // 2. Hoàn cọc cho highest bidder cũ
+            // 2. Hoàn cọc cho người đặt cao nhất cũ
             BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
             if (highestBid != null) {
                 User oldBidder = userDAO.getUserById(highestBid.getBidderId());
-                BigDecimal refundedBalance = oldBidder.getBalance().add(highestBid.getBidPrice());
-                userDAO.updateBalance(conn, oldBidder.getId(), refundedBalance);
+                if (oldBidder != null) {
+                    BigDecimal oldBalance = oldBidder.getBalance() != null
+                            ? oldBidder.getBalance() : BigDecimal.ZERO;
+                    BigDecimal refunded = oldBalance.add(highestBid.getBidPrice());
+                    userDAO.updateBalance(conn, oldBidder.getId(), refunded);
+                }
             }
 
-            // 3. Cập nhật lại giá cao nhất của phiên
+            // 3. Cập nhật giá hiện tại của phiên
             auctionDAO.updateCurrentPrice(conn, auctionId, bidAmount);
 
-            // 4. Ghi lại lịch sử giao dịch (Audit Log)
-            BidTransaction newTransaction = new BidTransaction();
-            newTransaction.setAuctionId(auctionId);
-            newTransaction.setBidderId(bidderId);
-            newTransaction.setBidPrice(bidAmount);
-            newTransaction.setBidTime(LocalDateTime.now());
-            bidDAO.addBid(conn, newTransaction);
+            // 4. Ghi lịch sử giao dịch
+            BidTransaction newTx = new BidTransaction();
+            newTx.setAuctionId(auctionId);
+            newTx.setBidderId(bidderId);
+            newTx.setBidPrice(bidAmount);
+            newTx.setBidTime(LocalDateTime.now());
+            bidDAO.addBid(conn, newTx);
 
-            // III. CHỐT GIAO DỊCH
+            // III. COMMIT ────────────────────────────────────────────────────
             conn.commit();
             return true;
 
         } catch (Exception e) {
+            System.err.println("[BID] Loi: " + e.getMessage());
             if (conn != null) {
                 try {
                     conn.rollback();
-                    System.err.println("Đã Rollback an toàn dữ liệu vì lỗi: " + e.getMessage());
+                    System.err.println("[BID] Da rollback giao dich.");
                 } catch (SQLException ex) {
-                    ex.printStackTrace();
+                    System.err.println("[BID] Rollback that bai: " + ex.getMessage());
                 }
             }
             return false;
@@ -121,27 +140,28 @@ public class AuctionService {
                     conn.setAutoCommit(true);
                     conn.close();
                 } catch (SQLException e) {
-                    e.printStackTrace();
+                    System.err.println("[BID] Khong dong duoc connection: " + e.getMessage());
                 }
             }
         }
     }
 
-    // Hàm chốt/đóng phiên đấu giá (Dành cho AuctionEngine gọi)
+    // ── Đóng phiên đấu giá ───────────────────────────────────────────────────
+
     public boolean closeAuction(int auctionId) {
         Auction auction = auctionDAO.getAuctionById(auctionId);
-        if (auction == null || !auction.getStatus().equals("RUNNING")) return false;
+        if (auction == null || !"RUNNING".equals(auction.getStatus())) return false;
 
         BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
 
         if (highestBid != null) {
             auctionDAO.closeAuction(auctionId, highestBid.getBidderId());
             itemDAO.updateItemStatus(auction.getItemId(), "SOLD");
-            return true;
         } else {
+            // Không ai đặt giá → hủy phiên, trả hàng về AVAILABLE
             auctionDAO.updateAuctionStatus("CANCELED", auctionId);
             itemDAO.updateItemStatus(auction.getItemId(), "AVAILABLE");
-            return true;
         }
+        return true;
     }
 }
