@@ -11,9 +11,92 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.function.Consumer;
 
 public class LoginController {
+
+
+    public class SocketClient {
+
+        private static final String HOST = "172.16.66.216";
+        private static final int PORT = 9999;
+
+        private Socket socket;
+        private PrintWriter out;
+        private BufferedReader in;
+        private Consumer<String> onMessageReceived;
+
+        public void setOnMessageReceived(Consumer<String> callback) {
+            this.onMessageReceived = callback;
+        }
+
+        public void connect() throws IOException {
+            socket = new Socket(HOST, PORT);
+            out = new PrintWriter(socket.getOutputStream(), true);
+            in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("[CLIENT] Đã kết nối server cổng " + PORT);
+
+            Thread listener = new Thread(this::listenFromServer);
+            listener.setDaemon(true);
+            listener.start();
+        }
+
+        private void listenFromServer() {
+            try {
+                String raw;
+                while ((raw = in.readLine()) != null) {
+                    System.out.println("[CLIENT] Nhận: " + raw);
+                    if (onMessageReceived != null) {
+                        final String msg = raw;
+                        onMessageReceived.accept(msg);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("[CLIENT] Mất kết nối server");
+            }
+        }
+
+        private void sendRaw(String text) {
+            if (out != null) {
+                out.println(text);
+                System.out.println("[CLIENT] Gửi: " + text);
+            }
+        }
+
+        // Gửi đúng format Backend yêu cầu
+        public void login(String username, String password) {
+            sendRaw("LOGIN|" + username + "|" + password);
+        }
+
+        public void joinAuction(String auctionId) {
+            sendRaw("JOIN|" + auctionId);
+        }
+
+        public void placeBid(String auctionId, double amount) {
+            sendRaw("BID|" + auctionId + "|" + amount);
+        }
+
+        public void getAllAuctions() {
+            sendRaw("GET_ALL_AUCTIONS");
+        }
+
+        public void logout() {
+            sendRaw("LOGOUT");
+        }
+
+        public void disconnect() {
+            try {
+                if (socket != null) socket.close();
+            } catch (IOException ignored) {}
+        }
+    }
+
+    private SocketClient socketClient = new SocketClient();
 
     @FXML
     private TextField txtUsername;
@@ -26,7 +109,23 @@ public class LoginController {
         String username = txtUsername.getText();
         String password = txtPassword.getText();
 
-        //xac thuc nguoi dung
+        try {
+            socketClient.connect();
+            socketClient.login(username, password);
+            
+            // Lắng nghe phản hồi từ server (nếu cần)
+            socketClient.setOnMessageReceived(message -> {
+                System.out.println("Server trả về: " + message);
+                // Xử lý logic khi server phản hồi (ví dụ: đăng nhập thành công hay thất bại)
+            });
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
+            // Có thể return ở đây nếu muốn bắt buộc phải có mạng để đăng nhập
+        }
+
+        //xac thuc nguoi dung (tạm thời vẫn dùng fake data của bạn)
         String userRole = authenticateUser(username, password);
 
         if (userRole != null) {

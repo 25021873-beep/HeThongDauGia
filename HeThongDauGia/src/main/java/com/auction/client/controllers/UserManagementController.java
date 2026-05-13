@@ -75,12 +75,15 @@ public class UserManagementController {
 
     private void loadMockUsers() {
         userData = FXCollections.observableArrayList(
-                new String[]{"bidder", "Nguyễn Văn An", "an.nguyen@email.com", "Bidder", "Hoạt động"},
-                new String[]{"bidder02", "Trần Thị Bình", "binh.tran@email.com", "Bidder", "Hoạt động"},
-                new String[]{"seller", "Lê Hoàng Cường", "cuong.le@email.com", "Seller", "Hoạt động"},
-                new String[]{"seller02", "Phạm Minh Đức", "duc.pham@email.com", "Seller", "Bị khóa"},
-                new String[]{"bidder03", "Vũ Thanh Hà", "ha.vu@email.com", "Bidder", "Hoạt động"},
-                new String[]{"seller03", "Đỗ Quang Khải", "khai.do@email.com", "Seller", "Hoạt động"}
+                new String[]{"bidder", "Phùng Thanh Độ", "dochet1989@email.com", "Bidder", "Hoạt động"},
+                new String[]{"bidder02", "Ngô Đức Minh", "minhngu67@email.com", "Bidder", "Hoạt động"},
+                new String[]{"seller", "Đỗ Tuấn Dương", "cuongduong69@email.com", "Seller", "Hoạt động"},
+                new String[]{"seller02", "Đỗ Trọng Nghĩa", "nghiatinh@email.com", "Seller", "Bị khóa"},
+                new String[]{"bidder03", "Hoàng Thị Hà Linh", "hhloz@email.com", "Bidder", "Hoạt động"},
+                new String[]{"seller03", "Bùi Phương Linh", "120yenlang1@email.com", "Seller", "Hoạt động"},
+                new String[]{"seller04", "Phạm Minh Ngọc", "vinhomesoceanpark@email.com", "Seller", "Hoạt động"},
+                new String[]{"bidder03", "Trần Viết Anh", "hadong@email.com", "Seller", "Hoạt động"},
+                new String[]{"bidder05", "Dương Quỳnh Nga", "ngatuvong@email.com", "Seller", "Hoạt động"}
         );
         tableUsers.setItems(userData);
     }
