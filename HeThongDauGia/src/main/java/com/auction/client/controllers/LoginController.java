@@ -11,9 +11,17 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.function.Consumer;
+import com.auction.client.SocketClient;
 
 public class LoginController {
+
+    private SocketClient socketClient = SocketClient.getInstance();
 
     @FXML
     private TextField txtUsername;
@@ -26,7 +34,23 @@ public class LoginController {
         String username = txtUsername.getText();
         String password = txtPassword.getText();
 
-        //xac thuc nguoi dung
+        try {
+            socketClient.connect();
+            socketClient.login(username, password);
+            
+            // Lắng nghe phản hồi từ server (nếu cần)
+            socketClient.setOnMessageReceived(message -> {
+                System.out.println("Server trả về: " + message);
+                // Xử lý logic khi server phản hồi (ví dụ: đăng nhập thành công hay thất bại)
+            });
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
+            // Có thể return ở đây nếu muốn bắt buộc phải có mạng để đăng nhập
+        }
+
+        //xac thuc nguoi dung (tạm thời vẫn dùng fake data của bạn)
         String userRole = authenticateUser(username, password);
 
         if (userRole != null) {

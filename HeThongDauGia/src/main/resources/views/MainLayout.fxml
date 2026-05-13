@@ -106,9 +106,7 @@
                         <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
                     </Button>
 
-                    <Button alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="🔔  Thông báo">
-                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
-                    </Button>
+
 
                     <Region VBox.vgrow="ALWAYS" />
 
