@@ -2,7 +2,7 @@ package org.example.dto.request;
 
 import java.math.BigDecimal;
 
-public class TopUpRequest {
+public class TopUpRequest extends BaseRequest {
     private int userId;
     private BigDecimal amount;
 
@@ -21,6 +21,6 @@ public class TopUpRequest {
 
     @Override
     public String toString() {
-        return "TopUpRequest{userId=" + userId + ", amount=" + amount + "}";
+        return "TopUpRequest{userId=" + userId + ", amount=" + amount + ", command='" + getCommand() + "'}";
     }
 }

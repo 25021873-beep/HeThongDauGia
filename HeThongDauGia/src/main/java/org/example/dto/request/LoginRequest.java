@@ -1,6 +1,6 @@
 package org.example.dto.request;
 
-public class LoginRequest {
+public class LoginRequest extends BaseRequest {
     private String username;
     private String password;
 
@@ -19,6 +19,6 @@ public class LoginRequest {
 
     @Override
     public String toString() {
-        return "LoginRequest{username='" + username + "'}";
+        return "LoginRequest{username='" + username + "', command='" + getCommand() + "'}";
     }
 }

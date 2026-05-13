@@ -1,6 +1,6 @@
 package org.example.dto.request;
 
-public class JoinRequest {
+public class JoinRequest extends BaseRequest {
     private int auctionId;
 
     public JoinRequest() {}
@@ -14,6 +14,6 @@ public class JoinRequest {
 
     @Override
     public String toString() {
-        return "JoinRequest{auctionId=" + auctionId + "}";
+        return "JoinRequest{auctionId=" + auctionId + ", command='" + getCommand() + "'}";
     }
 }
