@@ -5,24 +5,21 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Response trả về sau lệnh CREATE_AUCTION thành công.
- *
- * Serialize format:
- *   "SUCCESS|Tao phien dau gia thanh cong|<auctionId>|<itemName>|<startingPrice>|<startTime>|<endTime>"
- *
- * Ví dụ:
- *   "SUCCESS|Tao phien dau gia thanh cong|5|iPhone 15|20000000|2025-12-01T18:00:00|2025-12-01T20:00:00"
+ * JSON output:
+ * {"status":"SUCCESS","message":"Tao phien dau gia thanh cong",
+ *  "auctionId":5,"itemName":"iPhone 15","startingPrice":20000000,
+ *  "startTime":"2025-12-01T18:00:00","endTime":"2025-12-01T20:00:00"}
  */
 public class CreateAuctionResponse extends BaseResponse {
 
-    private static final DateTimeFormatter FORMATTER =
+    private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
-    private final int           auctionId;
-    private final String        itemName;
-    private final BigDecimal    startingPrice;
-    private final LocalDateTime startTime;
-    private final LocalDateTime endTime;
+    private final int        auctionId;
+    private final String     itemName;
+    private final BigDecimal startingPrice;
+    private final String     startTime;
+    private final String     endTime;
 
     public CreateAuctionResponse(int auctionId, String itemName,
                                  BigDecimal startingPrice,
@@ -31,28 +28,13 @@ public class CreateAuctionResponse extends BaseResponse {
         this.auctionId     = auctionId;
         this.itemName      = itemName;
         this.startingPrice = startingPrice;
-        this.startTime     = startTime;
-        this.endTime       = endTime;
+        this.startTime     = startTime != null ? startTime.format(FMT) : null;
+        this.endTime       = endTime   != null ? endTime.format(FMT)   : null;
     }
 
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    public int           getAuctionId()     { return auctionId; }
-    public String        getItemName()      { return itemName; }
-    public BigDecimal    getStartingPrice() { return startingPrice; }
-    public LocalDateTime getStartTime()     { return startTime; }
-    public LocalDateTime getEndTime()       { return endTime; }
-
-    // ── Serialize ─────────────────────────────────────────────────────────────
-
-    @Override
-    public String serialize() {
-        return STATUS_SUCCESS  + DELIMITER
-                + getMessage() + DELIMITER
-                + auctionId    + DELIMITER
-                + itemName     + DELIMITER
-                + startingPrice + DELIMITER
-                + (startTime != null ? startTime.format(FORMATTER) : "N/A") + DELIMITER
-                + (endTime   != null ? endTime.format(FORMATTER)   : "N/A");
-    }
+    public int        getAuctionId()     { return auctionId; }
+    public String     getItemName()      { return itemName; }
+    public BigDecimal getStartingPrice() { return startingPrice; }
+    public String     getStartTime()     { return startTime; }
+    public String     getEndTime()       { return endTime; }
 }

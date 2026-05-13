@@ -1,12 +1,14 @@
 package org.example.network;
 
+import com.google.gson.*;
 import org.example.service.AuctionEngine;
-import org.example.dto.request.RegisterRequest;
+import org.example.dto.request.*;
 import org.example.dto.response.*;
 import org.example.entity.Auction;
 import org.example.entity.user.User;
 import org.example.service.AuctionService;
 import org.example.service.UserService;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +16,7 @@ import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.net.Socket;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,6 +29,7 @@ public class ClientHandler implements Runnable {
 
     private PrintWriter out;
     private User currentUser;
+    private final Gson gson;
 
     public ClientHandler(Socket socket, AuctionEngine engine,
                          UserService userService, AuctionService auctionService) {
@@ -33,47 +37,58 @@ public class ClientHandler implements Runnable {
         this.engine = engine;
         this.userService = userService;
         this.auctionService = auctionService;
+
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, (JsonDeserializer<LocalDateTime>)
+                        (json, type, context) -> LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .create();
     }
-
-
-    // ── Gửi response ──────────────────────────────────────────────────────────
 
     public void send(BaseResponse response) {
-        if (out != null) out.println(response.serialize());
-    }
-
-    public void sendMessage(String message) {
-        if (out != null) out.println(message);
+        if (out != null) {
+            out.println(gson.toJson(response)); // Tự động convert Response thành JSON
+        }
     }
 
     // ── Vòng lặp chính ────────────────────────────────────────────────────────
 
     @Override
     public void run() {
-        try (BufferedReader in = new BufferedReader(
-                new InputStreamReader(clientSocket.getInputStream()))) {
-
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
             out = new PrintWriter(clientSocket.getOutputStream(), true);
             send(SimpleResponse.success("Ket noi Server thanh cong"));
 
-            String clientMessage;
-            while ((clientMessage = in.readLine()) != null) {
-                String[] parts = clientMessage.split("\\|");
-                if (parts.length == 0) continue;
+            String line;
+            while ((line = in.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
 
-                String command = parts[0].trim().toUpperCase();
-                switch (command) {
-                    case "LOGIN":            handleLogin(parts);          break;
-                    case "REGISTER":         handleRegister(parts);       break;
-                    case "GET_ALL_AUCTIONS": handleGetAllAuctions();      break;
-                    case "JOIN":             handleJoin(parts);           break;
-                    case "BID":              handleBid(parts);            break;
-                    case "CHANGE_PASSWORD":  handleChangePassword(parts); break;
-                    case "TOP_UP":           handleTopUp(parts);          break;
-                    case "LOGOUT":           handleLogout(); return;
-                    default:
-                        send(SimpleResponse.error("Lenh khong hop le: " + command));
-                        break;
+                try {
+                    // 1. Chuyển chuỗi nhận được thành JsonObject để đọc command
+                    JsonObject jsonObject = JsonParser.parseString(line).getAsJsonObject();
+
+                    if (!jsonObject.has("command")) {
+                        send(SimpleResponse.error("JSON thieu truong 'command'"));
+                        continue;
+                    }
+
+                    String command = jsonObject.get("command").getAsString().trim().toUpperCase();
+
+                    // 2. Điều hướng xử lý theo command
+                    switch (command) {
+                        case "LOGIN":            handleLogin(jsonObject);          break;
+                        case "REGISTER":         handleRegister(jsonObject);       break;
+                        case "GET_ALL_AUCTIONS": handleGetAllAuctions();           break;
+                        case "JOIN":             handleJoin(jsonObject);           break;
+                        case "BID":              handleBid(jsonObject);            break;
+                        case "CHANGE_PASSWORD":  handleChangePassword(jsonObject); break;
+                        case "TOP_UP":           handleTopUp(jsonObject);          break;
+                        case "LOGOUT":           handleLogout();                   return;
+                        default:
+                            send(SimpleResponse.error("Lenh khong hop le: " + command));
+                            break;
+                    }
+                } catch (JsonSyntaxException | IllegalStateException e) {
+                    send(SimpleResponse.error("Dinh dang JSON khong hop le: " + line));
                 }
             }
         } catch (IOException e) {
@@ -85,9 +100,11 @@ public class ClientHandler implements Runnable {
 
     // ── Handlers ──────────────────────────────────────────────────────────────
 
-    private void handleLogin(String[] parts) {
-        if (parts.length < 3) {
-            send(SimpleResponse.error("Sai cu phap: LOGIN|username|password"));
+    private void handleLogin(JsonObject json) {
+        LoginRequest req = gson.fromJson(json, LoginRequest.class);
+
+        if (req.getUsername() == null || req.getPassword() == null) {
+            send(SimpleResponse.error("Thieu username hoac password"));
             return;
         }
         // Chặn đăng nhập kép trong cùng session
@@ -95,118 +112,88 @@ public class ClientHandler implements Runnable {
             send(SimpleResponse.error("Ban da dang nhap roi. Hay LOGOUT truoc."));
             return;
         }
-        this.currentUser = userService.login(parts[1], parts[2]);
+
+        this.currentUser = userService.login(req.getUsername(), req.getPassword());
         if (currentUser != null) {
-            send(new LoginResponse(
-                    currentUser.getId(),
-                    currentUser.getUsername(),
-                    currentUser.getRole(),
-                    currentUser.getBalance()
-            ));
+            send(new LoginResponse(currentUser.getId(), currentUser.getUsername(), currentUser.getRole(), currentUser.getBalance()));
         } else {
             send(SimpleResponse.error("Sai ten dang nhap hoac mat khau"));
         }
     }
 
-    private void handleRegister(String[] parts) {
-        if (parts.length < 3) {
-            send(SimpleResponse.error("Sai cu phap: REGISTER|username|password[|role]"));
+    private void handleRegister(JsonObject json) {
+        RegisterRequest req = gson.fromJson(json, RegisterRequest.class);
+
+        if (req.getUsername() == null || req.getPassword() == null) {
+            send(SimpleResponse.error("Thieu thong tin dang ky"));
             return;
         }
-        RegisterRequest request = new RegisterRequest();
-        request.setUsername(parts[1]);
-        request.setPassword(parts[2]);
-        request.setRole(parts.length >= 4 ? parts[3] : "BIDDER");
+        if (req.getRole() == null) req.setRole("BIDDER");
 
-        boolean success = userService.register(request);
+        boolean success = userService.register(req);
         if (success) {
-            // BUG FIX: dùng getUserByUsername() thay vì gọi login() 2 lần
-            User newUser = userService.getUserByUsername(request.getUsername());
-            if (newUser != null) {
-                send(new RegisterResponse(newUser.getId(), newUser.getUsername(), newUser.getRole()));
-            } else {
-                send(SimpleResponse.success("Dang ky thanh cong. Vui long dang nhap."));
-            }
+            User newUser = userService.getUserByUsername(req.getUsername());
+            send(new RegisterResponse(newUser.getId(), newUser.getUsername(), newUser.getRole()));
         } else {
             send(SimpleResponse.error("Ten dang nhap da ton tai"));
         }
     }
 
-    private void handleJoin(String[] parts) {
+    private void handleJoin(JsonObject json) {
         if (!requireLogin()) return;
-        if (parts.length < 2) {
-            send(SimpleResponse.error("Sai cu phap: JOIN|auctionId"));
-            return;
-        }
-        int auctionId = parseIntOrError(parts[1], "ID phien");
-        if (auctionId < 0) return;
+        JoinRequest req = gson.fromJson(json, JoinRequest.class);
 
-        Auction auction = engine.findActiveAuctionById(auctionId);
+        Auction auction = engine.findActiveAuctionById(req.getAuctionId());
         if (auction != null) {
             auction.addViewer(this);
-            send(new JoinResponse(
-                    auction.getId(),
-                    auction.getName(),
-                    auction.getCurrentPrice(),
-                    auction.getEndTime(),
-                    auction.getStatus()
-            ));
+            send(new JoinResponse(auction.getId(), auction.getName(), auction.getCurrentPrice(), auction.getEndTime(), auction.getStatus()));
         } else {
             send(SimpleResponse.error("Phien dau gia khong ton tai hoac da ket thuc"));
         }
     }
 
-    private void handleBid(String[] parts) {
+    private void handleBid(JsonObject json) {
         if (!requireLogin()) return;
-        if (parts.length < 3) {
-            send(SimpleResponse.error("Sai cu phap: BID|auctionId|amount"));
-            return;
-        }
-        int auctionId = parseIntOrError(parts[1], "ID phien");
-        if (auctionId < 0) return;
+        BidRequest req = gson.fromJson(json, BidRequest.class);
 
-        BigDecimal amount = parseBigDecimalOrError(parts[2], "Muc gia");
-        if (amount == null) return;
-
-        Auction auction = engine.findActiveAuctionById(auctionId);
+        Auction auction = engine.findActiveAuctionById(req.getAuctionId());
         if (auction == null) {
             send(SimpleResponse.error("Phien dau gia khong ton tai hoac da ket thuc"));
             return;
         }
 
-        boolean success = auctionService.placeBid(currentUser.getId(), auctionId, amount);
+        boolean success = auctionService.placeBid(currentUser.getId(), req.getAuctionId(), req.getAmount());
         if (success) {
-            LocalDateTime bidTime = LocalDateTime.now();
-            send(new BidResponse(auctionId, currentUser.getUsername(), amount, bidTime));
+            // Phản hồi cho người đặt
+            send(new BidResponse(req.getAuctionId(), currentUser.getUsername(), req.getAmount(), LocalDateTime.now()));
 
-            BidUpdateResponse update = new BidUpdateResponse(auctionId, currentUser.getUsername(), amount);
+            // Broadcast cho tất cả trong phòng (Áp dụng Observer Pattern theo đề bài)
+            BidUpdateResponse update = new BidUpdateResponse(req.getAuctionId(), currentUser.getUsername(), req.getAmount());
             for (ClientHandler viewer : auction.getViewers()) {
                 viewer.send(update);
             }
         } else {
-            send(SimpleResponse.error("Dat gia that bai: gia phai cao hon gia hien tai hoac vi khong du tien"));
+            send(SimpleResponse.error("Dat gia that bai: gia phai cao hon gia hien tai hoac khong du tien"));
         }
     }
 
     private void handleGetAllAuctions() {
-        List<Auction> activeAuctions = engine.getActiveAuctions();
-        if (activeAuctions.isEmpty()) {
+        List<Auction> active = engine.getActiveAuctions();
+        if (active.isEmpty()) {
             send(SimpleResponse.info("Hien khong co phien dau gia nao"));
             return;
         }
-        List<AuctionSummary> summaries = activeAuctions.stream()
+        List<AuctionSummary> summaries = active.stream()
                 .map(a -> new AuctionSummary(a.getId(), a.getName(), a.getCurrentPrice(), a.getStatus()))
                 .collect(Collectors.toList());
         send(new AuctionListResponse(summaries));
     }
 
-    private void handleChangePassword(String[] parts) {
+    private void handleChangePassword(JsonObject json) {
         if (!requireLogin()) return;
-        if (parts.length < 3) {
-            send(SimpleResponse.error("Sai cu phap: CHANGE_PASSWORD|oldPassword|newPassword"));
-            return;
-        }
-        boolean ok = userService.changePassword(currentUser.getUsername(), parts[1], parts[2]);
+        ChangePasswordRequest req = gson.fromJson(json, ChangePasswordRequest.class);
+
+        boolean ok = userService.changePassword(currentUser.getUsername(), req.getOldPassword(), req.getNewPassword());
         if (ok) {
             send(new ChangePasswordResponse(currentUser.getUsername()));
         } else {
@@ -214,22 +201,17 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    private void handleTopUp(String[] parts) {
+    private void handleTopUp(JsonObject json) {
         if (!requireLogin()) return;
-        if (parts.length < 2) {
-            send(SimpleResponse.error("Sai cu phap: TOP_UP|amount"));
-            return;
-        }
-        BigDecimal amount = parseBigDecimalOrError(parts[1], "So tien");
-        if (amount == null) return;
+        TopUpRequest req = gson.fromJson(json, TopUpRequest.class);
 
-        boolean ok = userService.topUpBalance(currentUser.getId(), amount);
+        boolean ok = userService.topUpBalance(currentUser.getId(), req.getAmount());
         if (ok) {
             User updated = userService.getUserProfile(currentUser.getId());
             if (updated != null) currentUser = updated;
-            send(new TopUpResponse(currentUser.getId(), amount, currentUser.getBalance()));
+            send(new TopUpResponse(currentUser.getId(), req.getAmount(), currentUser.getBalance()));
         } else {
-            send(SimpleResponse.error("Nap tien that bai: chi Bidder moi duoc nap tien"));
+            send(SimpleResponse.error("Nap tien that bai"));
         }
     }
 
@@ -239,8 +221,6 @@ public class ClientHandler implements Runnable {
         this.currentUser = null;
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-
     private boolean requireLogin() {
         if (currentUser == null) {
             send(SimpleResponse.error("Ban chua dang nhap"));
@@ -249,31 +229,12 @@ public class ClientHandler implements Runnable {
         return true;
     }
 
-    private int parseIntOrError(String value, String fieldName) {
-        try {
-            return Integer.parseInt(value.trim());
-        } catch (NumberFormatException e) {
-            send(SimpleResponse.error(fieldName + " khong hop le, phai la so nguyen"));
-            return -1;
-        }
-    }
-
-    private BigDecimal parseBigDecimalOrError(String value, String fieldName) {
-        try {
-            return new BigDecimal(value.trim());
-        } catch (NumberFormatException e) {
-            send(SimpleResponse.error(fieldName + " khong hop le"));
-            return null;
-        }
-    }
-
-// Hàm đóng Socket
     private void cleanUp() {
         for (Auction auction : engine.getActiveAuctions()) {
             auction.removeViewer(this);
         }
         try {
-            if (out != null)   out.close();
+            if (out != null) out.close();
             if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
         } catch (IOException e) {
             System.err.println("[NETWORK] Loi khi dong ket noi: " + e.getMessage());

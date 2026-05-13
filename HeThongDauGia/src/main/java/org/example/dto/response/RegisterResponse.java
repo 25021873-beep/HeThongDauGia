@@ -1,13 +1,9 @@
 package org.example.dto.response;
 
 /**
- * Response trả về sau lệnh REGISTER thành công.
- *
- * Serialize format:
- *   "SUCCESS|Dang ky thanh cong|<userId>|<username>|<role>"
- *
- * Ví dụ:
- *   "SUCCESS|Dang ky thanh cong|7|bob|BIDDER"
+ * JSON output:
+ * {"status":"SUCCESS","message":"Dang ky thanh cong",
+ *  "userId":7,"username":"bob","role":"BIDDER"}
  */
 public class RegisterResponse extends BaseResponse {
 
@@ -22,20 +18,7 @@ public class RegisterResponse extends BaseResponse {
         this.role     = role;
     }
 
-    // ── Getters ──────────────────────────────────────────────────────────────
-
     public int    getUserId()  { return userId; }
     public String getUsername(){ return username; }
     public String getRole()    { return role; }
-
-    // ── Serialize ─────────────────────────────────────────────────────────────
-
-    @Override
-    public String serialize() {
-        return STATUS_SUCCESS + DELIMITER
-                + getMessage() + DELIMITER
-                + userId       + DELIMITER
-                + username     + DELIMITER
-                + role;
-    }
 }

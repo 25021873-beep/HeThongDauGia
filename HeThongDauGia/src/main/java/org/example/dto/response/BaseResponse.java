@@ -1,55 +1,50 @@
 package org.example.dto.response;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
- * Wrapper gốc cho mọi response gửi về client qua Socket.
+ * Base wrapper cho mọi response gửi về client qua Socket - JSON format.
  *
- * Protocol text format:
- *   SUCCESS|<message>|<data_fields...>
- *   ERROR|<message>
+ * Format JSON chuẩn (1 dòng duy nhất để readLine() hoạt động):
+ * {"status":"SUCCESS","message":"...","data":{...}}
  *
- * Mỗi subclass override serialize() để tạo ra chuỗi phù hợp với lệnh của nó.
+ * Gson tự động serialize tất cả field kể cả của subclass
+ * vì serialize() gọi GSON.toJson(this) với runtime type thực tế.
  */
 public abstract class BaseResponse {
 
-    public static final String STATUS_SUCCESS = "SUCCESS";
-    public static final String STATUS_ERROR   = "ERROR";
-    public static final String STATUS_INFO    = "INFO";
-    public static final String DELIMITER      = "|";
+    public static final String STATUS_SUCCESS     = "SUCCESS";
+    public static final String STATUS_ERROR       = "ERROR";
+    public static final String STATUS_INFO        = "INFO";
+    public static final String STATUS_UPDATE      = "UPDATE";
+    public static final String STATUS_LIST        = "LIST_SUCCESS";
+    public static final String STATUS_AUCTION_END = "AUCTION_END";
 
-    private final String status;
-    private final String message;
+    // Gson instance dùng chung - thread-safe
+    static final Gson GSON = new GsonBuilder()
+            .serializeNulls()
+            .create(); // KHÔNG dùng prettyPrinting: phải gửi 1 dòng qua socket
+
+    protected final String status;
+    protected final String message;
 
     protected BaseResponse(String status, String message) {
         this.status  = status;
         this.message = message;
     }
 
-    // ── Static factories dùng chung ──────────────────────────────────────────
-
-    /** Tạo response lỗi đơn giản, không cần subclass */
-    public static SimpleResponse error(String message) {
-        return new SimpleResponse(STATUS_ERROR, message);
-    }
-
-    /** Tạo response thông tin đơn giản (INFO) */
-    public static SimpleResponse info(String message) {
-        return new SimpleResponse(STATUS_INFO, message);
-    }
-
-    // ── Getters ──────────────────────────────────────────────────────────────
-
-    public String getStatus()  { return status; }
-    public String getMessage() { return message; }
-    public boolean isSuccess() { return STATUS_SUCCESS.equals(status); }
+    public String  getStatus()  { return status; }
+    public String  getMessage() { return message; }
+    public boolean isSuccess()  { return STATUS_SUCCESS.equals(status); }
 
     /**
-     * Serialize thành chuỗi gửi qua socket.
-     * Subclass override để thêm data fields sau message.
-     * Mặc định: "STATUS|message"
+     * Serialize thành JSON 1 dòng để gửi qua socket.
+     * Gson dùng runtime type (getClass()) nên field của subclass
+     * được include đầy đủ.
      */
     public String serialize() {
-        return status + DELIMITER + message;
+        return GSON.toJson(this);
     }
 
     @Override

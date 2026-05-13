@@ -2,7 +2,7 @@ package org.example.dto.request;
 
 import java.math.BigDecimal;
 
-public class BidRequest {
+public class BidRequest extends BaseRequest {
     private int auctionId;
     private BigDecimal amount;
 
@@ -21,6 +21,6 @@ public class BidRequest {
 
     @Override
     public String toString() {
-        return "BidRequest{auctionId=" + auctionId + ", amount=" + amount + "}";
+        return "BidRequest{auctionId=" + auctionId + ", amount=" + amount + ", command='" + getCommand() + "'}";
     }
 }

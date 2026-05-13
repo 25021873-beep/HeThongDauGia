@@ -3,7 +3,7 @@ package org.example.dto.request;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class CreateAuctionRequest {
+public class CreateAuctionRequest extends BaseRequest {
     private int itemId;
     private BigDecimal startingPrice;
     private LocalDateTime startTime;
@@ -36,6 +36,7 @@ public class CreateAuctionRequest {
         return "CreateAuctionRequest{itemId=" + itemId +
                 ", startingPrice=" + startingPrice +
                 ", startTime=" + startTime +
-                ", endTime=" + endTime + "}";
+                ", endTime=" + endTime +
+                ", command='" + getCommand() + "'}";
     }
 }
