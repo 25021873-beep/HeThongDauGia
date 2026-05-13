@@ -12,6 +12,19 @@ import java.math.BigDecimal;
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
 
+    private static UserService instance;
+
+    private UserService() {
+        // Khóa constructor không cho gọi từ bên ngoài
+    }
+
+    public static synchronized UserService getInstance() {
+        if (instance == null) {
+            instance = new UserService();
+        }
+        return instance;
+    }
+
     // ── Đăng nhập ─────────────────────────────────────────────────────────────
 
 

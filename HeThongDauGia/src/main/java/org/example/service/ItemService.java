@@ -18,6 +18,18 @@ public class ItemService {
     private ItemDAO itemDAO = new ItemDAO();
     private UserDAO userDAO = new UserDAO();
 
+    private static ItemService instance;
+
+    private ItemService() {
+    }
+
+    public static synchronized ItemService getInstance() {
+        if (instance == null) {
+            instance = new ItemService();
+        }
+        return instance;
+    }
+
     // Hàm đăng bán
     public boolean postItem(Item newItem) {
         if (newItem.getStartingPrice().compareTo(BigDecimal.ZERO) <= 0) {

@@ -14,17 +14,26 @@ import java.util.concurrent.TimeUnit;
 
 public class AuctionEngine {
 
-    //Khởi tạo tài nguyên hệ thống
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
     private final List<Auction> activeAuctions = new CopyOnWriteArrayList<>();
-
-    private final AuctionService auctionService;
+    private AuctionService auctionService;
     private final AuctionDAO auctionDAO;
 
-    public AuctionEngine(AuctionService auctionService, AuctionDAO auctionDAO) {
+    private static AuctionEngine instance;
+
+    private AuctionEngine() {
+        this.auctionDAO = new AuctionDAO();
+    }
+
+    public static synchronized AuctionEngine getInstance() {
+        if (instance == null) {
+            instance = new AuctionEngine();
+        }
+        return instance;
+    }
+
+    public void setAuctionService(AuctionService auctionService) {
         this.auctionService = auctionService;
-        this.auctionDAO = auctionDAO;
     }
 
 

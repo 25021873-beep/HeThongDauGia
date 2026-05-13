@@ -16,17 +16,26 @@ import java.time.LocalDateTime;
 
 
 public class AuctionService {
-
     private AuctionDAO auctionDAO = new AuctionDAO();
     private BidTransactionDAO bidDAO = new BidTransactionDAO();
     private ItemDAO itemDAO = new ItemDAO();
     private UserDAO userDAO = new UserDAO();
     private AuctionEngine engine;
 
+    private static AuctionService instance;
+
+    private AuctionService() {}
+
+    public static synchronized AuctionService getInstance() {
+        if (instance == null) {
+            instance = new AuctionService();
+        }
+        return instance;
+    }
+
     public void setEngine(AuctionEngine engine) {
         this.engine = engine;
     }
-
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
 
     public boolean openAuction(int itemId, LocalDateTime endTime) {

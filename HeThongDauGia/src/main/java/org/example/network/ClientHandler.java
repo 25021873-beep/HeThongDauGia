@@ -27,12 +27,14 @@ public class ClientHandler implements Runnable {
     private PrintWriter out;
     private User currentUser;
 
-    public ClientHandler(Socket socket, AuctionEngine engine) {
+    public ClientHandler(Socket socket, AuctionEngine engine,
+                         UserService userService, AuctionService auctionService) {
         this.clientSocket = socket;
         this.engine = engine;
-        this.userService = new UserService();
-        this.auctionService = new AuctionService();
+        this.userService = userService;
+        this.auctionService = auctionService;
     }
+
 
     // ── Gửi response ──────────────────────────────────────────────────────────
 

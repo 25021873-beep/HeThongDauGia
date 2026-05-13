@@ -2,6 +2,8 @@ package org.example.network;
 
 
 import org.example.service.AuctionEngine;
+import org.example.service.AuctionService;
+import org.example.service.UserService;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -18,11 +20,14 @@ public class AuctionServer {
     }
 
     public void start() {
+        UserService userService = UserService.getInstance();
+        AuctionService auctionService = AuctionService.getInstance();
+
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 
-                ClientHandler handler = new ClientHandler(clientSocket, engine);
+                ClientHandler handler = new ClientHandler(clientSocket, this.engine, userService, auctionService);
                 new Thread(handler).start();
             }
         } catch (IOException e) {
