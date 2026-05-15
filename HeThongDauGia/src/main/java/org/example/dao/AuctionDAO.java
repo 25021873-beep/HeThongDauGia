@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.entity.Auction;
+import org.example.exception.database.DatabaseException;
 import org.example.utils.DatabaseConnection;
 
 import java.sql.*;
@@ -28,8 +29,7 @@ public class AuctionDAO {
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tạo phiên đấu giá: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi database khi tạo auction mới",e);
         }
     }
 
@@ -56,7 +56,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy chi tiết phiên " + id + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi database khi lấy auction từ Id",e);
         }
         return null;
     }
@@ -82,7 +82,7 @@ public class AuctionDAO {
                 list.add(auction);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy danh sách phiên đang chạy: " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy danh sách phiên đang chạy",e);
         }
         return list;
     }
@@ -100,8 +100,7 @@ public class AuctionDAO {
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật giá: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi cập nhật giá",e);
         }
     }
 
@@ -128,8 +127,7 @@ public class AuctionDAO {
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi chốt phiên đấu giá: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi chốt phiên đấu giá",e);
         }
     }
 
@@ -157,7 +155,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy danh sách trúng đấu giá của user " + userId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy danh sách trúng đấu giá của user: " + userId + ": ", e);
         }
         return list;
     }
@@ -186,7 +184,7 @@ public class AuctionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm lịch sử đấu giá của món hàng " + itemId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm lịch sử đấu giá của món hàng " + itemId + ": ",e);
         }
         return list;
     }
@@ -204,8 +202,7 @@ public class AuctionDAO {
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi chốt phiên đấu giá: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi chốt phiên đấu giá: ",e);
         }
     }
 

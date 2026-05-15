@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dao.AuctionDAO;
 import org.example.entity.Auction;
+import org.example.exception.auction.AuctionNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -54,11 +55,10 @@ public class AuctionEngine {
 
             for (Auction auction : activeAuctions) {
                 if (now.isAfter(auction.getEndTime())) {
-                    boolean isClosed = auctionService.closeAuction(auction.getId());
-                    if (isClosed) {
+                    try{
                         // TODO: Chỗ này sau cắm Socket thì bắn sự kiện (Broadcast) báo có người thắng
                         finishedAuctions.add(auction);
-                    } else {
+                    } catch (Exception e) {
                         System.err.println("[ENGINE - LỖI] Không thể chốt phiên ID: " + auction.getId());
                     }
                 }
@@ -113,6 +113,6 @@ public class AuctionEngine {
                 return auction;
             }
         }
-        return null;
+        throw new AuctionNotFoundException("Lỗi: Không tìm thấy phiên đấu giá đang hoạt động với Id: " + auctionId);
     }
 }

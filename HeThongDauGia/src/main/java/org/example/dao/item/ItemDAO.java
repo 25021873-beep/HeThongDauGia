@@ -4,6 +4,7 @@ import org.example.entity.item.Art;
 import org.example.entity.item.Electronics;
 import org.example.entity.item.Item;
 import org.example.entity.item.Vehicle;
+import org.example.exception.database.DatabaseException;
 import org.example.utils.DatabaseConnection;
 
 import java.sql.*;
@@ -50,8 +51,7 @@ public class ItemDAO {
 
                 return pstmt.executeUpdate() > 0;
             } catch (SQLException e) {
-                System.err.println("Lỗi khi thêm Item: " + e.getMessage());
-                return false;
+                throw new DatabaseException("Lỗi khi thêm Item: ",e);
             }
         }
 
@@ -69,7 +69,7 @@ public class ItemDAO {
                 itemList.add(item);
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy danh sách Item: " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy danh sách Item: ",e);
         }
         return itemList;
     }
@@ -91,7 +91,7 @@ public class ItemDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy Item của Seller " + sellerId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy Item của Seller " + sellerId + ": ",e);
         }
         return itemList;
     }
@@ -112,7 +112,7 @@ public class ItemDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm Item ID " + id + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm Item ID " + id + ": ",e);
         }
         return null;
     }
@@ -157,8 +157,7 @@ public class ItemDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật Item: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi cập nhật Item: ",e);
         }
     }
 
@@ -175,8 +174,7 @@ public class ItemDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi xóa Item: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi xóa Item: ",e);
         }
     }
 
@@ -198,9 +196,8 @@ public class ItemDAO {
                 return itemsList;
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm status " + status + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm status " + status + ": ",e);
         }
-        return null;
     }
 
     // Tìm sản phẩm theo tên
@@ -242,8 +239,7 @@ public class ItemDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật trạng thái Item (ID: " + itemId + "): " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi cập nhật trạng thái Item (ID: " + itemId + "): ",e);
         }
     }
 }

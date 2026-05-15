@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.entity.BidTransaction;
+import org.example.exception.database.DatabaseException;
 import org.example.utils.DatabaseConnection;
 
 import java.sql.Connection;
@@ -27,8 +28,7 @@ public class BidTransactionDAO {
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi ghi nhận lịch sử đặt giá: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi ghi nhận lịch sử đặt giá: ",e);
         }
     }
 
@@ -66,7 +66,7 @@ public class BidTransactionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy lịch sử giá của phiên " + auctionId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy lịch sử giá của phiên " + auctionId + ": ",e);
         }
         return list;
     }
@@ -93,7 +93,7 @@ public class BidTransactionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi lấy lịch sử đi bid của User " + bidderId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi lấy lịch sử đi bid của User " + bidderId + ": ",e);
         }
         return list;
     }
@@ -120,7 +120,7 @@ public class BidTransactionDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm người trả giá cao nhất của phiên " + auctionId + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm người trả giá cao nhất của phiên " + auctionId + ": ",e);
         }
         return null;
     }

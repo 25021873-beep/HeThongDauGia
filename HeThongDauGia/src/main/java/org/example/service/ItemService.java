@@ -8,6 +8,7 @@ import org.example.entity.item.Item;
 import org.example.entity.item.Vehicle;
 import org.example.entity.user.Seller;
 import org.example.entity.user.User;
+import org.example.exception.item.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -33,18 +34,15 @@ public class ItemService {
     // Hàm đăng bán
     public boolean postItem(Item newItem) {
         if (newItem.getStartingPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            System.err.println("Từ chối: Giá khởi điểm phải lớn hơn 0!");
-            return false;
+            throw new InvalidItemPriceException("Lỗi: Giá Item không được bé hơn 0 ");
         }
         if (newItem.getName() == null || newItem.getName().trim().isEmpty()) {
-            System.err.println("Từ chối: Tên sản phẩm không được để trống!");
-            return false;
+            throw new InvalidItemNameException("Lỗi: Không đựợc để trống tên sản phẩm");
         }
 
         User user = userDAO.getUserById(newItem.getSellerId());
         if (!(user instanceof Seller)) {
-            System.err.println("Từ chối: Mày không phải Seller, lấy tư cách gì đăng bán?");
-            return false;
+            throw new UnauthorizedAccessException("Lỗi: Không thể đăng bán nếu bạn không phải Seller");
         }
 
         newItem.setStatus("AVAILABLE");
@@ -57,21 +55,18 @@ public class ItemService {
         Item existingItem = itemDAO.getItemById(updatedItem.getId());
 
         if (existingItem == null) {
-            System.err.println("Lỗi: Không tìm thấy món hàng này trong kho!");
-            return false;
+            throw new ItemNotFoundException("Lỗi: Không tìm thấy sản phẩm");
         }
 
         User requester = userDAO.getUserById(requesterId);
         boolean isAdmin = requester != null && requester.getRole().equals("ADMIN");
 
         if (!isAdmin && existingItem.getSellerId() != requesterId) {
-            System.err.println("Từ chối: Mày không phải chủ món hàng, cấm sửa!");
-            return false;
+            throw new UnauthorizedAccessException("Lỗi: Không phải chủ sản phẩm thì không thể sửa thông tin");
         }
 
         if (!existingItem.getStatus().equals("AVAILABLE")) {
-            System.err.println("Từ chối: Hàng đang đấu giá hoặc đã bán, không được phép sửa!");
-            return false;
+            throw new InvalidItemStateException("Lỗi: Sản phẩm đã được bán, không thể sửa thông tin");
         }
 
         updatedItem.setSellerId(existingItem.getSellerId());
@@ -81,13 +76,14 @@ public class ItemService {
     // Hàm đổi trạng thái (AVAILABLE -> IN_AUCTION -> SOLD/UNSOLD)
     public boolean changeItemStatus(int itemId, String newStatus) {
         Item existingItem = itemDAO.getItemById(itemId);
-        if (existingItem == null) return false;
+        if (existingItem == null) {
+            throw new ItemNotFoundException("Lỗi: Không tìm thấy sản phẩm");
+        }
 
         String currentStatus = existingItem.getStatus();
 
         if (currentStatus.equals("SOLD") && newStatus.equals("IN_AUCTION")) {
-            System.err.println("Lỗi Logic: Hàng đã bán sao quay lại đấu giá được!");
-            return false;
+            throw new InvalidItemStateException("Lỗi: Sản phẩm đã được bán hoặc đang đấu giá, không thể sửa trạng thái");
         }
 
         return itemDAO.updateItemStatus(itemId, newStatus);
@@ -96,20 +92,20 @@ public class ItemService {
     // 4. Xóa/Rút món hàng
     public boolean deleteItem(int itemId, int requesterId) {
         Item existingItem = itemDAO.getItemById(itemId);
-        if (existingItem == null) return false;
+        if (existingItem == null) {
+            throw new ItemNotFoundException("Lỗi: Không tìm thấy sản phẩm");
+        }
 
         User requester = userDAO.getUserById(requesterId);
         boolean isAdmin = requester != null && requester.getRole().equals("ADMIN");
 
         // Admin xóa thằng nào cũng được, user thường thì chỉ được xóa đồ của mình
         if (!isAdmin && existingItem.getSellerId() != requesterId) {
-            System.err.println("Không được xóa đồ của người khác");
-            return false;
+            throw new UnauthorizedAccessException("Lỗi: Không phải chủ sản phẩm/admin thì không thể xóa sản phẩm");
         }
 
         if (!existingItem.getStatus().equals("AVAILABLE") && !isAdmin) {
-            System.err.println("Từ chối: Đồ đang có người giành nhau, m không được phép rút!");
-            return false;
+            throw new InvalidItemStateException("Lỗi: Sản phẩm đang được đấu giá, không thể xóa");
         }
 
         return itemDAO.deleteItem(itemId);

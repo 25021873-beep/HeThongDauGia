@@ -3,6 +3,7 @@ package org.example.dao.user;
 import org.example.entity.user.Bidder;
 import org.example.entity.user.Seller;
 import org.example.entity.user.User;
+import org.example.exception.database.DatabaseException;
 import org.example.utils.DatabaseConnection;
 
 import java.math.BigDecimal;
@@ -47,9 +48,8 @@ public class UserDAO {
                 return rs.next();
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi check username: " + e.getMessage());
+            throw new DatabaseException("Lỗi khi check username: ",e);
         }
-        return false;
     }
 
     // Hàm Đăng ký người dùng mới
@@ -76,8 +76,7 @@ public class UserDAO {
 
             return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Lỗi khi thêm User: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi thêm User: ",e);
         }
     }
 
@@ -97,7 +96,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi đăng nhập: " + e.getMessage());
+            throw new DatabaseException("Lỗi khi đăng nhập: ",e);
         }
         return null;
     }
@@ -117,7 +116,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm User ID " + id + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm User ID " + id + ": ",e);
         }
         return null;
     }
@@ -137,7 +136,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Lỗi khi tìm User ID " + username + ": " + e.getMessage());
+            throw new DatabaseException("Lỗi khi tìm User ID " + username + ": ",e);
         }
         return null;
     }
@@ -156,8 +155,7 @@ public class UserDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi đổi mật khẩu: " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi đổi mật khẩu: ",e);
         }
     }
 
@@ -203,8 +201,7 @@ public class UserDAO {
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Lỗi khi update User (ID: " + user.getId() + "): " + e.getMessage());
-            return false;
+            throw new DatabaseException("Lỗi khi update User (ID: " + user.getId() + "): ",e);
         }
     }
 
