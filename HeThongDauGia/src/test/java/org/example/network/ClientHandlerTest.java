@@ -1,17 +1,23 @@
 package org.example.network;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.example.AuctionEngine;
+import org.example.dao.AuctionDAO;
+import org.example.dto.response.SimpleResponse;
+import org.example.service.AuctionService;
+import org.junit.jupiter.api.Test;
+
+import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClientHandlerTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void newHandlerStartsAsGuestAndCanIgnoreSendBeforeRun() {
+        AuctionEngine engine = new AuctionEngine(new AuctionService(), new AuctionDAO());
+        ClientHandler handler = new ClientHandler(new Socket(), engine);
 
-    @AfterEach
-    void tearDown() {
+        assertEquals("Guest", handler.getUsername());
+        assertDoesNotThrow(() -> handler.send(SimpleResponse.info("hello")));
     }
 }

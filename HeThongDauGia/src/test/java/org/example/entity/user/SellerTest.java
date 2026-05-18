@@ -1,17 +1,19 @@
 package org.example.entity.user;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SellerTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorSetsRoleAndRatingCanBeChanged() {
+        Seller seller = new Seller();
 
-    @AfterEach
-    void tearDown() {
+        seller.setRating(4.5);
+
+        assertEquals("SELLER", seller.getRole());
+        assertEquals(4.5, seller.getRating());
+        assertDoesNotThrow(seller::doSomething);
     }
 }

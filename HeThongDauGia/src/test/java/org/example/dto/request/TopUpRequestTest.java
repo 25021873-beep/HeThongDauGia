@@ -1,17 +1,25 @@
 package org.example.dto.request;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class TopUpRequestTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorAndSettersExposeValues() {
+        TopUpRequest request = new TopUpRequest(2, new BigDecimal("50000"));
 
-    @AfterEach
-    void tearDown() {
+        assertEquals(2, request.getUserId());
+        assertEquals(new BigDecimal("50000"), request.getAmount());
+
+        request.setUserId(6);
+        request.setAmount(new BigDecimal("75000"));
+
+        assertEquals(6, request.getUserId());
+        assertEquals(new BigDecimal("75000"), request.getAmount());
+        assertEquals("TopUpRequest{userId=6, amount=75000}", request.toString());
     }
 }

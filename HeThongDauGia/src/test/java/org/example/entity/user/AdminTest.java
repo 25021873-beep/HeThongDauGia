@@ -1,17 +1,16 @@
 package org.example.entity.user;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AdminTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorSetsAdminRole() {
+        Admin admin = new Admin();
 
-    @AfterEach
-    void tearDown() {
+        assertEquals("ADMIN", admin.getRole());
+        assertDoesNotThrow(admin::doSomething);
     }
 }

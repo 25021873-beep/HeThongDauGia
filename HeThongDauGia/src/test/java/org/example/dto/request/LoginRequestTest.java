@@ -1,17 +1,24 @@
 package org.example.dto.request;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LoginRequestTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorAndSettersExposeValuesWithoutLeakingPasswordInToString() {
+        LoginRequest request = new LoginRequest("alice", "secret");
 
-    @AfterEach
-    void tearDown() {
+        assertEquals("alice", request.getUsername());
+        assertEquals("secret", request.getPassword());
+
+        request.setUsername("bob");
+        request.setPassword("hidden");
+
+        assertEquals("bob", request.getUsername());
+        assertEquals("hidden", request.getPassword());
+        assertEquals("LoginRequest{username='bob'}", request.toString());
+        assertFalse(request.toString().contains("hidden"));
     }
 }

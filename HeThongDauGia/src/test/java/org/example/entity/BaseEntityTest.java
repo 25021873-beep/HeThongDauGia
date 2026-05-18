@@ -1,17 +1,20 @@
 package org.example.entity;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class BaseEntityTest {
 
-    @BeforeEach
-    void setUp() {
+    @Test
+    void idCanBeSetAndRead() {
+        TestEntity entity = new TestEntity();
+
+        entity.setId(42);
+
+        assertEquals(42, entity.getId());
     }
 
-    @AfterEach
-    void tearDown() {
+    private static final class TestEntity extends BaseEntity {
     }
 }

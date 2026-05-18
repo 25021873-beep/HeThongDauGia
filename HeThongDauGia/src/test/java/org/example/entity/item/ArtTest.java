@@ -1,17 +1,18 @@
 package org.example.entity.item;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ArtTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorSetsTypeAndAuthorCanBeChanged() {
+        Art art = new Art();
 
-    @AfterEach
-    void tearDown() {
+        art.setAuthor("Van Gogh");
+
+        assertEquals("ART", art.getItemType());
+        assertEquals("Van Gogh", art.getAuthor());
     }
 }

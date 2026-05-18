@@ -1,17 +1,21 @@
 package org.example.dto.response;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleResponseTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void factoriesUseExpectedStatuses() {
+        SimpleResponse success = SimpleResponse.success("ok");
+        SimpleResponse error = SimpleResponse.error("bad");
+        SimpleResponse info = SimpleResponse.info("note");
 
-    @AfterEach
-    void tearDown() {
+        assertTrue(success.isSuccess());
+        assertEquals(BaseResponse.STATUS_ERROR, error.getStatus());
+        assertEquals(BaseResponse.STATUS_INFO, info.getStatus());
+        assertEquals("bad", error.getMessage());
+        assertTrue(error.serialize().contains("\"message\":\"bad\""));
     }
 }

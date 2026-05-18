@@ -1,17 +1,18 @@
 package org.example.entity.item;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ElectronicsTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorSetsTypeAndWarrantyCanBeChanged() {
+        Electronics electronics = new Electronics();
 
-    @AfterEach
-    void tearDown() {
+        electronics.setWarrantyMonths(24);
+
+        assertEquals("ELECTRONICS", electronics.getItemType());
+        assertEquals(24, electronics.getWarrantyMonths());
     }
 }

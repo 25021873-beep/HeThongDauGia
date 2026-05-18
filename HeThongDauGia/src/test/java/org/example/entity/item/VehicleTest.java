@@ -1,17 +1,18 @@
 package org.example.entity.item;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class VehicleTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorSetsTypeAndEngineTypeCanBeChanged() {
+        Vehicle vehicle = new Vehicle();
 
-    @AfterEach
-    void tearDown() {
+        vehicle.setEngineType("Hybrid");
+
+        assertEquals("VEHICLE", vehicle.getItemType());
+        assertEquals("Hybrid", vehicle.getEngineType());
     }
 }

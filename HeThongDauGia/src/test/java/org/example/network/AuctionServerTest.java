@@ -1,17 +1,18 @@
 package org.example.network;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.example.AuctionEngine;
+import org.example.dao.AuctionDAO;
+import org.example.service.AuctionService;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class AuctionServerTest {
 
-    @BeforeEach
-    void setUp() {
-    }
+    @Test
+    void constructorDoesNotOpenPort() {
+        AuctionEngine engine = new AuctionEngine(new AuctionService(), new AuctionDAO());
 
-    @AfterEach
-    void tearDown() {
+        assertDoesNotThrow(() -> new AuctionServer(0, engine));
     }
 }
