@@ -1,6 +1,6 @@
 package org.example.dto.request;
 
-public class ChangePasswordRequest {
+public class ChangePasswordRequest extends BaseRequest {
     private String username;
     private String oldPassword;
     private String newPassword;
@@ -24,6 +24,6 @@ public class ChangePasswordRequest {
 
     @Override
     public String toString() {
-        return "ChangePasswordRequest{username='" + username + "'}";
+        return "ChangePasswordRequest{username='" + username + "', command='" + getCommand() + "'}";
     }
 }

@@ -1,104 +1,133 @@
 package org.example.entity;
 
 import org.example.entity.item.Item;
-import org.example.network.ClientHandler;
+import org.example.observer.BidObserver;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+
 public class Auction {
-    private int id;
-    private int itemId;
-    private BigDecimal currentPrice;
+
+    private int           id;
+    private int           itemId;
+    private BigDecimal    currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status;
-    private int winnerId;
-
-    // Thêm: trạng thái đang chạy và thông tin Item
+    private String        status;
+    private int           winnerId;
     private volatile boolean active;
-    private Item item;
+    private Item          item;
 
-    // Thêm: danh sách client đang xem phòng (dùng cho Multicast)
-    private final List<ClientHandler> viewers = new CopyOnWriteArrayList<>();
+    // Thay List<ClientHandler> bằng List<BidObserver>
+    private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
 
     public Auction() {}
 
-    public Auction(int id, int itemId, BigDecimal currentPrice, LocalDateTime startTime,
-                   LocalDateTime endTime, String status, int winnerId) {
-        this.id = id;
-        this.itemId = itemId;
+    public Auction(int id, int itemId, BigDecimal currentPrice,
+                   LocalDateTime startTime, LocalDateTime endTime,
+                   String status, int winnerId) {
+        this.id           = id;
+        this.itemId       = itemId;
         this.currentPrice = currentPrice;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = status;
-        this.winnerId = winnerId;
-        this.active = true; // Mặc định khi tạo mới là đang chạy
+        this.startTime    = startTime;
+        this.endTime      = endTime;
+        this.status       = status;
+        this.winnerId     = winnerId;
+        this.active       = true;
     }
 
-    // ── Methods cho ClientHandler & AuctionEngine ────────────────────────────
+    // ── Observer management ───────────────────────────────────────────────────
 
-    /** Kiểm tra phiên còn hoạt động không */
-    public boolean isActive() {
-        return active && LocalDateTime.now().isBefore(endTime);
+    /** Đăng ký observer — gọi khi client JOIN phòng */
+    public void addObserver(BidObserver observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+        }
     }
 
-    /** Chốt phiên khi hết giờ */
-    public void endAuction() {
+    /** Hủy đăng ký — gọi khi client LOGOUT hoặc ngắt kết nối */
+    public void removeObserver(BidObserver observer) {
+        observers.remove(observer);
+    }
+
+    public List<BidObserver> getObservers() {
+        return observers;
+    }
+
+    // ── Notify (gọi từ BidController và AuctionEngine) ───────────────────────
+
+    /**
+     * Broadcast bid mới tới tất cả observer.
+     * Gọi sau khi placeBid() thành công trong BidController.
+     */
+    public void notifyBidPlaced(String bidderUsername, BigDecimal newPrice) {
+        for (BidObserver observer : observers) {
+            try {
+                observer.onBidPlaced(id, bidderUsername, newPrice);
+            } catch (Exception e) {
+                // Không để 1 observer lỗi làm hỏng các observer còn lại
+                System.err.println("[AUCTION] notifyBidPlaced loi: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Broadcast kết thúc phiên tới tất cả observer.
+     * Gọi từ AuctionEngine sau closeAuction().
+     *
+     * @param winnerUsername null nếu không có ai đặt giá
+     */
+    public void notifyAuctionEnded(String winnerUsername, BigDecimal finalPrice) {
         this.active = false;
         this.status = "FINISHED";
+        for (BidObserver observer : observers) {
+            try {
+                observer.onAuctionEnded(id, getName(), winnerUsername, finalPrice);
+            } catch (Exception e) {
+                System.err.println("[AUCTION] notifyAuctionEnded loi: " + e.getMessage());
+            }
+        }
     }
 
-    /** Tên phiên - ưu tiên tên Item, fallback về ID */
+    // ── Business methods ──────────────────────────────────────────────────────
+
+    public boolean isActive() {
+        return active && endTime != null && LocalDateTime.now().isBefore(endTime);
+    }
+
     public String getName() {
         return (item != null) ? item.getName() : "Phien #" + id;
     }
 
-    /** Thêm client vào phòng xem (lệnh JOIN) */
-    public void addViewer(ClientHandler handler) {
-        if (!viewers.contains(handler)) {
-            viewers.add(handler);
-        }
-    }
+    // ── Getters & Setters ─────────────────────────────────────────────────────
 
-    /** Xóa client khi ngắt kết nối (cleanUp) */
-    public void removeViewer(ClientHandler handler) {
-        viewers.remove(handler);
-    }
+    public int           getId()                              { return id; }
+    public void          setId(int id)                        { this.id = id; }
 
-    /** Lấy danh sách người xem để Multicast (lệnh BID) */
-    public List<ClientHandler> getViewers() {
-        return viewers;
-    }
+    public int           getItemId()                          { return itemId; }
+    public void          setItemId(int itemId)                { this.itemId = itemId; }
 
-    // ── Getters & Setters ────────────────────────────────────────────────────
+    public BigDecimal    getCurrentPrice()                    { return currentPrice; }
+    public void          setCurrentPrice(BigDecimal p)        { this.currentPrice = p; }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public LocalDateTime getStartTime()                       { return startTime; }
+    public void          setStartTime(LocalDateTime t)        { this.startTime = t; }
 
-    public int getItemId() { return itemId; }
-    public void setItemId(int itemId) { this.itemId = itemId; }
+    public LocalDateTime getEndTime()                         { return endTime; }
+    public void          setEndTime(LocalDateTime t)          { this.endTime = t; }
 
-    public BigDecimal getCurrentPrice() { return currentPrice; }
-    public void setCurrentPrice(BigDecimal currentPrice) { this.currentPrice = currentPrice; }
+    public String        getStatus()                          { return status; }
+    public void          setStatus(String status)             { this.status = status; }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public int           getWinnerId()                        { return winnerId; }
+    public void          setWinnerId(int winnerId)            { this.winnerId = winnerId; }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public boolean       getActive()                          { return active; }
+    public void          setActive(boolean active)            { this.active = active; }
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public int getWinnerId() { return winnerId; }
-    public void setWinnerId(int winnerId) { this.winnerId = winnerId; }
-
-    public boolean getActive() { return active; }
-    public void setActive(boolean active) { this.active = active; }
-
-    public Item getItem() { return item; }
-    public void setItem(Item item) { this.item = item; }
+    public Item          getItem()                            { return item; }
+    public void          setItem(Item item)                   { this.item = item; }
 }

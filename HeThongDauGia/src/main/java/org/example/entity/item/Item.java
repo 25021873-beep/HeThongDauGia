@@ -33,6 +33,9 @@ public abstract class Item extends BaseEntity {
     }
 
     public void setStartingPrice(BigDecimal startingPrice) {
+        if (startingPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Giá khởi điểm không được âm!");
+        }
         this.startingPrice = startingPrice;
     }
 
