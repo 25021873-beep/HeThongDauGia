@@ -1,6 +1,8 @@
 package org.example.service;
 
 import org.example.entity.item.Electronics;
+import org.example.exception.item.InvalidItemNameException;
+import org.example.exception.item.InvalidItemPriceException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -14,7 +16,7 @@ class ItemServiceTest {
         Electronics item = validItem();
         item.setStartingPrice(BigDecimal.ZERO);
 
-        assertFalse(new ItemService().postItem(item));
+        assertThrows(InvalidItemPriceException.class, () -> ItemService.getInstance().postItem(item));
     }
 
     @Test
@@ -22,7 +24,7 @@ class ItemServiceTest {
         Electronics item = validItem();
         item.setName(" ");
 
-        assertFalse(new ItemService().postItem(item));
+        assertThrows(InvalidItemNameException.class, () -> ItemService.getInstance().postItem(item));
     }
 
     private static Electronics validItem() {

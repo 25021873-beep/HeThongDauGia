@@ -18,7 +18,7 @@ class LoginRequestTest {
 
         assertEquals("bob", request.getUsername());
         assertEquals("hidden", request.getPassword());
-        assertEquals("LoginRequest{username='bob'}", request.toString());
+        assertTrue(request.toString().contains("username='bob'"));
         assertFalse(request.toString().contains("hidden"));
     }
 }

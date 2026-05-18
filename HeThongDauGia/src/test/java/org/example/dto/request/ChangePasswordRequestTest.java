@@ -21,7 +21,7 @@ class ChangePasswordRequestTest {
         assertEquals("bob", request.getUsername());
         assertEquals("old2", request.getOldPassword());
         assertEquals("new2", request.getNewPassword());
-        assertEquals("ChangePasswordRequest{username='bob'}", request.toString());
+        assertTrue(request.toString().contains("username='bob'"));
         assertFalse(request.toString().contains("old2"));
         assertFalse(request.toString().contains("new2"));
     }

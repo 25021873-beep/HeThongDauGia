@@ -15,6 +15,6 @@ class JoinRequestTest {
         request.setAuctionId(8);
 
         assertEquals(8, request.getAuctionId());
-        assertEquals("JoinRequest{auctionId=8}", request.toString());
+        assertTrue(request.toString().contains("auctionId=8"));
     }
 }

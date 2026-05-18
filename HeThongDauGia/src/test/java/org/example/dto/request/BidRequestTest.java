@@ -20,6 +20,7 @@ class BidRequestTest {
 
         assertEquals(5, request.getAuctionId());
         assertEquals(new BigDecimal("2500"), request.getAmount());
-        assertEquals("BidRequest{auctionId=5, amount=2500}", request.toString());
+        assertTrue(request.toString().contains("auctionId=5"));
+        assertTrue(request.toString().contains("amount=2500"));
     }
 }

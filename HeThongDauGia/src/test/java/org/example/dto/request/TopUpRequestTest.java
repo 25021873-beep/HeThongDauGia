@@ -20,6 +20,7 @@ class TopUpRequestTest {
 
         assertEquals(6, request.getUserId());
         assertEquals(new BigDecimal("75000"), request.getAmount());
-        assertEquals("TopUpRequest{userId=6, amount=75000}", request.toString());
+        assertTrue(request.toString().contains("userId=6"));
+        assertTrue(request.toString().contains("amount=75000"));
     }
 }

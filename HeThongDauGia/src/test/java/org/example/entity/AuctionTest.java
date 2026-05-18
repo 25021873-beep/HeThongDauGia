@@ -1,10 +1,13 @@
 package org.example.entity;
 
 import org.example.entity.item.Art;
+import org.example.observer.BidObserver;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,19 +37,23 @@ class AuctionTest {
     }
 
     @Test
-    void endAuctionMarksAuctionFinished() {
+    void notifyAuctionEndedMarksAuctionFinishedAndNotifiesObservers() {
         Auction auction = new Auction();
+        auction.setId(3);
         auction.setActive(true);
-        auction.setStatus("RUNNING");
+        auction.setStatus("ACTIVE");
+        RecordingObserver observer = new RecordingObserver();
+        auction.addObserver(observer);
 
-        auction.endAuction();
+        auction.notifyAuctionEnded("alice", new BigDecimal("1500"));
 
         assertFalse(auction.getActive());
         assertEquals("FINISHED", auction.getStatus());
+        assertEquals(List.of("ended:3:Phien #3:alice:1500"), observer.events);
     }
 
     @Test
-    void getNameUsesItemNameOrFallbackIdAndViewersAvoidDuplicates() {
+    void getNameUsesItemNameOrFallbackIdAndObserversAvoidDuplicates() {
         Auction auction = new Auction();
         auction.setId(12);
         assertEquals("Phien #12", auction.getName());
@@ -56,10 +63,26 @@ class AuctionTest {
         auction.setItem(item);
         assertEquals("Landscape", auction.getName());
 
-        auction.addViewer(null);
-        auction.addViewer(null);
-        assertEquals(1, auction.getViewers().size());
-        auction.removeViewer(null);
-        assertTrue(auction.getViewers().isEmpty());
+        RecordingObserver observer = new RecordingObserver();
+        auction.addObserver(observer);
+        auction.addObserver(observer);
+        assertEquals(1, auction.getObservers().size());
+        auction.removeObserver(observer);
+        assertTrue(auction.getObservers().isEmpty());
+    }
+
+    private static final class RecordingObserver implements BidObserver {
+        private final List<String> events = new ArrayList<>();
+
+        @Override
+        public void onBidPlaced(int auctionId, String bidderUsername, BigDecimal newPrice) {
+            events.add("bid:" + auctionId + ":" + bidderUsername + ":" + newPrice);
+        }
+
+        @Override
+        public void onAuctionEnded(int auctionId, String auctionName,
+                                   String winnerUsername, BigDecimal finalPrice) {
+            events.add("ended:" + auctionId + ":" + auctionName + ":" + winnerUsername + ":" + finalPrice);
+        }
     }
 }
