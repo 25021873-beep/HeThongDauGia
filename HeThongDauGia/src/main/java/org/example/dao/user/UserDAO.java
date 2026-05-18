@@ -21,7 +21,7 @@ public class UserDAO {
         List<User> userList = new ArrayList<>();
         String sql = "SELECT * FROM Users";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -39,7 +39,7 @@ public class UserDAO {
     public boolean checkUsernameExists(String username) {
         String sql = "SELECT id FROM Users WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -55,7 +55,7 @@ public class UserDAO {
     // Hàm Đăng ký người dùng mới
     public boolean addUser(User user) {
         String sql = "INSERT INTO Users (username, password, email, role, balance, rating) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getUsername());
@@ -84,7 +84,7 @@ public class UserDAO {
     public User checkLogin(String username, String password) {
         String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -105,7 +105,7 @@ public class UserDAO {
     public User getUserById(int id) {
         String sql = "SELECT * FROM Users WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -125,7 +125,7 @@ public class UserDAO {
     public User getUserByUsername(String username) {
         String sql = "SELECT * FROM Users WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
@@ -145,7 +145,7 @@ public class UserDAO {
     public boolean changePassword(String newpass, String username) {
         String sql = "UPDATE Users SET password = ? WHERE username = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newpass);
@@ -176,7 +176,7 @@ public class UserDAO {
         // Câu SQL update toàn bộ các cột trong bảng Users
         String sql = "UPDATE Users SET username = ?, password = ?, email = ?, role = ?, balance = ?, rating = ? WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, user.getUsername());

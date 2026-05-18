@@ -3,8 +3,7 @@ package org.example.entity;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class BidTransaction {
-    private int id;
+public class BidTransaction extends BaseEntity {
     private int auctionId;
     private int bidderId;
     private BigDecimal bidPrice;

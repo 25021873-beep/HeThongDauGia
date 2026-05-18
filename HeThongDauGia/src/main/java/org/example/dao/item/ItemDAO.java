@@ -19,7 +19,7 @@ public class ItemDAO {
             String sql = "INSERT INTO Items (name, description, starting_price, status, item_type, warranty_months, author, engine_type) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
-            try (Connection conn = DatabaseConnection.getConnection();
+            try (Connection conn = DatabaseConnection.getInstance().getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 // Tham số chung
@@ -60,7 +60,7 @@ public class ItemDAO {
         List<Item> itemList = new ArrayList<>();
         String sql = "SELECT * FROM Items";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -79,7 +79,7 @@ public class ItemDAO {
         List<Item> itemList = new ArrayList<>();
         String sql = "SELECT * FROM Items WHERE seller_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, sellerId);
@@ -100,7 +100,7 @@ public class ItemDAO {
     public Item getItemById(int id) {
         String sql = "SELECT * FROM Items WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -123,7 +123,7 @@ public class ItemDAO {
                 "warranty_months = ?, author = ?, engine_type = ? " +
                 "WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, item.getName());
@@ -165,7 +165,7 @@ public class ItemDAO {
     public boolean deleteItem(int id) {
         String sql = "DELETE FROM Items WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -183,7 +183,7 @@ public class ItemDAO {
         String sql = "SELECT * FROM Items WHERE status = ?";
         ArrayList<Item> itemsList = new ArrayList<>();
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, status);
@@ -206,7 +206,7 @@ public class ItemDAO {
 
         String sql = "SELECT * FROM Items WHERE name LIKE ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, '%' + keyword + '%');
@@ -229,7 +229,7 @@ public class ItemDAO {
     public boolean updateItemStatus(int itemId, String newStatus) {
         String sql = "UPDATE Items SET status = ? WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newStatus);

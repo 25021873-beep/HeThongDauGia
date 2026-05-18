@@ -17,7 +17,7 @@ public class AuctionDAO {
     public boolean createAuction(Auction auction) {
         String sql = "INSERT INTO Auctions (item_id, start_time, end_time, current_price, status) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, auction.getItemId());
@@ -37,7 +37,7 @@ public class AuctionDAO {
     public Auction getAuctionById(int id) {
         String sql = "SELECT * FROM Auctions WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
@@ -66,7 +66,7 @@ public class AuctionDAO {
         List<Auction> list = new ArrayList<>();
         String sql = "SELECT * FROM Auctions WHERE status = 'RUNNING' OR status = 'OPEN'";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
@@ -91,7 +91,7 @@ public class AuctionDAO {
     public boolean updateCurrentPrice(int auctionId, BigDecimal newPrice) {
         String sql = "UPDATE Auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setBigDecimal(1, newPrice);
@@ -118,7 +118,7 @@ public class AuctionDAO {
     public boolean closeAuction(int auctionId, int winnerId) {
             String sql = "UPDATE Auctions SET status = 'FINISHED', winner_id = ? WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, winnerId);
@@ -136,7 +136,7 @@ public class AuctionDAO {
         List<Auction> list = new ArrayList<>();
         String sql = "SELECT * FROM Auctions WHERE winner_id = ? AND status = 'FINISHED'";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, userId);
@@ -165,7 +165,7 @@ public class AuctionDAO {
         List<Auction> list = new ArrayList<>();
         String sql = "SELECT * FROM Auctions WHERE item_id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, itemId);
@@ -193,7 +193,7 @@ public class AuctionDAO {
     public boolean updateAuctionStatus(String status, int auctionId) {
         String sql = "UPDATE Auctions SET status = ? WHERE id = ?";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, status);

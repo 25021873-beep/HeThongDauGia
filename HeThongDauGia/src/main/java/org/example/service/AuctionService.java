@@ -4,6 +4,7 @@ import org.example.dao.*;
 import org.example.dao.item.ItemDAO;
 import org.example.dao.user.UserDAO;
 import org.example.entity.Auction;
+import org.example.entity.BidHistory;
 import org.example.entity.BidTransaction;
 import org.example.entity.item.Item;
 import org.example.entity.user.User;
@@ -21,6 +22,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 public class AuctionService {
@@ -28,6 +30,7 @@ public class AuctionService {
     private BidTransactionDAO bidDAO = new BidTransactionDAO();
     private ItemDAO itemDAO = new ItemDAO();
     private UserDAO userDAO = new UserDAO();
+    private BidHistoryDAO bidHistoryDAO = new BidHistoryDAO();
     private AuctionEngine engine;
 
     private static AuctionService instance;
@@ -82,7 +85,7 @@ public class AuctionService {
         Connection conn = null;
         try {
             // Lấy 1 connection riêng cho toàn bộ transaction này
-            conn = DatabaseConnection.getConnection();
+            conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
             // I. KIỂM TRA ĐIỀU KIỆN ─────────────────────────────────────────
@@ -138,6 +141,14 @@ public class AuctionService {
             newTx.setBidTime(LocalDateTime.now());
             bidDAO.addBid(conn, newTx);
 
+            // 5. Ghi lịch sử giao dịch (dùng cho Visualization)
+            BidHistory entry = new BidHistory();
+            entry.setAuctionId(auctionId);
+            entry.setBidderId(bidderId);
+            entry.setPrice(bidAmount);
+            entry.setBidTime(LocalDateTime.now());
+            bidHistoryDAO.addBidHistory(entry);
+
             // III. COMMIT ────────────────────────────────────────────────────
             conn.commit();
 
@@ -167,6 +178,15 @@ public class AuctionService {
                 }
             }
         }
+    }
+
+    // Hàm lấy lịch sử (Dùng cho Visualization)
+    public List<BidHistory> getBidHistory(int auctionId) {
+        // Kiểm tra auction tồn tại
+        if (auctionDAO.getAuctionById(auctionId) == null) {
+            throw new AuctionNotFoundException("Lỗi: Không tìm thấy auction có ID: " + auctionId);
+        }
+        return bidHistoryDAO.getHistoryByAuctionId(auctionId);
     }
 
     // ── Đóng phiên đấu giá ───────────────────────────────────────────────────

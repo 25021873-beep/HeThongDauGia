@@ -17,7 +17,7 @@ public class BidTransactionDAO {
     // Thêm lượt trả giá mới
     public boolean addBid(BidTransaction bid) {
         String sql = "INSERT INTO Bid_Transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?,?,?,?)";
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bid.getAuctionId());
@@ -49,7 +49,7 @@ public class BidTransactionDAO {
         List<BidTransaction> list = new ArrayList<>();
         String sql = "SELECT * FROM Bid_Transactions WHERE auction_id = ? ORDER BY bid_time DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, auctionId);
@@ -76,7 +76,7 @@ public class BidTransactionDAO {
         List<BidTransaction> list = new ArrayList<>();
         String sql = "SELECT * FROM Bid_Transactions WHERE bidder_id = ? ORDER BY bid_time DESC";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, bidderId);
@@ -103,7 +103,7 @@ public class BidTransactionDAO {
         // Sắp xếp theo giá giảm dần (DESC) và chỉ lấy đúng 1 dòng đầu tiên (LIMIT 1)
         String sql = "SELECT * FROM Bid_Transactions WHERE auction_id = ? ORDER BY bid_price DESC LIMIT 1";
 
-        try (Connection conn = DatabaseConnection.getConnection();
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, auctionId);

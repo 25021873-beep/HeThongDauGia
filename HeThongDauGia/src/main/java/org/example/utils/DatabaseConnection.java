@@ -1,37 +1,56 @@
 package org.example.utils;
 
+import org.example.exception.database.DatabaseException;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-
 public class DatabaseConnection {
 
-    private static final String URL;
-    private static final String USER;
-    private static final String PASSWORD;
+    private static final String URL      = ConfigManager.getInstance().getString("db.url", "jdbc:mysql://localhost:3306/auction_system?useSSL=false");
+    private static final String USER     = ConfigManager.getInstance().getString("db.user", "root");
+    private static final String PASSWORD = ConfigManager.getInstance().getString("db.password", "");
 
-    static {
-        // Đọc từ biến môi trường nếu có, fallback về giá trị local dev
-        URL      = System.getenv().getOrDefault("DB_URL",  "jdbc:mysql://localhost:3306/auction_system?useSSL=false&serverTimezone=UTC");
-        USER     = System.getenv().getOrDefault("DB_USER", "root");
-        PASSWORD = System.getenv().getOrDefault("DB_PASS", "MinhMonMen0510.");
+    private static DatabaseConnection instance;
+    private Connection connection;
 
+    private DatabaseConnection() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            throw new ExceptionInInitializerError("Không tìm thấy MySQL JDBC Driver: " + e.getMessage());
+            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            System.out.println("[DB] Ket noi database thanh cong");
+        } catch (SQLException e) {
+            throw new DatabaseException("Khong the ket noi database: ",e);
         }
     }
 
-    private DatabaseConnection() {}
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
 
-    /**
-     * Trả về một Connection MỚI mỗi lần gọi.
-     * Caller (Service/DAO) có trách nhiệm đóng connection sau khi dùng xong
-     * (dùng try-with-resources).
-     */
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(URL, USER, PASSWORD);
+    public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                instance = new DatabaseConnection();
+                return instance.connection;
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Loi kiem tra ket noi: ",e);
+        }
+        return connection;
+    }
+
+    public void close() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                connection.close();
+                System.out.println("[DB] Da dong ket noi database");
+            }
+        } catch (SQLException e) {
+            System.err.println("[DB] Loi khi dong ket noi: " + e.getMessage());
+        }
     }
 }
