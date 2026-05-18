@@ -10,10 +10,10 @@ import org.example.exception.database.DatabaseException;
 import org.example.network.ClientHandler;
 import org.example.network.SessionContext;
 import org.example.service.AuctionEngine;
+import org.example.service.AuctionRoom;
 import org.example.service.AuctionService;
 
 import java.time.LocalDateTime;
-
 
 public class BidController {
 
@@ -58,10 +58,11 @@ public class BidController {
                         req.getAuctionId(), username,
                         req.getAmount(), LocalDateTime.now()));
 
-                // 2. Broadcast BidUpdateResponse tới TẤT CẢ observer trong phòng
-                //    (kể cả người vừa đặt — client tự xử lý nếu muốn bỏ qua)
-                //    Thay vì tự loop getViewers() → dùng Observer Pattern
-                auction.notifyBidPlaced(username, req.getAmount());
+                // 2. THAY ĐỔI: Lấy phòng từ Manager và phát thông báo
+                AuctionRoom room = engine.getRoomManager().getRoom(auction.getId());
+                if (room != null) {
+                    room.notifyBidPlaced(username, req.getAmount());
+                }
 
             } else {
                 session.send(SimpleResponse.error(

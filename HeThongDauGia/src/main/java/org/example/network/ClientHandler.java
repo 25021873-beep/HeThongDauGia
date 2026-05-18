@@ -5,7 +5,6 @@ import org.example.dto.response.AuctionResultResponse;
 import org.example.dto.response.BaseResponse;
 import org.example.dto.response.BidUpdateResponse;
 import org.example.dto.response.SimpleResponse;
-import org.example.entity.Auction;
 import org.example.network.controller.AuctionController;
 import org.example.network.controller.AuthController;
 import org.example.network.controller.BidController;
@@ -23,18 +22,7 @@ import java.math.BigDecimal;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * THAY ĐỔI:
- *   implements BidObserver → nhận event từ Auction qua interface.
- *
- *   onBidPlaced()    → gửi BidUpdateResponse về client
- *   onAuctionEnded() → gửi AuctionResultResponse về client
- *
- *   cleanUp(): auction.removeObserver(this) thay vì removeViewer(this)
- */
 public class ClientHandler implements Runnable, BidObserver {
 
     private final Socket         clientSocket;
@@ -61,19 +49,11 @@ public class ClientHandler implements Runnable, BidObserver {
 
     // ── BidObserver implementation ────────────────────────────────────────────
 
-    /**
-     * Auction gọi khi có bid mới → gửi UPDATE tới client này.
-     * Chạy trên thread của AuctionEngine hoặc thread của bidder.
-     * PrintWriter là thread-safe nên out.println() an toàn.
-     */
     @Override
     public void onBidPlaced(int auctionId, String bidderUsername, BigDecimal newPrice) {
         send(new BidUpdateResponse(auctionId, bidderUsername, newPrice));
     }
 
-    /**
-     * AuctionEngine gọi khi phiên kết thúc → gửi AUCTION_END tới client này.
-     */
     @Override
     public void onAuctionEnded(int auctionId, String auctionName,
                                String winnerUsername, BigDecimal finalPrice) {
@@ -132,11 +112,11 @@ public class ClientHandler implements Runnable, BidObserver {
     // ── Cleanup ───────────────────────────────────────────────────────────────
 
     private void cleanUp() {
-        // Hủy đăng ký khỏi tất cả phòng
-        List<Auction> snapshot = new ArrayList<>(engine.getActiveAuctions());
-        for (Auction a : snapshot) {
-            a.removeObserver(this); // thay vì removeViewer(this)
+        // THAY ĐỔI: Gọi xóa observer từ RoomManager thay vì từ từng Auction
+        if (engine != null && engine.getRoomManager() != null) {
+            engine.getRoomManager().clearObserverFromAllRooms(this);
         }
+
         try {
             if (out != null) out.close();
             if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();

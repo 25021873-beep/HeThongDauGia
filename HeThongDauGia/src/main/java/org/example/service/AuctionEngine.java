@@ -15,13 +15,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-
 public class AuctionEngine {
 
     private final ScheduledExecutorService scheduler      = Executors.newSingleThreadScheduledExecutor();
     private final List<Auction>            activeAuctions = new CopyOnWriteArrayList<>();
     private final AuctionDAO               auctionDAO;
     private final UserDAO                  userDAO;
+
+    // THAY ĐỔI: Khởi tạo RoomManager để quản lý các phòng
+    private final AuctionRoomManager       roomManager    = new AuctionRoomManager();
 
     private AuctionService auctionService;
 
@@ -43,6 +45,11 @@ public class AuctionEngine {
         this.auctionService = auctionService;
     }
 
+    // Lấy instance của RoomManager để các Controller gọi tới
+    public AuctionRoomManager getRoomManager() {
+        return roomManager;
+    }
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     public void startEngine() {
@@ -51,6 +58,10 @@ public class AuctionEngine {
         List<Auction> running = auctionDAO.getActiveAuctions();
         if (running != null && !running.isEmpty()) {
             activeAuctions.addAll(running);
+            // Khởi tạo phòng cho các phiên đang chạy
+            for (Auction a : running) {
+                roomManager.getOrCreateRoom(a);
+            }
         }
         System.out.println("[ENGINE] Da nap " + activeAuctions.size() + " phien dang chay.");
 
@@ -78,14 +89,19 @@ public class AuctionEngine {
             if (now.isAfter(auction.getEndTime())) {
                 boolean closed = auctionService.closeAuction(auction.getId());
                 if (closed) {
-                    // Lấy winnerUsername để broadcast kết quả
                     String     winnerUsername = resolveWinnerUsername(auction.getId());
                     BigDecimal finalPrice     = auction.getCurrentPrice();
 
-                    // Broadcast tới tất cả observer đang xem phòng
-                    auction.notifyAuctionEnded(winnerUsername, finalPrice);
+                    // THAY ĐỔI: Broadcast thông qua RoomManager
+                    AuctionRoom room = roomManager.getRoom(auction.getId());
+                    if (room != null) {
+                        room.notifyAuctionEnded(winnerUsername, finalPrice);
+                    }
 
                     toRemove.add(auction);
+                    // Dọn dẹp phòng khi phiên kết thúc
+                    roomManager.removeRoom(auction.getId());
+
                     System.out.println("[ENGINE] Da chot phien ID " + auction.getId()
                             + " | Winner: " + (winnerUsername != null ? winnerUsername : "Khong co"));
                 } else {
@@ -121,6 +137,7 @@ public class AuctionEngine {
                     "[ENGINE] Chi nap phien co trang thai: " + STATUS_ACTIVE);
         }
         activeAuctions.add(auction);
+        roomManager.getOrCreateRoom(auction); // Tạo phòng mới
         System.out.println("[ENGINE] Nap phien moi ID: " + auction.getId());
     }
 
@@ -137,7 +154,6 @@ public class AuctionEngine {
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
-    /** Lấy username của winner từ DB. Trả về null nếu không có ai đặt giá. */
     private String resolveWinnerUsername(int auctionId) {
         try {
             Auction updated = auctionDAO.getAuctionById(auctionId);

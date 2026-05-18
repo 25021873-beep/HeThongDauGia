@@ -12,11 +12,6 @@ import org.example.service.AuctionEngine;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * THAY ĐỔI:
- *   handleJoin(): auction.addObserver(this.handler)
- *   thay vì     auction.addViewer(handler)
- */
 public class AuctionController {
 
     private final SessionContext session;
@@ -59,8 +54,8 @@ public class AuctionController {
             return;
         }
 
-        // Đăng ký handler làm BidObserver của phòng này
-        auction.addObserver(handler);
+        // THAY ĐỔI: Đăng ký handler vào phòng thông qua RoomManager
+        engine.getRoomManager().joinRoom(auction, handler);
 
         session.send(new JoinResponse(
                 auction.getId(),

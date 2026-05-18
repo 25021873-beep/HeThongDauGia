@@ -1,13 +1,9 @@
 package org.example.entity;
 
 import org.example.entity.item.Item;
-import org.example.observer.BidObserver;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 
 public class Auction {
 
@@ -20,9 +16,6 @@ public class Auction {
     private int           winnerId;
     private volatile boolean active;
     private Item          item;
-
-    // Thay List<ClientHandler> bằng List<BidObserver>
-    private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
 
     public Auction() {}
 
@@ -37,59 +30,6 @@ public class Auction {
         this.status       = status;
         this.winnerId     = winnerId;
         this.active       = true;
-    }
-
-    // ── Observer management ───────────────────────────────────────────────────
-
-    /** Đăng ký observer — gọi khi client JOIN phòng */
-    public void addObserver(BidObserver observer) {
-        if (!observers.contains(observer)) {
-            observers.add(observer);
-        }
-    }
-
-    /** Hủy đăng ký — gọi khi client LOGOUT hoặc ngắt kết nối */
-    public void removeObserver(BidObserver observer) {
-        observers.remove(observer);
-    }
-
-    public List<BidObserver> getObservers() {
-        return observers;
-    }
-
-    // ── Notify (gọi từ BidController và AuctionEngine) ───────────────────────
-
-    /**
-     * Broadcast bid mới tới tất cả observer.
-     * Gọi sau khi placeBid() thành công trong BidController.
-     */
-    public void notifyBidPlaced(String bidderUsername, BigDecimal newPrice) {
-        for (BidObserver observer : observers) {
-            try {
-                observer.onBidPlaced(id, bidderUsername, newPrice);
-            } catch (Exception e) {
-                // Không để 1 observer lỗi làm hỏng các observer còn lại
-                System.err.println("[AUCTION] notifyBidPlaced loi: " + e.getMessage());
-            }
-        }
-    }
-
-    /**
-     * Broadcast kết thúc phiên tới tất cả observer.
-     * Gọi từ AuctionEngine sau closeAuction().
-     *
-     * @param winnerUsername null nếu không có ai đặt giá
-     */
-    public void notifyAuctionEnded(String winnerUsername, BigDecimal finalPrice) {
-        this.active = false;
-        this.status = "FINISHED";
-        for (BidObserver observer : observers) {
-            try {
-                observer.onAuctionEnded(id, getName(), winnerUsername, finalPrice);
-            } catch (Exception e) {
-                System.err.println("[AUCTION] notifyAuctionEnded loi: " + e.getMessage());
-            }
-        }
     }
 
     // ── Business methods ──────────────────────────────────────────────────────
