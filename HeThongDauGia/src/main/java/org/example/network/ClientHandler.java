@@ -12,6 +12,7 @@ import org.example.network.controller.UserController;
 import org.example.observer.BidObserver;
 import org.example.service.AuctionEngine;
 import org.example.service.AuctionService;
+import org.example.service.AutoBidService;
 import org.example.service.UserService;
 
 import java.io.BufferedReader;
@@ -29,16 +30,18 @@ public class ClientHandler implements Runnable, BidObserver {
     private final AuctionEngine  engine;
     private final UserService    userService;
     private final AuctionService auctionService;
+    private final AutoBidService autoBidService;
 
     private volatile PrintWriter out;
     private final Gson           gson;
 
     public ClientHandler(Socket socket, AuctionEngine engine,
-                         UserService userService, AuctionService auctionService) {
+                         UserService userService, AuctionService auctionService, AutoBidService autoBidService) {
         this.clientSocket   = socket;
         this.engine         = engine;
         this.userService    = userService;
         this.auctionService = auctionService;
+        this.autoBidService = autoBidService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class,
                         (JsonDeserializer<LocalDateTime>) (json, type, ctx) ->

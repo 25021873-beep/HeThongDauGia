@@ -23,6 +23,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 
 public class AuctionService {
@@ -32,6 +33,7 @@ public class AuctionService {
     private UserDAO userDAO = new UserDAO();
     private BidHistoryDAO bidHistoryDAO = new BidHistoryDAO();
     private AuctionEngine engine;
+    private AutoBidService autoBidService;
 
     private static AuctionService instance;
 
@@ -46,6 +48,10 @@ public class AuctionService {
 
     public void setEngine(AuctionEngine engine) {
         this.engine = engine;
+    }
+
+    public void setAutoBidService(AutoBidService autoBidService) {
+        this.autoBidService = autoBidService;
     }
 
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
@@ -93,7 +99,7 @@ public class AuctionService {
      * Exception kỹ thuật (DatabaseException) vẫn được ném ra để
      * BidController có thể log và gửi lỗi hệ thống về client.
      */
-    public boolean placeBid(int bidderId, int auctionId, BigDecimal bidAmount) {
+    public synchronized boolean placeBid(int bidderId, int auctionId, BigDecimal bidAmount) {
         Connection conn = null;
         try {
             // Lấy 1 connection riêng cho toàn bộ transaction này
@@ -162,6 +168,9 @@ public class AuctionService {
             entry.setBidTime(LocalDateTime.now());
             bidHistoryDAO.addBidHistory(entry);
 
+            // 6. Gọi auto bid (để ở thread riêng để các bidder không phải đợi khi có nhiều con bot auto bid cùng lúc)
+            autoBidService.triggerAsync(auctionId,bidderId);
+
             // III. COMMIT ────────────────────────────────────────────────────
             conn.commit();
             return true; // ← thành công
@@ -210,7 +219,7 @@ public class AuctionService {
      * AuctionEngine gọi: boolean isClosed = auctionService.closeAuction(...)
      * Nếu vẫn để void → compile error.
      */
-    public boolean closeAuction(int auctionId) {
+    public synchronized boolean closeAuction(int auctionId) {
         try {
             Auction auction = auctionDAO.getAuctionById(auctionId);
             if (auction == null) {
