@@ -24,6 +24,8 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 
 public class AuctionService {
@@ -35,6 +37,7 @@ public class AuctionService {
     private AuctionEngine engine;
     private AutoBidService autoBidService;
 
+    private final ConcurrentHashMap<Integer, ReentrantLock> auctionLocks = new ConcurrentHashMap<>();
     private static AuctionService instance;
 
     private AuctionService() {}
@@ -52,6 +55,12 @@ public class AuctionService {
 
     public void setAutoBidService(AutoBidService autoBidService) {
         this.autoBidService = autoBidService;
+    }
+
+
+    // Hàm cấp khóa (FIFO)
+    public ReentrantLock getLock(int auctionId) {
+        return auctionLocks.computeIfAbsent(auctionId, id -> new ReentrantLock(true));
     }
 
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
@@ -88,18 +97,9 @@ public class AuctionService {
 
     // ── Đặt giá ───────────────────────────────────────────────────────────────
 
-    /**
-     * FIX Bug 1: Đổi return type từ void → boolean.
-     *   - true  : đặt giá thành công
-     *   - false : lỗi nghiệp vụ (ví dụ giá thấp, hết tiền)
-     *
-     * BidController gọi: boolean success = auctionService.placeBid(...)
-     * Nếu vẫn để void → compile error.
-     *
-     * Exception kỹ thuật (DatabaseException) vẫn được ném ra để
-     * BidController có thể log và gửi lỗi hệ thống về client.
-     */
-    public synchronized boolean placeBid(int bidderId, int auctionId, BigDecimal bidAmount) {
+    public boolean placeBid(int bidderId, int auctionId, BigDecimal bidAmount) {
+        ReentrantLock lock = getLock(auctionId);
+        lock.lock();
         Connection conn = null;
         try {
             // Lấy 1 connection riêng cho toàn bộ transaction này
@@ -197,6 +197,7 @@ public class AuctionService {
                     System.err.println("[BID] Loi khi dong connection: " + e.getMessage());
                 }
             }
+            lock.unlock();
         }
     }
 
@@ -211,15 +212,9 @@ public class AuctionService {
 
     // ── Đóng phiên đấu giá ───────────────────────────────────────────────────
 
-    /**
-     * FIX Bug 2: Đổi return type từ void → boolean.
-     *   - true  : đóng thành công
-     *   - false : lỗi (không tìm thấy, sai trạng thái)
-     *
-     * AuctionEngine gọi: boolean isClosed = auctionService.closeAuction(...)
-     * Nếu vẫn để void → compile error.
-     */
-    public synchronized boolean closeAuction(int auctionId) {
+    public boolean closeAuction(int auctionId) {
+        ReentrantLock lock = getLock(auctionId);
+        lock.lock();
         try {
             Auction auction = auctionDAO.getAuctionById(auctionId);
             if (auction == null) {
@@ -246,6 +241,9 @@ public class AuctionService {
         } catch (Exception e) {
             System.err.println("[CLOSE] Loi ky thuat: " + e.getMessage());
             return false;
+        } finally {
+            lock.unlock();
+            auctionLocks.remove(auctionId);
         }
     }
 

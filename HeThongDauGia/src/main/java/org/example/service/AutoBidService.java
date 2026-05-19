@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AutoBidService {
 
@@ -35,10 +36,13 @@ public class AutoBidService {
     }
 
     // Hàm đăng ký auto-bid
-    public synchronized void registerAutoBid(int bidderId, int auctionId, BigDecimal maxBid, BigDecimal increment) {
+    public void registerAutoBid(int bidderId, int auctionId, BigDecimal maxBid, BigDecimal increment) {
+        ReentrantLock lock = auctionService.getLock(auctionId);
+        lock.lock();
+        try {
         Auction auction = auctionDAO.getAuctionById(auctionId);
         if (auction == null) throw new AuctionNotFoundException("Lỗi: Không tìm thấy auction có id: " +  auctionId);
-        if (auction.getStatus() == "FINISHED") throw new AuctionClosedException("Lỗi: Auction có id: " + auctionId + " đã đóng");
+        if ("FINISHED".equals(auction.getStatus())) throw new AuctionClosedException("Lỗi: Auction có id: " + auctionId + " đã đóng");
 
         if (maxBid.compareTo(auction.getCurrentPrice()) <= 0) {
             throw new InvalidBidException("maxBid phai lon hon gia hien tai: " + auction.getCurrentPrice());
@@ -58,12 +62,15 @@ public class AutoBidService {
         config.setMaxBid(maxBid);
         config.setIncrement(increment);
         autoBidDAO.saveOrUpdate(config);
-    }
+    } finally {
+            lock.unlock();
+        }
+        }
 
-    // Hàm Trigger sau mỗi bid thành công
+    // Hàm Trigger bot chạy hàm placeBid() sau mỗi bid thành công
     public void triggerAutoBid(int auctionId, int triggerBidderId) {
         Auction auction = auctionDAO.getAuctionById(auctionId);
-        if (auction == null || auction.getStatus() != "RUNNING") return;
+        if (auction == null || !"RUNNING".equals(auction.getStatus())) return;
 
         List<AutoBidConfig> configs = autoBidDAO.getActiveAutoBids(auctionId);
 
