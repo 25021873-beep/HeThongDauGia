@@ -1,6 +1,7 @@
 package org.example.dao;
 
 import org.example.entity.Auction;
+import org.example.entity.item.Item;
 import org.example.exception.database.DatabaseException;
 import org.example.utils.DatabaseConnection;
 
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.math.BigDecimal;
+
+import static org.example.dao.item.ItemFactory.createItem;
 
 public class AuctionDAO {
 
@@ -35,7 +38,16 @@ public class AuctionDAO {
 
     // Lấy chi tiết một phiên
     public Auction getAuctionById(int id) {
-        String sql = "SELECT * FROM Auctions WHERE id = ?";
+        String sql = """
+SELECT a.*,
+       i.id AS item_id, i.item_type AS item_item_type,
+                  i.name AS item_name, i.description AS item_description,
+                  i.starting_price AS item_starting_price, i.status AS item_status,
+                  i.warranty_months AS item_warranty_months, i.author AS item_author, i.engine_type AS item_engine_type
+FROM Auctions a
+JOIN Items i ON a.item_id = i.id
+WHERE a.id = ?
+""";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -52,6 +64,8 @@ public class AuctionDAO {
                     auction.setCurrentPrice(rs.getBigDecimal("current_price"));
                     auction.setStatus(rs.getString("status"));
                     auction.setWinnerId(rs.getInt("winner_id")); // Có thể null nếu chưa kết thúc
+
+                    auction.setItem(createItem(rs,"item_"));
                     return auction;
                 }
             }
@@ -64,7 +78,16 @@ public class AuctionDAO {
     // Lấy danh sách các phiên đang chạy
     public List<Auction> getActiveAuctions() {
         List<Auction> list = new ArrayList<>();
-        String sql = "SELECT * FROM Auctions WHERE status = 'RUNNING' OR status = 'OPEN'";
+        String sql = """
+SELECT a.*,
+       i.id AS item_id, i.item_type AS item_item_type,
+                  i.name AS item_name, i.description AS item_description,
+                  i.starting_price AS item_starting_price, i.status AS item_status,
+                  i.warranty_months AS item_warranty_months, i.author AS item_author, i.engine_type AS item_engine_type
+FROM Auctions a
+JOIN Items i ON a.item_id = i.id
+WHERE a.status = 'RUNNING'
+""";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -78,7 +101,9 @@ public class AuctionDAO {
                 auction.setEndTime(rs.getObject("end_time", LocalDateTime.class));
                 auction.setCurrentPrice(rs.getBigDecimal("current_price"));
                 auction.setStatus(rs.getString("status"));
-                // Đang chạy thì chắc chắn chưa có winner_id nên bỏ qua cũng được
+
+
+                auction.setItem(createItem(rs,"item_"));
                 list.add(auction);
             }
         } catch (SQLException e) {
@@ -134,7 +159,16 @@ public class AuctionDAO {
     // Lấy danh sách các phiên đã thắng
     public List<Auction> getWonAuctions(int userId) {
         List<Auction> list = new ArrayList<>();
-        String sql = "SELECT * FROM Auctions WHERE winner_id = ? AND status = 'FINISHED'";
+        String sql = """
+SELECT a.*,
+       i.id AS item_id, i.item_type AS item_item_type,
+                  i.name AS item_name, i.description AS item_description,
+                  i.starting_price AS item_starting_price, i.status AS item_status,
+                  i.warranty_months AS item_warranty_months, i.author AS item_author, i.engine_type AS item_engine_type
+FROM Auctions a
+JOIN Items i ON a.item_id = i.id
+WHERE a.winner_id = ? AND a.status = 'FINISHED'
+""";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -151,6 +185,7 @@ public class AuctionDAO {
                     auction.setCurrentPrice(rs.getBigDecimal("current_price"));
                     auction.setStatus(rs.getString("status"));
                     auction.setWinnerId(rs.getInt("winner_id"));
+                    auction.setItem(createItem(rs,"item_"));
                     list.add(auction);
                 }
             }
@@ -163,7 +198,16 @@ public class AuctionDAO {
     // Lấy lịch sử đấu giá của một Item
     public List<Auction> getAuctionsByItem(int itemId) {
         List<Auction> list = new ArrayList<>();
-        String sql = "SELECT * FROM Auctions WHERE item_id = ?";
+        String sql = """
+SELECT a.*,
+       i.id AS item_id, i.item_type AS item_item_type,
+                  i.name AS item_name, i.description AS item_description,
+                  i.starting_price AS item_starting_price, i.status AS item_status,
+                  i.warranty_months AS item_warranty_months, i.author AS item_author, i.engine_type AS item_engine_type
+FROM Auctions a
+JOIN Items i ON a.item_id = i.id
+WHERE a.item_id = ?
+""";;
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -180,6 +224,7 @@ public class AuctionDAO {
                     auction.setCurrentPrice(rs.getBigDecimal("current_price"));
                     auction.setStatus(rs.getString("status"));
                     auction.setWinnerId(rs.getInt("winner_id"));
+                    auction.setItem(createItem(rs,"item_"));
                     list.add(auction);
                 }
             }

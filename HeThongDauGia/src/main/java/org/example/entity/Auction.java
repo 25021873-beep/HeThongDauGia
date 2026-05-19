@@ -26,7 +26,7 @@ public class Auction extends BaseEntity {
         this.currentPrice = startingPrice;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.status = "OPEN"; // Tạo mới thì mặc định chưa chạy
+        this.status = "RUNNING"; // Tạo mới thì mặc định chưa chạy
     }
 
     // --- GETTER & SETTER CƠ BẢN (Mày tự dùng IDE generate thêm cho đủ) ---
