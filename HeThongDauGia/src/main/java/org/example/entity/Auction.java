@@ -1,79 +1,34 @@
 package org.example.entity;
 
-import org.example.entity.BaseEntity;
 import org.example.entity.item.Item;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class Auction extends BaseEntity {
-    // --- THUỘC TÍNH CỐT LÕI (Mapping 1-1 với Database) ---
-    private int id;
-    private int itemId;
-    private BigDecimal currentPrice;
+
+    private int           id;
+    private int           itemId;
+    private BigDecimal    currentPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String status; // Trạng thái: RUNNING, FINISHED, PAID, CANCELED
-    private int winnerId;
-
-    private Item item;
+    private String        status;   // RUNNING, FINISHED, PAID, CANCELED
+    private int           winnerId;
+    private Item          item;
 
     // --- CONSTRUCTORS ---
     public Auction() {}
 
-    public Auction(int itemId, BigDecimal startingPrice, LocalDateTime startTime, LocalDateTime endTime) {
-        this.itemId = itemId;
+    public Auction(int itemId, BigDecimal startingPrice,
+                   LocalDateTime startTime, LocalDateTime endTime) {
+        this.itemId       = itemId;
         this.currentPrice = startingPrice;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = "RUNNING"; // Tạo mới thì mặc định chưa chạy
+        this.startTime    = startTime;
+        this.endTime      = endTime;
+        this.status       = "RUNNING";
     }
 
-    // --- GETTER & SETTER CƠ BẢN (Mày tự dùng IDE generate thêm cho đủ) ---
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
-
-    public int getItemId() {
-        return itemId;
-    }
-
-    public void setItemId(int itemId) {
-        this.itemId = itemId;
-    }
-
-    public BigDecimal getCurrentPrice() {
-        return currentPrice;
-    }
-
-    public LocalDateTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public int getWinnerId() {
-        return winnerId;
-    }
-
-    public void setWinnerId(int winnerId) {
-        this.winnerId = winnerId;
-    }
-
-    public Item getItem() {
-        return item;
-    }
-
-    public void setItem(Item item) {
-        this.item = item;
-    }
+    // --- BUSINESS METHODS ---
 
     public boolean isActive() {
         return "RUNNING".equals(this.status);
@@ -85,10 +40,41 @@ public class Auction extends BaseEntity {
         }
     }
 
+    /** Tên hiển thị của phiên — dùng trong AuctionRoom và notify */
+    public String getName() {
+        return (item != null && item.getName() != null)
+                ? item.getName()
+                : "Phien #" + id;
+    }
+
+    // --- GETTERS & SETTERS ---
+
+    public int getId()                           { return id; }
+    public void setId(int id)                    { this.id = id; }
+
+    public String getStatus()                    { return status; }
+    public void setStatus(String status)         { this.status = status; }
+
+    public LocalDateTime getEndTime()            { return endTime; }
+    public void setEndTime(LocalDateTime endTime){ this.endTime = endTime; }
+
+    public int getItemId()                       { return itemId; }
+    public void setItemId(int itemId)            { this.itemId = itemId; }
+
+    public BigDecimal getCurrentPrice()          { return currentPrice; }
     public void setCurrentPrice(BigDecimal price) {
         if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Lỗi: Giá đấu không được âm!");
+            throw new IllegalArgumentException("Gia dau khong duoc am!");
         }
         this.currentPrice = price;
     }
+
+    public LocalDateTime getStartTime()                { return startTime; }
+    public void setStartTime(LocalDateTime startTime)  { this.startTime = startTime; }
+
+    public int getWinnerId()                     { return winnerId; }
+    public void setWinnerId(int winnerId)        { this.winnerId = winnerId; }
+
+    public Item getItem()                        { return item; }
+    public void setItem(Item item)               { this.item = item; }
 }

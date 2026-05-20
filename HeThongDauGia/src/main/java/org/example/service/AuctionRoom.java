@@ -1,59 +1,64 @@
 package org.example.service;
 
-import org.example.entity.Auction;
 import org.example.observer.BidObserver;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * AuctionRoom đóng vai trò là một "vỏ bọc" (Wrapper) cho Auction entity.
- * Nó tách biệt logic quản lý người xem (Observers) ra khỏi dữ liệu lõi của Auction.
+ * Đại diện cho một "phòng" đấu giá trên server.
+ * Quản lý danh sách observer (ClientHandler) đang theo dõi phiên này.
  */
 public class AuctionRoom {
-    private final Auction auction;
+
+    private final int               auctionId;
+    private final String            auctionName;
     private final List<BidObserver> observers = new CopyOnWriteArrayList<>();
 
-    public AuctionRoom(Auction auction) {
-        this.auction = auction;
+    public AuctionRoom(int auctionId, String auctionName) {
+        this.auctionId   = auctionId;
+        this.auctionName = auctionName;
     }
 
-    public Auction getAuction() {
-        return auction;
+    // ── Observer management ───────────────────────────────────────────────────
+
+    public void addObserver(BidObserver o) {
+        if (!observers.contains(o)) observers.add(o);
     }
 
-    public void addObserver(BidObserver observer) {
-        if (!observers.contains(observer)) {
-            observers.add(observer);
-        }
+    public void removeObserver(BidObserver o) {
+        observers.remove(o);
     }
 
-    public void removeObserver(BidObserver observer) {
-        observers.remove(observer);
-    }
+    // ── Notify ────────────────────────────────────────────────────────────────
 
-    public void notifyBidPlaced(String bidderUsername, BigDecimal newPrice) {
-        for (BidObserver observer : observers) {
-            try {
-                observer.onBidPlaced(auction.getId(), bidderUsername, newPrice);
-            } catch (Exception e) {
-                System.err.println("[ROOM] notifyBidPlaced lỗi cho client: " + e.getMessage());
+    public void notifyBidPlaced(String bidder, BigDecimal price) {
+        for (BidObserver o : observers) {
+            try { o.onBidPlaced(auctionId, bidder, price); }
+            catch (Exception e) {
+                System.err.println("[ROOM] notifyBidPlaced loi: " + e.getMessage());
             }
         }
     }
 
-    public void notifyAuctionEnded(String winnerUsername, BigDecimal finalPrice) {
-        for (BidObserver observer : observers) {
-            try {
-                observer.onAuctionEnded(auction.getId(), auction.getItem().getName(), winnerUsername, finalPrice);
-            } catch (Exception e) {
-                System.err.println("[ROOM] notifyAuctionEnded lỗi cho client: " + e.getMessage());
+    public void notifyAuctionEnded(String winner, BigDecimal finalPrice) {
+        for (BidObserver o : observers) {
+            try { o.onAuctionEnded(auctionId, auctionName, winner, finalPrice); }
+            catch (Exception e) {
+                System.err.println("[ROOM] notifyAuctionEnded loi: " + e.getMessage());
             }
         }
     }
 
-    public int getObserverCount() {
-        return observers.size();
+    /** Gọi sau khi anti-snipe kích hoạt — broadcast thời gian mới tới toàn phòng */
+    public void notifyAuctionExtended(LocalDateTime newEndTime, int addedSeconds) {
+        for (BidObserver o : observers) {
+            try { o.onAuctionExtended(auctionId, newEndTime, addedSeconds); }
+            catch (Exception e) {
+                System.err.println("[ROOM] notifyAuctionExtended loi: " + e.getMessage());
+            }
+        }
     }
 }

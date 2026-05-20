@@ -2,12 +2,15 @@ package org.example.network.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.example.dto.request.GetBidHistoryRequest;
 import org.example.dto.request.JoinRequest;
 import org.example.dto.response.*;
 import org.example.entity.Auction;
+import org.example.entity.BidHistory;
 import org.example.network.ClientHandler;
 import org.example.network.SessionContext;
 import org.example.service.AuctionEngine;
+import org.example.service.AuctionService;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -54,7 +57,6 @@ public class AuctionController {
             return;
         }
 
-        // THAY ĐỔI: Đăng ký handler vào phòng thông qua RoomManager
         engine.getRoomManager().joinRoom(auction, handler);
 
         session.send(new JoinResponse(
@@ -63,5 +65,32 @@ public class AuctionController {
                 auction.getCurrentPrice(),
                 auction.getEndTime(),
                 auction.getStatus()));
+    }
+
+    // ── GET_BID_HISTORY (Phục vụ Visualization) ───────────────────────────────
+
+    public void handleGetBidHistory(JsonObject json) {
+        if (!session.requireLogin()) return;
+        GetBidHistoryRequest req = gson.fromJson(json, GetBidHistoryRequest.class);
+
+        try {
+            // Lấy service thông qua instance
+            List<BidHistory> history = AuctionService.getInstance().getBidHistory((int) req.getAuctionId());
+
+            // Chuyển đổi Entity sang DTO cho Response
+            List<BidHistoryResponse.BidPoint> points = history.stream()
+                    .map(h -> new BidHistoryResponse.BidPoint(
+                            h.getBidderUsername(),
+                            h.getPrice(),
+                            h.getBidTime()))
+                    .collect(Collectors.toList());
+
+            session.send(new BidHistoryResponse("SUCCESS", "Lay lich su thanh cong",
+                    req.getAuctionId(), points));
+
+        } catch (Exception e) {
+            System.err.println("[AUCTION_CTRL] Loi lay lich su bid: " + e.getMessage());
+            session.send(SimpleResponse.error("Khong the lay lich su dau gia. " + e.getMessage()));
+        }
     }
 }

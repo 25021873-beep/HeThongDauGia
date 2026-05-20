@@ -75,6 +75,15 @@ public class CommandRouter {
                 userController.handleTopUp(json);
                 return false;
 
+
+            case "SET_AUTO_BID":
+                bidController.handleAutoBid(json);
+                return false;
+
+            case "GET_BID_HISTORY":
+                auctionController.handleGetBidHistory(json);
+                return false;
+
             default:
                 session.send(SimpleResponse.error("Lenh khong hop le: " + command));
                 return false;

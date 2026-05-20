@@ -3,47 +3,44 @@ package org.example.service;
 import org.example.entity.Auction;
 import org.example.observer.BidObserver;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * AuctionRoomManager quản lý toàn bộ các phòng đấu giá đang hoạt động.
- * Đây là trung tâm điều phối việc tham gia/rời phòng và phát thông báo.
+ * Quản lý toàn bộ AuctionRoom đang hoạt động.
+ * Được inject vào AuctionEngine và các Controller.
  */
 public class AuctionRoomManager {
-    // Quản lý: ID Phiên -> AuctionRoom tương ứng
-    private final ConcurrentHashMap<Integer, AuctionRoom> activeRooms = new ConcurrentHashMap<>();
 
-    /** Tạo hoặc lấy phòng đấu giá hiện có */
+    private final Map<Integer, AuctionRoom> rooms = new ConcurrentHashMap<>();
+
+    /** Lấy hoặc tạo phòng cho phiên — gọi khi phiên bắt đầu */
     public AuctionRoom getOrCreateRoom(Auction auction) {
-        return activeRooms.computeIfAbsent(auction.getId(), id -> new AuctionRoom(auction));
+        return rooms.computeIfAbsent(
+                auction.getId(),
+                id -> new AuctionRoom(id, auction.getName())
+        );
     }
 
-    /** Người dùng tham gia xem một phiên */
-    public void joinRoom(Auction auction, BidObserver observer) {
-        getOrCreateRoom(auction).addObserver(observer);
-    }
-
-    /** Người dùng rời một phiên cụ thể */
-    public void leaveRoom(int auctionId, BidObserver observer) {
-        AuctionRoom room = activeRooms.get(auctionId);
-        if (room != null) {
-            room.removeObserver(observer);
-        }
-    }
-
-    /** Hủy đăng ký khỏi tất cả các phòng (dùng khi client ngắt kết nối) */
-    public void clearObserverFromAllRooms(BidObserver observer) {
-        for (AuctionRoom room : activeRooms.values()) {
-            room.removeObserver(observer);
-        }
-    }
-
-    /** Xóa phòng khi phiên đấu giá kết thúc */
-    public void removeRoom(int auctionId) {
-        activeRooms.remove(auctionId);
-    }
-
+    /** Lấy phòng theo ID — trả null nếu chưa tạo */
     public AuctionRoom getRoom(int auctionId) {
-        return activeRooms.get(auctionId);
+        return rooms.get(auctionId);
+    }
+
+    /** Xóa phòng khi phiên kết thúc */
+    public void removeRoom(int auctionId) {
+        rooms.remove(auctionId);
+    }
+
+    /** Dọn observer khỏi tất cả phòng — gọi khi client ngắt kết nối */
+    public void clearObserverFromAllRooms(BidObserver observer) {
+        for (AuctionRoom room : rooms.values()) {
+            room.removeObserver(observer);
+        }
+    }
+    /** Client JOIN phòng — tạo phòng nếu chưa có, rồi đăng ký observer */
+    public void joinRoom(Auction auction, BidObserver observer) {
+        AuctionRoom room = getOrCreateRoom(auction);
+        room.addObserver(observer);
     }
 }

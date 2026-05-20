@@ -2,16 +2,19 @@ package org.example.network.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.example.dto.BidResult;
+import org.example.dto.request.AutoBidRequest;
 import org.example.dto.request.BidRequest;
+import org.example.dto.response.AutoBidResponse;
 import org.example.dto.response.BidResponse;
 import org.example.dto.response.SimpleResponse;
 import org.example.entity.Auction;
-import org.example.exception.database.DatabaseException;
 import org.example.network.ClientHandler;
 import org.example.network.SessionContext;
 import org.example.service.AuctionEngine;
 import org.example.service.AuctionRoom;
 import org.example.service.AuctionService;
+import org.example.service.AutoBidService;
 
 import java.time.LocalDateTime;
 
@@ -22,6 +25,8 @@ public class BidController {
     private final AuctionService auctionService;
     private final ClientHandler  handler;
     private final Gson           gson;
+    // Thêm AutoBidService
+    private AutoBidService autoBidService;
 
     public BidController(SessionContext session, AuctionEngine engine,
                          AuctionService auctionService, ClientHandler handler, Gson gson) {
@@ -30,6 +35,10 @@ public class BidController {
         this.auctionService = auctionService;
         this.handler        = handler;
         this.gson           = gson;
+    }
+
+    public void setAutoBidService(AutoBidService autoBidService) {
+        this.autoBidService = autoBidService;
     }
 
     // ── BID ───────────────────────────────────────────────────────────────────
@@ -45,33 +54,76 @@ public class BidController {
         }
 
         try {
-            boolean success = auctionService.placeBid(
+            BidResult result = auctionService.placeBid(
                     session.getCurrentUser().getId(),
                     req.getAuctionId(),
                     req.getAmount());
 
-            if (success) {
+            if (result.isSuccess()) {
                 String username = session.getCurrentUser().getUsername();
 
-                // 1. Gửi BidResponse riêng cho người đặt (confirm cá nhân)
+                // 1. Confirm cá nhân cho người đặt
                 session.send(new BidResponse(
                         req.getAuctionId(), username,
                         req.getAmount(), LocalDateTime.now()));
 
-                // 2. THAY ĐỔI: Lấy phòng từ Manager và phát thông báo
                 AuctionRoom room = engine.getRoomManager().getRoom(auction.getId());
                 if (room != null) {
+                    // 2. Broadcast giá mới tới toàn phòng
                     room.notifyBidPlaced(username, req.getAmount());
+
+                    // 3. Nếu bị gia hạn anti-snipe → broadcast thời gian mới
+                    if (result.isExtended()) {
+                        room.notifyAuctionExtended(
+                                result.getNewEndTime(),
+                                result.getExtendedSeconds());
+                    }
                 }
 
             } else {
                 session.send(SimpleResponse.error(
-                        "Dat gia that bai: gia phai cao hon gia hien tai hoac khong du tien"));
+                        "Dat gia that bai: " + result.getErrorMessage()));
             }
 
-        } catch (DatabaseException e) {
-            System.err.println("[BID] Loi DB: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("[BID] Loi he thong: " + e.getMessage());
             session.send(SimpleResponse.error("Loi he thong, vui long thu lai sau"));
+        }
+    }
+
+    // ── AUTO-BID ──────────────────────────────────────────────────────────────
+
+    public void handleAutoBid(JsonObject json) {
+        if (!session.requireLogin()) return;
+
+        if (autoBidService == null) {
+            session.send(SimpleResponse.error("He thong Auto-bid chua duoc khoi tao."));
+            return;
+        }
+
+        AutoBidRequest req = gson.fromJson(json, AutoBidRequest.class);
+
+        try {
+            // Đăng ký cấu hình Auto-bid
+            autoBidService.registerAutoBid(
+                    session.getCurrentUser().getId(),
+                    (int) req.getAuctionId(),
+                    req.getMaxBid(),
+                    req.getIncrement()
+            );
+
+            // Gửi xác nhận về cho Client
+            session.send(new AutoBidResponse(
+                    "SUCCESS",
+                    "Dang ky auto-bid thanh cong",
+                    req.getAuctionId(),
+                    req.getMaxBid(),
+                    req.getIncrement()
+            ));
+
+        } catch (Exception e) {
+            System.err.println("[BID_CTRL] Loi dang ky auto-bid: " + e.getMessage());
+            session.send(SimpleResponse.error("Loi dang ky auto-bid: " + e.getMessage()));
         }
     }
 }
