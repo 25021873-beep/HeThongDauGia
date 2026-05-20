@@ -40,12 +40,7 @@ public class Auction extends BaseEntity {
         }
     }
 
-    /** Tên hiển thị của phiên — dùng trong AuctionRoom và notify */
-    public String getName() {
-        return (item != null && item.getName() != null)
-                ? item.getName()
-                : "Phien #" + id;
-    }
+
 
     // --- GETTERS & SETTERS ---
 

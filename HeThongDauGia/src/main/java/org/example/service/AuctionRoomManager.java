@@ -18,7 +18,7 @@ public class AuctionRoomManager {
     public AuctionRoom getOrCreateRoom(Auction auction) {
         return rooms.computeIfAbsent(
                 auction.getId(),
-                id -> new AuctionRoom(id, auction.getName())
+                id -> new AuctionRoom(id, auction.getItem().getName())
         );
     }
 
