@@ -20,6 +20,7 @@ public abstract class BaseResponse {
     public static final String STATUS_UPDATE      = "UPDATE";
     public static final String STATUS_LIST        = "LIST_SUCCESS";
     public static final String STATUS_AUCTION_END = "AUCTION_END";
+    public static final String STATUS_AUCTION_STARTED = "AUCTION_STARTED";
 
     // Gson instance dùng chung - thread-safe
     static final Gson GSON = new GsonBuilder()

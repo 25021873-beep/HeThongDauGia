@@ -11,7 +11,7 @@ public class ConfigManager {
         properties = new Properties();
         try (InputStream input = getClass().getClassLoader().getResourceAsStream("application.properties")) {
             if (input == null) {
-                System.err.println("[CONFIG] Loi: Đéo tìm thấy file application.properties");
+                System.err.println("[CONFIG] Loi: Không tìm thấy file application.properties");
                 return;
             }
             properties.load(input);

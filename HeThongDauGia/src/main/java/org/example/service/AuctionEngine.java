@@ -66,14 +66,14 @@ public class AuctionEngine {
 
         scheduler.scheduleAtFixedRate(() -> {
             try {
-                checkAndCloseExpiredAuctions();
+                updateAuctionStates();
             } catch (Exception e) {
                 System.err.println("[ENGINE] Exception trong scheduler: " + e.getMessage());
             }
         }, 0, 5, TimeUnit.SECONDS);
     }
 
-    private void checkAndCloseExpiredAuctions() {
+    private void updateAuctionStates() {
         if (auctionService == null) {
             System.err.println("[ENGINE] AuctionService chua duoc inject.");
             return;
@@ -83,32 +83,60 @@ public class AuctionEngine {
         List<Auction> toRemove = new ArrayList<>();
 
         for (Auction auction : activeAuctions) {
-            if (auction.getEndTime() == null) continue;
 
-            if (now.isAfter(auction.getEndTime())) {
-                boolean closed = auctionService.closeAuction(auction.getId());
-                if (closed) {
-                    String     winnerUsername = resolveWinnerUsername(auction.getId());
-                    BigDecimal finalPrice     = auction.getCurrentPrice();
+            // Mở phòng
+            if ("OPEN".equals(auction.getStatus()) && auction.getStartTime() != null) {
+                if (!now.isBefore(auction.getStartTime())) {
+                    auction.setStatus("RUNNING");
+                    boolean isUpdated = auctionDAO.updateAuctionStatus("RUNNING", auction.getId());
 
-                    // THAY ĐỔI: Broadcast thông qua RoomManager
-                    AuctionRoom room = roomManager.getRoom(auction.getId());
-                    if (room != null) {
-                        room.notifyAuctionEnded(winnerUsername, finalPrice);
+                    if (isUpdated) {
+                        System.out.println("[ENGINE] Phong ID " + auction.getId() + " da den gio, chinh thuc RUNNING!");
+
+                        // Broadcast báo cho các khách đang đợi trong phòng biết để lao vào bid
+                        AuctionRoom room = roomManager.getRoom(auction.getId());
+                        if (room != null) {
+                            // Gọi hàm gửi tin nhắn (nếu m có hàm broadcast trong RoomManager)
+                            room.notifyAuctionStarted();
+                        }
+                    } else {
+                        System.err.println("[ENGINE] Loi: Khong the update DB de mo phong ID " + auction.getId());
                     }
+                }
+            }
 
-                    toRemove.add(auction);
-                    // Dọn dẹp phòng khi phiên kết thúc
-                    roomManager.removeRoom(auction.getId());
+            // Đóng phòng
+            else if ("RUNNING".equals(auction.getStatus()) && auction.getEndTime() != null) {
+                if (now.isAfter(auction.getEndTime())) {
 
-                    System.out.println("[ENGINE] Da chot phien ID " + auction.getId()
-                            + " | Winner: " + (winnerUsername != null ? winnerUsername : "Khong co"));
-                } else {
-                    System.err.println("[ENGINE] Khong the chot phien ID: " + auction.getId());
+                    boolean closed = auctionService.closeAuction(auction.getId());
+
+                    if (closed) {
+                        String winnerUsername = resolveWinnerUsername(auction.getId());
+                        BigDecimal finalPrice = auction.getCurrentPrice();
+
+                        // Bắn Socket thông báo cho toàn bộ viewer
+                        AuctionRoom room = roomManager.getRoom(auction.getId());
+                        if (room != null) {
+                            room.notifyAuctionEnded(winnerUsername, finalPrice);
+                        }
+
+                        toRemove.add(auction);
+                        roomManager.removeRoom(auction.getId());
+
+                        System.out.println("[ENGINE] Da chot phien ID " + auction.getId()
+                                + " | Winner: " + (winnerUsername != null ? winnerUsername : "Khong co ai mua"));
+                    } else {
+                        System.err.println("[ENGINE] Khong the chot phien ID: " + auction.getId());
+                    }
                 }
             }
         }
 
+        // ---------------------------------------------------------
+        // NHỊP 3: DỌN DẸP BỘ NHỚ (Garbage Collection)
+        // ---------------------------------------------------------
+        // Những phòng đã FINISHED thì xóa mẹ khỏi danh sách activeAuctions cho nhẹ RAM
         if (!toRemove.isEmpty()) {
             activeAuctions.removeAll(toRemove);
         }

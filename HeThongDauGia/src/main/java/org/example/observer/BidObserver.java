@@ -20,4 +20,7 @@ public interface BidObserver {
 
     /** Gọi khi phiên bị gia hạn do anti-snipe */
     void onAuctionExtended(int auctionId, LocalDateTime newEndTime, int addedSeconds);
+
+    /** Gọi khi phiên bắt đầu */
+    void onAuctionStarted(int auctionId, String auctionName);
 }

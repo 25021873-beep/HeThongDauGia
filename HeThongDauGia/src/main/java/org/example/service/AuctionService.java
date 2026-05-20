@@ -69,19 +69,26 @@ public class AuctionService {
 
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
 
-    public void openAuction(int itemId, LocalDateTime endTime) {
+    public void openAuction(int itemId, LocalDateTime startTime, LocalDateTime endTime) {
         Item item = itemDAO.getItemById(itemId);
         if (item == null)
             throw new ItemNotFoundException("Loi: Khong thay mon hang co ID = " + itemId);
         if (!item.getStatus().equals("AVAILABLE"))
             throw new InvalidItemStateException("Loi: San pham hien dang khong available");
+        if (startTime.isAfter(endTime) || startTime.isEqual(endTime)) {
+            throw new IllegalArgumentException("Lỗi: Thời gian bắt đầu phải diễn ra trước thời gian kết thúc!");
+        }
 
         Auction newAuction = new Auction();
         newAuction.setItemId(itemId);
-        newAuction.setStartTime(LocalDateTime.now());
-        newAuction.setEndTime(endTime);
         newAuction.setCurrentPrice(item.getStartingPrice());
-        newAuction.setStatus("RUNNING");
+        newAuction.setStartTime(startTime);
+        newAuction.setEndTime(endTime);
+        if (startTime.isAfter(LocalDateTime.now())) {
+            newAuction.setStatus("OPEN");
+        } else {
+            newAuction.setStatus("RUNNING");
+        }
 
         if (!auctionDAO.createAuction(newAuction))
             throw new AuctionSystemException("Loi khi mo Auction");
@@ -116,6 +123,8 @@ public class AuctionService {
             Auction auction = auctionDAO.getAuctionById(auctionId);
             if (auction == null)
                 throw new AuctionNotFoundException("Phien dau gia da ket thuc hoac khong ton tai.");
+            if ("OPEN".equals(auction.getStatus()))
+                throw new InvalidBidException("Phòng chưa đến giờ mở cửa");
             if (auction.getEndTime().isBefore(LocalDateTime.now()))
                 throw new AuctionClosedException("Het gio! Khong the dat gia them.");
             if (bidAmount.compareTo(auction.getCurrentPrice()) <= 0)

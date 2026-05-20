@@ -12,7 +12,9 @@ import org.example.exception.bid.InsufficientBalanceException;
 import org.example.exception.bid.InvalidBidException;
 
 import java.math.BigDecimal;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +76,18 @@ public class AutoBidService {
 
         List<AutoBidConfig> configs = autoBidDAO.getActiveAutoBids(auctionId);
 
-        for (AutoBidConfig config : configs) {
+        // 1. TẠO HÀNG ĐỢI ƯU TIÊN: Thằng nào đăng ký bot trước (ID nhỏ hơn) thì xếp lên đầu.
+        PriorityQueue<AutoBidConfig> botQueue = new PriorityQueue<>(
+                Comparator.comparing(AutoBidConfig::getCreatedAt)
+        );
+
+        // 2. Đổ toàn bộ danh sách Bot vào hàng đợi để nó tự động sắp xếp
+        botQueue.addAll(configs);
+
+        // 3. Rút từng con Bot ra để xử lý thay vì dùng vòng lặp for thường
+        while (!botQueue.isEmpty()) {
+            AutoBidConfig config = botQueue.poll(); // Lấy thằng ưu tiên nhất ra
+
             // Bỏ qua người vừa bid — không tự bid lại chính mình
             if (config.getBidderId() == triggerBidderId) continue;
 

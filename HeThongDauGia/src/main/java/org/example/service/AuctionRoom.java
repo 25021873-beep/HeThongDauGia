@@ -61,4 +61,15 @@ public class AuctionRoom {
             }
         }
     }
+
+    /** Gọi khi Engine chuyển trạng thái phòng từ OPEN sang RUNNING */
+    public void notifyAuctionStarted() {
+        for (BidObserver o : observers) {
+            try {
+                o.onAuctionStarted(auctionId, auctionName);
+            } catch (Exception e) {
+                System.err.println("[ROOM] notifyAuctionStarted loi: " + e.getMessage());
+            }
+        }
+    }
 }

@@ -1,11 +1,7 @@
 package org.example.network;
 
 import com.google.gson.*;
-import org.example.dto.response.AuctionExtendedResponse;
-import org.example.dto.response.AuctionResultResponse;
-import org.example.dto.response.BaseResponse;
-import org.example.dto.response.BidUpdateResponse;
-import org.example.dto.response.SimpleResponse;
+import org.example.dto.response.*;
 import org.example.network.controller.AuctionController;
 import org.example.network.controller.AuthController;
 import org.example.network.controller.BidController;
@@ -70,6 +66,12 @@ public class ClientHandler implements Runnable, BidObserver {
     @Override
     public void onAuctionExtended(int auctionId, LocalDateTime newEndTime, int addedSeconds) {
         send(new AuctionExtendedResponse(auctionId, addedSeconds, newEndTime));
+    }
+
+    @Override
+    public void onAuctionStarted(int auctionId, String auctionName) {
+        // Truyền thêm thời gian hiện tại vào giống cách m làm với AuctionResultResponse
+        send(new AuctionStartedResponse(auctionId, auctionName, LocalDateTime.now()));
     }
 
     // ── Gửi response ─────────────────────────────────────────────────────────
