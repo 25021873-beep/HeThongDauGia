@@ -267,6 +267,10 @@ public class AuctionService {
             throw new AuctionNotFoundException("Loi: Khong tim thay auction co ID: " + auctionId);
         return bidHistoryDAO.getHistoryByAuctionId(auctionId);
     }
+    // ── Lấy chi tiết phiên đấu giá ──────────────────────────────────────────
+    public Auction getAuctionById(int auctionId) {
+        return auctionDAO.getAuctionById(auctionId);
+    }
 
     // ── Helper ────────────────────────────────────────────────────────────────
 
@@ -278,4 +282,5 @@ public class AuctionService {
             }
         }
     }
+
 }
