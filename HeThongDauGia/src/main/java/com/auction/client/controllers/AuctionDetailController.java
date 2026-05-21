@@ -1,5 +1,6 @@
 package com.auction.client.controllers;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.SimpleStringProperty;
@@ -30,6 +31,10 @@ public class AuctionDetailController {
     @FXML private Label lblCountdown;
     @FXML private Label lblCurrentPrice;
     @FXML private Label lblLeader;
+
+    @FXML private javafx.scene.layout.VBox countdownBox;
+    @FXML private Label lblAntiSniping;
+    @FXML private Label lblTimeExtended;
 
     @FXML private TextField txtBidAmount;
     @FXML private TextField txtMaxBid;
@@ -180,6 +185,12 @@ public class AuctionDetailController {
         currentLeader = "Bạn";
         updatePriceDisplay();
 
+        // Anti-sniping: nếu thời gian còn lại < 60s, gia hạn thêm 60s
+        if (remainingSeconds > 0 && remainingSeconds < 60) {
+            remainingSeconds += 60;
+            showTimeExtendedAnimation();
+        }
+
         //them vao bang
         String timeStr = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
         bidData.add(0, new String[]{"Bạn", String.format("%,.0f VNĐ", bidAmount), timeStr});
@@ -256,6 +267,21 @@ public class AuctionDetailController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showTimeExtendedAnimation() {
+        lblTimeExtended.setVisible(true);
+        lblTimeExtended.setManaged(true);
+
+        FadeTransition ft = new FadeTransition(Duration.seconds(3), lblTimeExtended);
+        ft.setFromValue(1.0);
+        ft.setToValue(0.0);
+        ft.setOnFinished(e -> {
+            lblTimeExtended.setVisible(false);
+            lblTimeExtended.setManaged(false);
+            lblTimeExtended.setOpacity(1.0);
+        });
+        ft.play();
     }
 
     private void updatePriceDisplay() {
