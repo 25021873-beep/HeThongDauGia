@@ -18,13 +18,22 @@ public class AuctionDAO {
     public boolean createAuction(Auction auction) {
         String sql = "INSERT INTO Auctions (item_id, start_time, end_time, current_price, status) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, auction.getItemId());
             pstmt.setObject(2, auction.getStartTime());
             pstmt.setObject(3, auction.getEndTime());
             pstmt.setBigDecimal(4, auction.getCurrentPrice());
             pstmt.setString(5, auction.getStatus());
-            return pstmt.executeUpdate() > 0;
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        auction.setId(rs.getInt(1));
+                    }
+                }
+                return true;
+            }
+            return false;
         } catch (SQLException e) {
             throw new DatabaseException("Loi database khi tao auction moi", e);
         }

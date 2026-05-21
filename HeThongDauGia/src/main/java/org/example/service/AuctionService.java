@@ -69,7 +69,7 @@ public class AuctionService {
 
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
 
-    public void openAuction(int itemId, LocalDateTime startTime, LocalDateTime endTime) {
+    public Auction openAuction(int itemId, LocalDateTime startTime, LocalDateTime endTime) {
         Item item = itemDAO.getItemById(itemId);
         if (item == null)
             throw new ItemNotFoundException("Loi: Khong thay mon hang co ID = " + itemId);
@@ -100,6 +100,8 @@ public class AuctionService {
         } else {
             throw new AuctionSystemException("[AUCTION] AuctionEngine chua duoc inject!");
         }
+
+        return newAuction;
     }
 
     // ── Đặt giá ───────────────────────────────────────────────────────────────

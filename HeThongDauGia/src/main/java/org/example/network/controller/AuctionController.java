@@ -2,6 +2,7 @@ package org.example.network.controller;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.example.dto.request.CreateAuctionRequest;
 import org.example.dto.request.GetBidHistoryRequest;
 import org.example.dto.request.JoinRequest;
 import org.example.dto.response.*;
@@ -12,6 +13,7 @@ import org.example.network.SessionContext;
 import org.example.service.AuctionEngine;
 import org.example.service.AuctionService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,6 +93,33 @@ public class AuctionController {
         } catch (Exception e) {
             System.err.println("[AUCTION_CTRL] Loi lay lich su bid: " + e.getMessage());
             session.send(SimpleResponse.error("Khong the lay lich su dau gia. " + e.getMessage()));
+        }
+    }
+
+    // ── CREATE_AUCTION (Dành cho Seller) ──────────────────────────────────────
+
+    public void handleCreateAuction(JsonObject json) {
+        if (!session.requireLogin()) return;
+
+        if (!"SELLER".equalsIgnoreCase(session.getCurrentUser().getRole())) {
+            session.send(SimpleResponse.error("Quyen truy cap bi tu choi: Chi Seller moi duoc mo phien dau gia"));
+            return;
+        }
+
+        try {
+            CreateAuctionRequest req = gson.fromJson(json, CreateAuctionRequest.class);
+
+            Auction newAuction = AuctionService.getInstance().openAuction(
+                    req.getItemId(),
+                    LocalDateTime.now(),
+                    req.getEndTime()
+            );
+
+            session.send(SimpleResponse.success("Mo phien dau gia thanh cong! ID Phien: " + newAuction.getId()));
+
+        } catch (Exception e) {
+            System.err.println("[AUCTION_CTRL] Loi mo phien: " + e.getMessage());
+            session.send(SimpleResponse.error("Loi he thong: " + e.getMessage()));
         }
     }
 }

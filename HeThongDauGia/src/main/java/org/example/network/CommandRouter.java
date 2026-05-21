@@ -75,6 +75,9 @@ public class CommandRouter {
                 userController.handleTopUp(json);
                 return false;
 
+            case "CREATE_AUCTION":
+                auctionController.handleCreateAuction(json);
+                return false;
 
             case "SET_AUTO_BID":
                 bidController.handleAutoBid(json);
@@ -87,6 +90,7 @@ public class CommandRouter {
             default:
                 session.send(SimpleResponse.error("Lenh khong hop le: " + command));
                 return false;
+
         }
     }
 }
