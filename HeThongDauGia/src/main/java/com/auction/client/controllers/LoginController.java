@@ -23,8 +23,8 @@ public class LoginController {
 
     public class SocketClient {
 
-        private static final String HOST = "172.16.66.216";
-        private static final int PORT = 9999;
+        private static final String HOST = "127.0.0.1";
+        private static final int PORT = 8888;
 
         private Socket socket;
         private PrintWriter out;

@@ -52,6 +52,16 @@ public class ClientHandler implements Runnable, BidObserver {
                 .create();
     }
 
+        /**
+         * Backwards-compatible constructor for tests that do not need AutoBidService injected.
+         */
+        public ClientHandler(Socket socket, AuctionEngine engine,
+                 UserService userService, AuctionService auctionService) {
+        this(socket, engine, userService, auctionService,
+            new AutoBidService(new org.example.dao.AutoBidDAO(), auctionService,
+                new org.example.dao.AuctionDAO(), new org.example.dao.user.UserDAO()));
+        }
+
     // ── BidObserver implementation ────────────────────────────────────────────
 
     @Override
