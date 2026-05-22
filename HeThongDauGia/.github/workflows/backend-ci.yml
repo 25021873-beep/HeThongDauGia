@@ -1,0 +1,34 @@
+name: Backend CI/CD Pipeline
+
+# Cò súng: Kích hoạt khi có người push hoặc tạo Pull Request vào nhánh main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Thuê một con máy ảo Ubuntu
+
+    steps:
+      - name: Kéo source code mới nhất về
+        uses: actions/checkout@v4
+
+      - name: Cài đặt môi trường JDK (chọn bản 17 hoặc 21 tùy team đang xài)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven' # Lưu cache thư viện lại để những lần sau build nhanh hơn
+
+      - name: Chạy Test và Đóng gói
+        # Chạy Unit Test (để kiểm tra mấy cái logic hóc búa như bid giá, thanh toán). Pass hết mới đóng gói.
+        run: mvn clean package
+
+      - name: Lưu giữ "chiến lợi phẩm"
+        # Lấy cái file .jar vừa build xong lưu lại trên hệ thống
+        uses: actions/upload-artifact@v4
+        with:
+          name: auction-backend-jar
+          path: target/*.jar
