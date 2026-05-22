@@ -5,11 +5,13 @@ import org.example.dto.response.*;
 import org.example.network.controller.AuctionController;
 import org.example.network.controller.AuthController;
 import org.example.network.controller.BidController;
+import org.example.network.controller.ItemController;
 import org.example.network.controller.UserController;
 import org.example.observer.BidObserver;
 import org.example.service.AuctionEngine;
 import org.example.service.AuctionService;
 import org.example.service.AutoBidService;
+import org.example.service.ItemService;
 import org.example.service.UserService;
 
 import java.io.BufferedReader;
@@ -40,6 +42,8 @@ public class ClientHandler implements Runnable, BidObserver {
         this.userService    = userService;
         this.auctionService = auctionService;
         this.autoBidService = autoBidService;
+
+        // Cấu hình Gson để xử lý định dạng thời gian thực
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class,
                         (JsonDeserializer<LocalDateTime>) (json, type, ctx) ->
@@ -70,7 +74,6 @@ public class ClientHandler implements Runnable, BidObserver {
 
     @Override
     public void onAuctionStarted(int auctionId, String auctionName) {
-        // Truyền thêm thời gian hiện tại vào giống cách m làm với AuctionResultResponse
         send(new AuctionStartedResponse(auctionId, auctionName, LocalDateTime.now()));
     }
 
@@ -89,22 +92,25 @@ public class ClientHandler implements Runnable, BidObserver {
 
             out = new PrintWriter(clientSocket.getOutputStream(), true);
 
+            // 1. Khởi tạo Context và các Controller
             SessionContext    session  = new SessionContext(out, gson);
             AuthController    auth     = new AuthController(session, userService, gson);
-
-            AuctionController auction  = new AuctionController(session, engine, this, gson);
+            AuctionController auction  = new AuctionController(session, engine, auctionService, this, gson);
             BidController     bid      = new BidController(session, engine, auctionService, this, gson);
-            org.example.dao.AutoBidDAO autoBidDAO = new org.example.dao.AutoBidDAO();
-            org.example.dao.AuctionDAO auctionDAO = new org.example.dao.AuctionDAO();
-            org.example.dao.user.UserDAO userDAO = new org.example.dao.user.UserDAO();
-            org.example.service.AutoBidService autoBidService = new org.example.service.AutoBidService(autoBidDAO, auctionService, auctionDAO, userDAO); // THAY userService BẰNG userDAO
-            bid.setAutoBidService(autoBidService);
-
             UserController    user     = new UserController(session, userService, gson);
-            CommandRouter     router   = new CommandRouter(session, auth, auction, bid, user);
+
+            // Khởi tạo ItemController phục vụ thêm/xóa đồ đấu giá
+            ItemController    itemCtrl = new ItemController(session, ItemService.getInstance(), gson);
+
+            // 2. Gắn AutoBidService vào BidController (Sử dụng service đã tiêm từ Server, không new mới)
+            bid.setAutoBidService(this.autoBidService);
+
+            // 3. Khởi tạo Router với đủ 6 Controller
+            CommandRouter     router   = new CommandRouter(session, auth, auction, bid, user, itemCtrl);
 
             session.send(SimpleResponse.success("Ket noi Server thanh cong"));
 
+            // 4. Vòng lặp lắng nghe lệnh từ Client
             String line;
             while ((line = in.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
@@ -114,9 +120,13 @@ public class ClientHandler implements Runnable, BidObserver {
                         session.send(SimpleResponse.error("JSON thieu truong 'command'"));
                         continue;
                     }
+
                     String  command          = json.get("command").getAsString().trim().toUpperCase();
                     boolean shouldDisconnect = router.dispatch(command, json);
+
+                    // Nếu nhận được lệnh LOGOUT (router trả về true), thoát vòng lặp
                     if (shouldDisconnect) return;
+
                 } catch (JsonSyntaxException | IllegalStateException e) {
                     session.send(SimpleResponse.error("Dinh dang JSON khong hop le"));
                 }
@@ -132,9 +142,12 @@ public class ClientHandler implements Runnable, BidObserver {
     // ── Cleanup ───────────────────────────────────────────────────────────────
 
     private void cleanUp() {
+        // Hủy đăng ký client này khỏi toàn bộ các phòng đấu giá đang xem
         if (engine != null && engine.getRoomManager() != null) {
             engine.getRoomManager().clearObserverFromAllRooms(this);
         }
+
+        // Đóng luồng
         try {
             if (out != null) out.close();
             if (clientSocket != null && !clientSocket.isClosed()) clientSocket.close();
