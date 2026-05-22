@@ -18,7 +18,7 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="656.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController">
+<StackPane prefHeight="656.0" prefWidth="880.0" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.RegisterController">
 
     <!-- Layer 1: Gradient background -->
     <Region style="-fx-background-color: linear-gradient(to bottom right, #0D0D0D, #1A1000, #2B1400, #1A0A00, #0D0D0D);" />
