@@ -14,7 +14,7 @@ class UserDAOTest {
     void updateBalanceUsesProvidedConnectionAndBindsParameters() throws SQLException {
         SqlTestSupport.RecordingConnection recording = SqlTestSupport.recordingConnection(1);
 
-        boolean updated = new UserDAO().updateBalance(recording.connection(), 3, new BigDecimal("1200"));
+        boolean updated = new UserDAO().addBalance(recording.connection(), 3, new BigDecimal("1200"));
 
         assertTrue(updated);
         assertEquals("UPDATE Users SET balance = ? WHERE id = ?", recording.sql());
@@ -27,6 +27,6 @@ class UserDAOTest {
     void updateBalanceReturnsFalseWhenNoRowsUpdated() throws SQLException {
         SqlTestSupport.RecordingConnection recording = SqlTestSupport.recordingConnection(0);
 
-        assertFalse(new UserDAO().updateBalance(recording.connection(), 3, BigDecimal.ZERO));
+        assertFalse(new UserDAO().addBalance(recording.connection(), 3, BigDecimal.ZERO));
     }
 }

@@ -10,10 +10,23 @@ import static org.junit.jupiter.api.Assertions.*;
 class AuctionTest {
 
     @Test
+
     void constructorCreatesRunningAuctionAndActiveStatusReflectsStatus() {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = start.plusMinutes(10);
-        Auction auction = new Auction(2, new BigDecimal("1000"), start, end);
+
+        // Bơm đủ 9 tham số theo đúng thứ tự của constructor mới
+        Auction auction = new Auction(
+                1,                      // id: Giá trị ảo (dummy)
+                2,                      // itemId: Giữ nguyên như cũ (để pass assertEquals 2)
+                new BigDecimal("1000"), // currentPrice: Giữ nguyên
+                start,                  // startTime: Giữ nguyên
+                end,                    // endTime: Giữ nguyên
+                "RUNNING",              // status: BẮT BUỘC là "RUNNING" để pass cái assertEquals bên dưới
+                10,                     // sellerId: Giá trị ảo
+                0,                      // winnerId: Giá trị ảo (0 = chưa có người thắng)
+                null                    // item: Để null vì test này đéo check đến Object Item
+        );
 
         assertEquals(2, auction.getItemId());
         assertEquals(new BigDecimal("1000"), auction.getCurrentPrice());

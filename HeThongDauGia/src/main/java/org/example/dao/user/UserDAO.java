@@ -180,12 +180,13 @@ public class UserDAO {
     }
 
     // 2. Hàm cộng tiền (Hoàn cọc)
-    public void addBalance(Connection conn, int userId, BigDecimal amount) throws SQLException {
+    public boolean addBalance(Connection conn, int userId, BigDecimal amount) throws SQLException {
         String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBigDecimal(1, amount);
             ps.setInt(2, userId);
             ps.executeUpdate();
+            return ps.executeUpdate() > 0;
         }
     }
 
