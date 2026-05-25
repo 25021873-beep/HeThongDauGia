@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" style="-fx-background-color: transparent;"
+            xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.auction.client.controllers.ProductManagementController">
+    <children>
+        <VBox spacing="18.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+              AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="24.0" left="24.0" right="24.0" top="24.0"/>
+            </padding>
+            <children>
+                <!-- Header -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <VBox spacing="2.0">
+                            <Label text="📦 Quản lý Sản phẩm" textFill="#FCBF49">
+                                <font>
+                                    <Font name="System Bold" size="22.0"/>
+                                </font>
+                            </Label>
+                            <Label text="Thêm và quản lý sản phẩm đấu giá của bạn" textFill="#AAAAAA">
+                                <font>
+                                    <Font size="13.0"/>
+                                </font>
+                            </Label>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnAddProduct" onAction="#handleAddProduct" text="➕ Thêm sản phẩm"
+                                style="-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;">
+                            <padding>
+                                <Insets bottom="10.0" left="18.0" right="18.0" top="10.0"/>
+                            </padding>
+                        </Button>
+                    </children>
+                </HBox>
+
+                <!-- Product Table -->
+                <TableView fx:id="tableProducts" VBox.vgrow="ALWAYS"
+                           style="-fx-background-color: rgba(30,30,30,0.7); -fx-border-color: rgba(245,125,31,0.15); -fx-background-radius: 10; -fx-border-radius: 10;">
+                    <columns>
+                        <TableColumn fx:id="colName" text="Tên sản phẩm" prefWidth="180.0"/>
+                        <TableColumn fx:id="colCategory" text="Danh mục" prefWidth="100.0"/>
+                        <TableColumn fx:id="colStartPrice" text="Giá khởi điểm (VNĐ)" prefWidth="150.0"/>
+                        <TableColumn fx:id="colStartTime" text="Bắt đầu" prefWidth="130.0"/>
+                        <TableColumn fx:id="colEndTime" text="Kết thúc" prefWidth="130.0"/>
+                        <TableColumn fx:id="colStatus" text="Trạng thái" prefWidth="100.0"/>
+                    </columns>
+                    <placeholder>
+                        <Label text="Chưa có sản phẩm nào. Hãy thêm sản phẩm mới!" textFill="#A09080"/>
+                    </placeholder>
+                </TableView>
+
+                <!-- Add/Edit Form -->
+                <TitledPane fx:id="formPane" text="Thông tin sản phẩm" expanded="false"
+                            style="-fx-background-color: rgba(30,30,30,0.7);">
+                    <content>
+                        <VBox spacing="12.0">
+                            <padding>
+                                <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
+                            </padding>
+                            <children>
+                                <HBox spacing="15.0">
+                                    <children>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Tên sản phẩm:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtProductName" promptText="Nhập tên sản phẩm"/>
+                                        </VBox>
+                                        <VBox spacing="5.0">
+                                            <Label text="Danh mục:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <ComboBox fx:id="cboCategory" promptText="Chọn danh mục" prefWidth="150.0"/>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <VBox spacing="5.0">
+                                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                    <TextArea fx:id="txtDescription" promptText="Nhập mô tả sản phẩm"
+                                              prefRowCount="3" wrapText="true"/>
+                                </VBox>
+                                <HBox spacing="15.0">
+                                    <children>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Giá khởi điểm (VNĐ):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtStartPrice" promptText="Ví dụ: 1000000"/>
+                                        </VBox>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Thời gian đấu giá (phút):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtDuration" promptText="Ví dụ: 30"/>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <HBox spacing="10.0" alignment="CENTER_RIGHT">
+                                    <Button fx:id="btnSaveProduct" onAction="#handleSaveProduct" text="💾 Lưu"
+                                            style="-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;">
+                                        <padding>
+                                            <Insets bottom="8.0" left="20.0" right="20.0" top="8.0"/>
+                                        </padding>
+                                    </Button>
+                                    <Button fx:id="btnCancelEdit" onAction="#handleCancelEdit" text="❌ Hủy"
+                                            style="-fx-background-color: #888888; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;">
+                                        <padding>
+                                            <Insets bottom="8.0" left="20.0" right="20.0" top="8.0"/>
+                                        </padding>
+                                    </Button>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </TitledPane>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>
