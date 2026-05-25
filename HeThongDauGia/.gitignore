@@ -48,3 +48,6 @@ target/
 # Bo qua file cau hinh rieng cua IntelliJ
 .idea/
 *.iml
+
+src/main/resources/application.properties
+
