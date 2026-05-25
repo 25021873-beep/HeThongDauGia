@@ -23,6 +23,7 @@ jobs:
           cache: 'maven' # Lưu cache thư viện lại để những lần sau build nhanh hơn
 
       - name: Chạy Test và Đóng gói
+        working-directory: ./HeThongDauGia
         # Chạy Unit Test (để kiểm tra mấy cái logic hóc búa như bid giá, thanh toán). Pass hết mới đóng gói.
         run: mvn clean package
 
