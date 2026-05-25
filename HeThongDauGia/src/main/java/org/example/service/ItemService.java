@@ -47,7 +47,7 @@ public class ItemService {
 
         newItem.setStatus("AVAILABLE");
 
-        return itemDAO.addItem(newItem);
+        return itemDAO.addItem(newItem)>=0;
     }
 
     // Hàm chỉnh sửa thông tin

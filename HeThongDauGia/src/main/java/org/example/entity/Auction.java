@@ -13,19 +13,23 @@ public class Auction extends BaseEntity {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String        status;   // RUNNING, FINISHED, PAID, CANCELED
+    private int           sellerId;
     private int           winnerId;
     private Item          item;
 
     // --- CONSTRUCTORS ---
     public Auction() {}
 
-    public Auction(int itemId, BigDecimal startingPrice,
-                   LocalDateTime startTime, LocalDateTime endTime) {
-        this.itemId       = itemId;
-        this.currentPrice = startingPrice;
-        this.startTime    = startTime;
-        this.endTime      = endTime;
-        this.status       = "RUNNING";
+    public Auction(int id, int itemId, BigDecimal currentPrice, LocalDateTime startTime, LocalDateTime endTime, String status, int sellerId, int winnerId, Item item) {
+        this.id = id;
+        this.itemId = itemId;
+        this.currentPrice = currentPrice;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+        this.sellerId = sellerId;
+        this.winnerId = winnerId;
+        this.item = item;
     }
 
     // --- BUSINESS METHODS ---
@@ -72,4 +76,12 @@ public class Auction extends BaseEntity {
 
     public Item getItem()                        { return item; }
     public void setItem(Item item)               { this.item = item; }
+
+    public int getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(int sellerId) {
+        this.sellerId = sellerId;
+    }
 }

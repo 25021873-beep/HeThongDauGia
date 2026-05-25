@@ -8,9 +8,9 @@ import java.sql.SQLException;
 
 public class DatabaseConnection {
 
-    private static final String URL      = ConfigManager.getInstance().getString("db.url", "jdbc:mysql://mysql-3ccc6173-hethongdaugia1.j.aivencloud.com:11394/defaultdb?useSSL=true&trustServerCertificate=true");
-    private static final String USER     = ConfigManager.getInstance().getString("db.user", "avnadmin");
-    private static final String PASSWORD = ConfigManager.getInstance().getString("db.password", "AVNS_d8-zQN7D1h9e8-YzhcW");
+    private static final String URL      = ConfigManager.getInstance().getString("db.url", "jdbc:mysql://localhost:3306/auction_system?useSSL=false");
+    private static final String USER     = ConfigManager.getInstance().getString("db.user", "root");
+    private static final String PASSWORD = ConfigManager.getInstance().getString("db.password", "");
 
     private static DatabaseConnection instance;
     private Connection connection;
@@ -34,11 +34,11 @@ public class DatabaseConnection {
     public Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
-                this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("[DB] Tai khoi tao ket noi database thanh cong");
+                instance = new DatabaseConnection();
+                return instance.connection;
             }
         } catch (SQLException e) {
-            throw new DatabaseException("Loi kiem tra ket noi: ", e);
+            throw new DatabaseException("Loi kiem tra ket noi: ",e);
         }
         return connection;
     }

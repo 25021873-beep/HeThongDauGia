@@ -1,0 +1,318 @@
+/* ============================================
+   HỆ THỐNG ĐẤU GIÁ TRỰC TUYẾN - Global Styles
+   Dark Theme: Orange / Yellow / Black
+   ============================================ */
+
+/* === ROOT / GENERAL === */
+.root {
+    -fx-font-family: "Segoe UI", "Calibri", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: transparent;
+}
+
+/* === LABELS === */
+.label-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FCBF49;
+}
+
+.label-subtitle {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F57D1F;
+}
+
+.label-price {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #F57D1F;
+}
+
+.label-status-running {
+    -fx-text-fill: #2E8B57;
+    -fx-font-weight: bold;
+}
+
+.label-status-finished {
+    -fx-text-fill: #888888;
+    -fx-font-weight: bold;
+}
+
+.label-countdown {
+    -fx-text-fill: #FCBF49;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* === BUTTONS === */
+.btn-primary {
+    -fx-background-color: #F57D1F;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+
+.btn-primary:hover {
+    -fx-background-color: #E06A10;
+}
+
+.btn-success {
+    -fx-background-color: #2E8B57;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+
+.btn-success:hover {
+    -fx-background-color: #267A4C;
+}
+
+.btn-danger {
+    -fx-background-color: #C0392B;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+
+.btn-danger:hover {
+    -fx-background-color: #A93226;
+}
+
+.btn-warning {
+    -fx-background-color: #FCBF49;
+    -fx-text-fill: #1A1A1A;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-padding: 10 20;
+}
+
+.btn-warning:hover {
+    -fx-background-color: #E5AB3A;
+}
+
+.btn-sidebar {
+    -fx-background-color: transparent;
+    -fx-text-fill: #CCCCCC;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-padding: 12 15;
+    -fx-background-radius: 8;
+}
+
+.btn-sidebar:hover {
+    -fx-background-color: rgba(245, 125, 31, 0.15);
+    -fx-text-fill: #FCBF49;
+}
+
+.btn-sidebar-active {
+    -fx-background-color: #F57D1F;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-alignment: BASELINE_LEFT;
+    -fx-padding: 12 15;
+    -fx-background-radius: 8;
+}
+
+/* === TEXT FIELDS === */
+.text-field,
+.password-field,
+.text-area {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1;
+    -fx-padding: 10 14;
+    -fx-font-size: 14px;
+    -fx-text-fill: #EEEEEE;
+    -fx-prompt-text-fill: #777777;
+}
+
+.text-field:focused,
+.password-field:focused,
+.text-area:focused {
+    -fx-border-color: #F57D1F;
+    -fx-border-width: 1.5;
+    -fx-effect: dropshadow(three-pass-box, rgba(245, 125, 31, 0.2), 6, 0, 0, 0);
+}
+
+/* === COMBO BOX === */
+.combo-box {
+    -fx-background-color: rgba(255,255,255,0.07);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-color: rgba(255,255,255,0.12);
+    -fx-border-width: 1;
+    -fx-padding: 4 8;
+}
+
+.combo-box:focused {
+    -fx-border-color: #F57D1F;
+}
+
+/* === TABLE VIEW === */
+.table-view {
+    -fx-background-color: rgba(30,30,30,0.7);
+    -fx-border-color: rgba(245,125,31,0.15);
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: rgba(20,20,20,0.9);
+}
+
+.table-view .column-header {
+    -fx-background-color: rgba(20,20,20,0.9);
+    -fx-border-color: rgba(255,255,255,0.08);
+}
+
+.table-view .column-header .label {
+    -fx-font-weight: bold;
+    -fx-text-fill: #FCBF49;
+    -fx-font-size: 13px;
+}
+
+.table-row-cell {
+    -fx-border-color: transparent transparent rgba(255,255,255,0.05) transparent;
+    -fx-background-color: rgba(30,30,30,0.5);
+    -fx-text-fill: #DDDDDD;
+}
+
+.table-row-cell .text {
+    -fx-fill: #DDDDDD;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: rgba(40,40,40,0.5);
+}
+
+.table-row-cell:selected {
+    -fx-background-color: rgba(245, 125, 31, 0.2);
+}
+
+.table-row-cell:hover {
+    -fx-background-color: rgba(252, 191, 73, 0.1);
+}
+
+/* === CARDS === */
+.card {
+    -fx-background-color: rgba(30,30,30,0.75);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(245,125,31,0.15);
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 18;
+}
+
+.card:hover {
+    -fx-border-color: rgba(245,125,31,0.3);
+}
+
+/* === SCROLL PANE === */
+.scroll-pane {
+    -fx-background: transparent;
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane > .corner {
+    -fx-background-color: transparent;
+}
+
+/* === CHART === */
+.chart {
+    -fx-background-color: transparent;
+}
+
+.chart-plot-background {
+    -fx-background-color: rgba(30,30,30,0.3);
+}
+
+.chart-content {
+    -fx-background-color: transparent;
+}
+
+.chart-legend {
+    -fx-background-color: transparent;
+}
+
+.chart-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FCBF49;
+}
+
+.axis {
+    -fx-tick-label-fill: #AAAAAA;
+}
+
+.axis-label {
+    -fx-text-fill: #AAAAAA;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255,255,255,0.08);
+}
+
+.chart-alternative-row-fill {
+    -fx-fill: transparent;
+    -fx-stroke: transparent;
+}
+
+/* === TABLE VIEW internals === */
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+.table-view .virtual-flow .clipped-container .sheet .cell {
+    -fx-text-fill: #DDDDDD;
+}
+
+/* === HYPERLINK === */
+.hyperlink {
+    -fx-text-fill: #F57D1F;
+    -fx-border-color: transparent;
+    -fx-underline: true;
+}
+
+.hyperlink:hover {
+    -fx-text-fill: #FCBF49;
+}
+
+/* === SEPARATOR === */
+.separator .line {
+    -fx-border-color: rgba(255,255,255,0.1);
+}
+
+/* === TITLED PANE === */
+.titled-pane > .title {
+    -fx-background-color: rgba(20,20,20,0.9);
+    -fx-background-radius: 8 8 0 0;
+}
+
+.titled-pane > .title > .text {
+    -fx-fill: #FCBF49;
+    -fx-font-weight: bold;
+}
+
+.titled-pane > .content {
+    -fx-background-color: rgba(30,30,30,0.7);
+    -fx-border-color: rgba(245,125,31,0.15);
+    -fx-border-radius: 0 0 8 8;
+}

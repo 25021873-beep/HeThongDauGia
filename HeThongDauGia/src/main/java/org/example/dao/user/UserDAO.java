@@ -53,10 +53,10 @@ public class UserDAO {
     }
 
     // Hàm Đăng ký người dùng mới
-    public boolean addUser(User user) {
+    public int addUser(User user) {
         String sql = "INSERT INTO Users (username, password, email, role, balance, rating) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
@@ -74,10 +74,18 @@ public class UserDAO {
                 pstmt.setNull(6, java.sql.Types.DOUBLE);
             }
 
-            return pstmt.executeUpdate() > 0;
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    int newUserId = rs.getInt(1);
+                    return newUserId;
+
+                }
+            }
         } catch (SQLException e) {
             throw new DatabaseException("Lỗi khi thêm User: ",e);
         }
+        return -1;
     }
 
     // Hàm Đăng nhập
@@ -159,15 +167,25 @@ public class UserDAO {
         }
     }
 
-    // Hàm thay đổi balance, phục vụ ĐỘC QUYỀN cho luồng Đặt giá (Nằm chung trong 1 Transaction)
-    public boolean updateBalance(Connection conn, int userId, BigDecimal newBalance) throws SQLException {
-        String sql = "UPDATE Users SET balance = ? WHERE id = ?";
+    // Trong file UserDAO.java
+// 1. Hàm trừ tiền (Trả về true nếu trừ thành công, false nếu đéo đủ tiền)
+    public boolean deductBalance(Connection conn, int userId, BigDecimal amount) throws SQLException {
+        String sql = "UPDATE users SET balance = balance - ? WHERE id = ? AND balance >= ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, userId);
+            ps.setBigDecimal(3, amount); // Chặn họng bọn mua vượt quá số dư ở DB
+            return ps.executeUpdate() > 0;
+        }
+    }
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setBigDecimal(1, newBalance);
-            pstmt.setInt(2, userId);
-
-            return pstmt.executeUpdate() > 0;
+    // 2. Hàm cộng tiền (Hoàn cọc)
+    public void addBalance(Connection conn, int userId, BigDecimal amount) throws SQLException {
+        String sql = "UPDATE users SET balance = balance + ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, userId);
+            ps.executeUpdate();
         }
     }
 

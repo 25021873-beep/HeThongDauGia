@@ -5,6 +5,9 @@ import org.example.service.AuctionService;
 import org.example.service.AutoBidService;
 import org.example.service.UserService;
 import org.example.utils.DatabaseConnection;
+import org.example.dao.AutoBidDAO;
+import org.example.dao.AuctionDAO;
+import org.example.dao.user.UserDAO;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -36,6 +39,18 @@ public class AuctionServer {
         this.auctionService = auctionService;
         this.autoBidService = autoBidService;
         this.userService    = userService;
+    }
+
+    /**
+     * Backwards-compatible constructor used by tests / simple instantiation.
+     * It will create default service/DAO instances.
+     */
+    public AuctionServer(int port, AuctionEngine engine) {
+        this(port,
+                engine,
+                AuctionService.getInstance(),
+                new AutoBidService(new AutoBidDAO(), AuctionService.getInstance(), new AuctionDAO(), new UserDAO()),
+                UserService.getInstance());
     }
 
     public void start() {

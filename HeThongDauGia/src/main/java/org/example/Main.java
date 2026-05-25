@@ -1,101 +1,43 @@
-package org.example;
+import org.example.dao.BidTransactionDAO;
+import org.example.dao.AuctionDAO; // Cần thằng này để cập nhật giá hiện tại lên bảng Auctions
+import org.example.entity.BidTransaction;
 
-import org.example.dao.AuctionDAO;
-import org.example.dao.AutoBidDAO;
-import org.example.dao.user.UserDAO;
-import org.example.network.AuctionServer;
-import org.example.service.AuctionEngine;
-import org.example.service.AuctionService;
-import org.example.service.AutoBidService;
-import org.example.service.UserService;
-
-import java.io.InputStream;
-import java.util.Properties;
-
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        System.out.println("=============================================");
-        System.out.println("   KHOI DONG HE THONG DAU GIA TRUC TUYEN     ");
-        System.out.println("=============================================\n");
+        BidTransactionDAO bidDAO = new BidTransactionDAO();
+        AuctionDAO auctionDAO = new AuctionDAO(); // Gọi đệ cứng ra hỗ trợ
 
-        try {
-            // -------------------------------------------------------------
-            // BƯỚC 1: ĐỌC PORT TỪ FILE CONFIG (application.properties)
-            // -------------------------------------------------------------
-            System.out.print("[1/4] Doc cau hinh he thong... ");
-            Properties props = new Properties();
-            int port = 8080; // Default port nếu lỡ file config bị lỗi
+        System.out.println("--- BẮT ĐẦU TEST BID_TRANSACTION_DAO ---");
 
-            // Dùng ClassLoader để lôi file từ trong resources ra
-            try (InputStream input = Main.class.getClassLoader().getResourceAsStream("application.properties")) {
-                if (input != null) {
-                    props.load(input);
-                    port = Integer.parseInt(props.getProperty("server.port", "8080"));
-                    System.out.println("[OK] Da nap config. Port: " + port);
-                } else {
-                    System.out.println("[WARNING] Khong tim thay application.properties, dung port mac dinh: 8080");
-                }
-            }
+        int targetAuctionId = 2;
+        int bidderId = 1;
+        BigDecimal newBidAmount = new BigDecimal("700000");
 
-            // -------------------------------------------------------------
-            // -------------------------------------------------------------
-            // BƯỚC 2: KHỞI TẠO CÁC DAO VÀ SERVICE LÕI
-            // -------------------------------------------------------------
-            System.out.print("[2/4] Khoi tao cac DAO va Service... ");
+        // 1. Test ghi nhận lịch sử đặt giá
+        BidTransaction newBid = new BidTransaction();
+        newBid.setAuctionId(targetAuctionId);
+        newBid.setBidderId(bidderId);
+        newBid.setBidPrice(newBidAmount);
+        newBid.setBidTime(LocalDateTime.now());
 
-            // 1. Đẻ ra mấy thằng DAO trước (bọn này chọc thẳng xuống DB)
-            AutoBidDAO autoBidDAO = new AutoBidDAO();
-            AuctionDAO auctionDAO = new AuctionDAO();
-            UserDAO userDAO       = new UserDAO();
+        boolean isBidRecorded = bidDAO.addBid(newBid);
+        System.out.println("1. Ghi nhận lịch sử đặt giá thành công? " + isBidRecorded);
 
+        // NẾU GHI NHẬN LỊCH SỬ THÀNH CÔNG -> PHẢI ĐỔI LUÔN GIÁ HIỆN TẠI BÊN BẢNG AUCTIONS
+        if (isBidRecorded) {
+            boolean isAuctionUpdated = auctionDAO.updateCurrentPrice(targetAuctionId, newBidAmount);
+            System.out.println(" -> Cập nhật giá hiện tại của phiên đấu giá lên " + newBidAmount + "? " + isAuctionUpdated);
+        }
 
-            UserService userService       = UserService.getInstance();
-            AuctionService auctionService = AuctionService.getInstance();
-
-            // 3. Khởi tạo AutoBidService với chóp bu 4 tham số y như m chụp
-            AutoBidService autoBidService = new AutoBidService(
-                    autoBidDAO,
-                    auctionService,
-                    auctionDAO,
-                    userDAO
-            );
-
-            System.out.println("[OK]");
-
-            // -------------------------------------------------------------
-            // BƯỚC 3: KHỞI TẠO VÀ BẬT ENGINE THỜI GIAN
-            // -------------------------------------------------------------
-            System.out.print("[3/4] Khoi dong Auction Engine... ");
-
-            // Nếu constructor của Engine m có truyền Service vào thì nhét vào nhé,
-            // ở đây tao đang giả định gọi constructor rỗng
-            AuctionEngine engine = AuctionEngine.getInstance();
-            engine.startEngine();
-
-            System.out.println("[OK] Engine dang quet thoi gian.");
-
-            // -------------------------------------------------------------
-            // BƯỚC 4: LẮP RÁP SERVER VÀ ĐÓN KHÁCH
-            // -------------------------------------------------------------
-            System.out.println("[4/4] Lap rap Auction Server va mo cong... [OK]\n");
-
-            AuctionServer server = new AuctionServer(
-                    port,
-                    engine,
-                    auctionService,
-                    autoBidService,
-                    userService
-            );
-
-            System.out.println(">>> SERVER DA SAN SANG DONG KHACH TAI PORT " + port + ". AN CTRL+C DE TAT. <<<");
-
-            server.start();
-
-        } catch (Exception e) {
-            System.err.println("\n[FATAL ERROR] HE THONG KHOI DONG THAT BAI!");
-            e.printStackTrace();
-            System.exit(1);
+        // 2. Test in ra bảng điện tử (Lịch sử các người chơi đã đặt)
+        System.out.println("\n2. Bảng lịch sử thả giá của Phiên ID " + targetAuctionId + ":");
+        List<BidTransaction> history = bidDAO.getBidsByAuction(targetAuctionId);
+        for (BidTransaction b : history) {
+            System.out.println("   -> Bidder ID " + b.getBidderId() + " đã hô " + b.getBidPrice() + " đ lúc " + b.getBidTime());
         }
     }
 }
