@@ -36,8 +36,15 @@ build/
 .vscode/
 
 ### Mac OS ###
-
 .DS_Store
 
 src/main/resources/application.properties
 
+
+
+# Bo qua file chay cua Maven
+target/
+
+# Bo qua file cau hinh rieng cua IntelliJ
+.idea/
+*.iml
