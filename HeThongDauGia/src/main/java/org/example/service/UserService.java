@@ -64,7 +64,7 @@ public class UserService {
         newUser.setPassword(hashedPassword);
         newUser.setRole(role);
 
-        return userDAO.addUser(newUser);
+        return (userDAO.addUser(newUser)>=0);
     }
 
     // ── Lấy profile ───────────────────────────────────────────────────────────

@@ -14,45 +14,53 @@ import java.util.List;
 public class ItemDAO {
 
     // Thêm/Đăng bán sản phẩm mới
-    public boolean addItem(Item item) {
+    public int addItem(Item item) {
             // Tọng cả 4 cột dữ liệu đặc thù vào chung 1 lệnh INSERT
-            String sql = "INSERT INTO Items (name, description, starting_price, status, item_type, warranty_months, author, engine_type) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO Items (name, description, starting_price, seller_id, status, item_type, warranty_months, author, engine_type) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                 PreparedStatement pstmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS)) {
 
                 // Tham số chung
                 pstmt.setString(1, item.getName());
                 pstmt.setString(2, item.getDescription());
                 pstmt.setBigDecimal(3, item.getStartingPrice());
-                pstmt.setString(4, item.getStatus()); // 'AVAILABLE', 'IN_AUCTION', 'SOLD'
+                pstmt.setInt(4, item.getSellerId());
+                pstmt.setString(5, item.getStatus()); // 'AVAILABLE', 'IN_AUCTION', 'SOLD'
 
                 if (item instanceof Electronics) {
-                    pstmt.setString(5, "ELECTRONICS");
-                    pstmt.setInt(6, ((Electronics) item).getWarrantyMonths());
+                    pstmt.setString(6, "ELECTRONICS");
+                    pstmt.setInt(7, ((Electronics) item).getWarrantyMonths());
 
-                    pstmt.setNull(7, Types.VARCHAR);
-                    pstmt.setNull(8, Types.INTEGER);
+                    pstmt.setNull(8, Types.VARCHAR);
+                    pstmt.setNull(9, Types.INTEGER);
                 }
                 else if (item instanceof Art) {
-                    pstmt.setString(5, "ART");
-                    pstmt.setNull(6, Types.INTEGER);
+                    pstmt.setString(6, "ART");
+                    pstmt.setNull(7, Types.INTEGER);
 
-                    pstmt.setString(7, ((Art) item).getAuthor());
-                    pstmt.setNull(8, Types.VARCHAR);
+                    pstmt.setString(8, ((Art) item).getAuthor());
+                    pstmt.setNull(9, Types.VARCHAR);
                 }
                 else if (item instanceof Vehicle) {
-                    pstmt.setString(5, "VEHICLE");
-                    pstmt.setNull(6, Types.INTEGER);
-                    pstmt.setNull(7, Types.VARCHAR);
-                    pstmt.setString(8, ((Vehicle) item).getEngineType());
+                    pstmt.setString(6, "VEHICLE");
+                    pstmt.setNull(7, Types.INTEGER);
+                    pstmt.setNull(8, Types.VARCHAR);
+                    pstmt.setString(9, ((Vehicle) item).getEngineType());
                 }
 
-                return pstmt.executeUpdate() > 0;
+                int affectedRows = pstmt.executeUpdate();
+                if (affectedRows>0) {
+                    try (ResultSet rs = pstmt.getGeneratedKeys()){
+                        int newItemid = rs.getInt(1);
+                        return newItemid;
+                    }
+                }
             } catch (SQLException e) {
                 throw new DatabaseException("Lỗi khi thêm Item: ",e);
             }
+            return -1;
         }
 
     // Lấy toàn bộ sản phẩm (Dành cho trang chủ của Bidder)

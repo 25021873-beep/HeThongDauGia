@@ -15,11 +15,21 @@ class AuctionEngineTest {
     @Test
     void addAuctionAcceptsRunningAuctionAndFindsById() {
         AuctionEngine engine = AuctionEngine.getInstance();
-        Auction auction = new Auction(3, BigDecimal.TEN, LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(5));
-        auction.setId(7);
-        auction.setStatus(AuctionEngine.STATUS_ACTIVE);
-        auction.setItem(testItem());
+
+        // Bơm đủ 9 tham số, đút luôn 7, STATUS_OPEN và testItem() vào đây
+        Auction auction = new Auction(
+                7,                                  // id: Nhét số 7 vào đây luôn
+                3,                                  // itemId
+                BigDecimal.TEN,                     // currentPrice
+                LocalDateTime.now(),                // startTime
+                LocalDateTime.now().plusMinutes(5), // endTime
+                AuctionEngine.STATUS_OPEN,          // status
+                1,                                  // sellerId: Dummy data
+                0,                                  // winnerId: Dummy data
+                testItem()                          // item: Gọi luôn hàm testItem()
+        );
+
+        // Mấy dòng auction.setId(), setStatus(), setItem() cũ xóa hết đi vì đã truyền ở trên rồi
 
         engine.addAuction(auction);
 

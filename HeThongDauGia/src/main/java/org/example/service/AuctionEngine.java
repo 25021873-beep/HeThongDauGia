@@ -26,7 +26,7 @@ public class AuctionEngine {
 
     private AuctionService auctionService;
 
-    public static final String STATUS_ACTIVE = "ACTIVE";
+    public static final String STATUS_OPEN = "OPEN";
 
     private static AuctionEngine instance;
 
@@ -136,7 +136,6 @@ public class AuctionEngine {
         // ---------------------------------------------------------
         // NHỊP 3: DỌN DẸP BỘ NHỚ (Garbage Collection)
         // ---------------------------------------------------------
-        // Những phòng đã FINISHED thì xóa mẹ khỏi danh sách activeAuctions cho nhẹ RAM
         if (!toRemove.isEmpty()) {
             activeAuctions.removeAll(toRemove);
         }
@@ -159,9 +158,9 @@ public class AuctionEngine {
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void addAuction(Auction auction) {
-        if (auction == null || !STATUS_ACTIVE.equals(auction.getStatus())) {
+        if (auction == null || !STATUS_OPEN.equals(auction.getStatus())) {
             throw new IllegalArgumentException(
-                    "[ENGINE] Chi nap phien co trang thai: " + STATUS_ACTIVE);
+                    "[ENGINE] Chi nap phien co trang thai: " + STATUS_OPEN);
         }
         activeAuctions.add(auction);
         roomManager.getOrCreateRoom(auction); // Tạo phòng mới

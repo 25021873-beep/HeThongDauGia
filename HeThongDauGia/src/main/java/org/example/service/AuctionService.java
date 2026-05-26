@@ -90,7 +90,7 @@ public class AuctionService {
             newAuction.setStatus("RUNNING");
         }
 
-        if (!auctionDAO.createAuction(newAuction))
+        if (auctionDAO.createAuction(newAuction)<=0)
             throw new AuctionSystemException("Loi khi mo Auction");
 
         itemDAO.updateItemStatus(itemId, "IN_AUCTION");
@@ -118,48 +118,52 @@ public class AuctionService {
             conn = DatabaseConnection.getInstance().getConnection();
             conn.setAutoCommit(false);
 
-            // I. KIỂM TRA ĐIỀU KIỆN ─────────────────────────────────────────
-
+            // ==========================================================
+            // I. KIỂM TRA ĐIỀU KIỆN (VALIDATION)
+            // ==========================================================
             Auction auction = auctionDAO.getAuctionById(auctionId);
-            if (auction == null)
-                throw new AuctionNotFoundException("Phien dau gia da ket thuc hoac khong ton tai.");
-            if ("OPEN".equals(auction.getStatus()))
-                throw new InvalidBidException("Phòng chưa đến giờ mở cửa");
-            if (auction.getEndTime().isBefore(LocalDateTime.now()))
-                throw new AuctionClosedException("Het gio! Khong the dat gia them.");
-            if (bidAmount.compareTo(auction.getCurrentPrice()) <= 0)
-                throw new InvalidBidException("Gia dat phai cao hon gia hien tai: " + auction.getCurrentPrice());
+            if (auction == null) throw new AuctionNotFoundException("Phien dau gia khong ton tai.");
 
-            User bidder = userDAO.getUserById(bidderId);
-            if (bidder == null)
-                throw new UserNotFoundException("Khong tim thay nguoi dung ID: " + bidderId);
-
-            BigDecimal bidderBalance = bidder.getBalance() != null ? bidder.getBalance() : BigDecimal.ZERO;
-            if (bidderBalance.compareTo(bidAmount) < 0)
-                throw new InvalidBidException(
-                        "Vi khong du tien! Can: " + bidAmount + " | Co: " + bidderBalance);
-
-            // II. XỬ LÝ GIAO DỊCH ───────────────────────────────────────────
-
-            // 1. Trừ tiền người đặt mới
-            userDAO.updateBalance(conn, bidderId, bidderBalance.subtract(bidAmount));
-
-            // 2. Hoàn cọc cho người đặt cao nhất cũ
-            BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
-            if (highestBid != null) {
-                User oldBidder = userDAO.getUserById(highestBid.getBidderId());
-                if (oldBidder != null) {
-                    BigDecimal oldBalance = oldBidder.getBalance() != null
-                            ? oldBidder.getBalance() : BigDecimal.ZERO;
-                    userDAO.updateBalance(conn, oldBidder.getId(),
-                            oldBalance.add(highestBid.getBidPrice()));
-                }
+            if (!"RUNNING".equals(auction.getStatus())) {
+                throw new InvalidBidException("Phòng chưa mở hoặc đã kết thúc!");
             }
 
-            // 3. Cập nhật giá phiên
+            if (auction.getEndTime().isBefore(LocalDateTime.now())) {
+                throw new AuctionClosedException("Hết giờ! Không thể đặt giá thêm.");
+            }
+
+            if (bidAmount.compareTo(auction.getCurrentPrice()) <= 0) {
+                throw new InvalidBidException("Giá đặt phải cao hơn giá hiện tại: " + auction.getCurrentPrice());
+            }
+
+            if (auction.getSellerId() == bidderId) {
+                throw new InvalidBidException("Lỗi: Không được tự bid sản phẩm của chính mình!");
+            }
+
+            User bidder = userDAO.getUserById(bidderId);
+            if (bidder == null) throw new UserNotFoundException("Không tìm thấy người dùng");
+
+            if (!"BIDDER".equals(bidder.getRole())) {
+                throw new InvalidBidException("Lỗi: Bạn không có quyền đặt giá!");
+            }
+
+
+            // ==========================================================
+            // II. XỬ LÝ GIAO DỊCH CHÍNH (TRANSACTION)
+            // ==========================================================
+
+            boolean isDeducted = userDAO.deductBalance(conn, bidderId, bidAmount);
+            if (!isDeducted) {
+                throw new InvalidBidException("Số dư không đủ! (Lỗi giao dịch)");
+            }
+
+            BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
+            if (highestBid != null) {
+                userDAO.addBalance(conn, highestBid.getBidderId(), highestBid.getBidPrice());
+            }
+
             auctionDAO.updateCurrentPrice(conn, auctionId, bidAmount);
 
-            // 4. Ghi lịch sử giao dịch
             BidTransaction newTx = new BidTransaction();
             newTx.setAuctionId(auctionId);
             newTx.setBidderId(bidderId);
@@ -167,7 +171,6 @@ public class AuctionService {
             newTx.setBidTime(LocalDateTime.now());
             bidDAO.addBid(conn, newTx);
 
-            // 5. Ghi lịch sử visualization
             BidHistory entry = new BidHistory();
             entry.setAuctionId(auctionId);
             entry.setBidderId(bidderId);
@@ -175,50 +178,62 @@ public class AuctionService {
             entry.setBidTime(LocalDateTime.now());
             bidHistoryDAO.addBidHistory(entry);
 
-            // 6. Trigger auto-bid async
-            autoBidService.triggerAsync(auctionId, bidderId);
-
-            // III. COMMIT ────────────────────────────────────────────────────
-            conn.commit();
-
-            // IV. ANTI-SNIPE (sau commit — không ảnh hưởng giao dịch chính) ─
+            // ==========================================================
+            // III. XỬ LÝ ANTI-SNIPE (GIA HẠN THỜI GIAN)
+            // ==========================================================
             long secondsLeft = ChronoUnit.SECONDS.between(LocalDateTime.now(), auction.getEndTime());
+            boolean isExtended = false;
+            LocalDateTime newEndTime = auction.getEndTime();
+
             if (secondsLeft > 0 && secondsLeft <= SNIPE_THRESHOLD_SECONDS) {
+                newEndTime = auction.getEndTime().plusSeconds(EXTEND_SECONDS);
 
-                LocalDateTime newEndTime = auction.getEndTime().plusSeconds(EXTEND_SECONDS);
+                // Cập nhật DB (TRONG TRANSACTION)
+                auctionDAO.updateEndTime(conn, auctionId, newEndTime);
+                isExtended = true;
 
-                // Cập nhật DB
-                auctionDAO.updateEndTime(auctionId, newEndTime);
-
-                // Cập nhật object đang chạy trong engine (in-memory)
-                if (engine != null) {
-                    Auction liveAuction = engine.findActiveAuctionById(auctionId);
-                    if (liveAuction != null) liveAuction.setEndTime(newEndTime);
-                }
-
-                System.out.println("[ANTI-SNIPE] Phien " + auctionId
-                        + " gia han them " + EXTEND_SECONDS
-                        + "s | End moi: " + newEndTime);
-
-                return BidResult.successWithExtension(EXTEND_SECONDS, newEndTime);
+                System.out.println("[ANTI-SNIPE] Phien " + auctionId + " gia han them " + EXTEND_SECONDS + "s");
             }
 
+            // ==========================================================
+            // IV. CHỐT GIAO DỊCH (COMMIT)
+            // ==========================================================
+            conn.commit();
+
+            // ==========================================================
+            // V. HẬU KỲ (THAO TÁC KHÔNG ẢNH HƯỞNG DATA CORE)
+            // ==========================================================
+            // Trigger auto-bid bot sau khi đã chốt data thành công
+            autoBidService.triggerAsync(auctionId, bidderId);
+
+            // Cập nhật Object trên RAM cho Engine chạy nền
+            if (isExtended && engine != null) {
+                Auction liveAuction = engine.findActiveAuctionById(auctionId);
+                if (liveAuction != null) {
+                    liveAuction.setEndTime(newEndTime);
+                }
+            }
+
+            // Trả kết quả
+            if (isExtended) {
+                return BidResult.successWithExtension(EXTEND_SECONDS, newEndTime);
+            }
             return BidResult.success();
 
         } catch (AuctionSystemException e) {
             System.err.println("[BID] Loi nghiep vu: " + e.getMessage());
             rollback(conn);
             return BidResult.failure(e.getMessage());
-
         } catch (Exception e) {
-            System.err.println("[BID] Loi ky thuat: " + e.getMessage());
+            System.err.println("[BID] Loi he thong: " + e.getMessage());
             rollback(conn);
             throw new DatabaseException("Loi he thong trong giao dich dat gia", e);
-
         } finally {
             if (conn != null) {
-                try { conn.setAutoCommit(true); conn.close(); }
-                catch (SQLException e) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
                     System.err.println("[BID] Loi dong connection: " + e.getMessage());
                 }
             }
@@ -235,7 +250,7 @@ public class AuctionService {
             Auction auction = auctionDAO.getAuctionById(auctionId);
             if (auction == null)
                 throw new AuctionNotFoundException("Loi: Khong ton tai auction");
-            if (!AuctionEngine.STATUS_ACTIVE.equals(auction.getStatus()))
+            if (!AuctionEngine.STATUS_OPEN.equals(auction.getStatus()))
                 throw new AuctionClosedException("Loi: Auction hien dang khong mo");
 
             BidTransaction highestBid = bidDAO.getHighestBid(auctionId);

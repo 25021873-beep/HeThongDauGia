@@ -15,19 +15,31 @@ import static org.example.dao.item.ItemFactory.createItem;
 
 public class AuctionDAO {
 
-    public boolean createAuction(Auction auction) {
-        String sql = "INSERT INTO Auctions (item_id, start_time, end_time, current_price, status) VALUES (?, ?, ?, ?, ?)";
+    public int createAuction(Auction auction) {
+        String sql = "INSERT INTO Auctions (item_id, start_time, end_time, current_price, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, auction.getItemId());
             pstmt.setObject(2, auction.getStartTime());
             pstmt.setObject(3, auction.getEndTime());
             pstmt.setBigDecimal(4, auction.getCurrentPrice());
             pstmt.setString(5, auction.getStatus());
-            return pstmt.executeUpdate() > 0;
+            pstmt.setInt(6, auction.getSellerId());
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int newAuctionId = rs.getInt(1);
+                        System.out.println("[DAO] Tao phong thanh cong. ID moi: " + newAuctionId);
+                        return newAuctionId;
+                    }
+                }
+            }
         } catch (SQLException e) {
             throw new DatabaseException("Loi database khi tao auction moi", e);
         }
+        return -1;
     }
 
     public Auction getAuctionById(int id) {
@@ -104,16 +116,21 @@ public class AuctionDAO {
      * Cập nhật end_time xuống DB sau khi gia hạn anti-snipe.
      * Chỉ update khi phiên đang RUNNING để tránh race condition.
      */
-    public boolean updateEndTime(int auctionId, LocalDateTime newEndTime) {
-        String sql = "UPDATE Auctions SET end_time = ? WHERE id = ? AND status = 'RUNNING'";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setObject(1, newEndTime);
+    public void updateEndTime(Connection conn, int auctionId, LocalDateTime newEndTime) throws SQLException {
+        String sql = "UPDATE auctions SET end_time = ? WHERE id = ?";
+
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setTimestamp(1, Timestamp.valueOf(newEndTime));
             pstmt.setInt(2, auctionId);
-            return pstmt.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DatabaseException("Loi khi gia han thoi gian phien dau gia", e);
+
+            int rowsUpdated = pstmt.executeUpdate();
+            if (rowsUpdated == 0) {
+                throw new SQLException("Khong the gia han thoi gian: Khong tim thay phien dau gia ID " + auctionId);
+            }
         }
+
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -204,6 +221,7 @@ public class AuctionDAO {
         auction.setStatus(rs.getString("status"));
         auction.setWinnerId(rs.getInt("winner_id"));
         auction.setItem(createItem(rs, "item_"));
+        auction.setSellerId(rs.getInt("seller_id"));
         return auction;
     }
 }

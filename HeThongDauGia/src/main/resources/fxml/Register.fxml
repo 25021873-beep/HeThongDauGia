@@ -53,7 +53,7 @@
               <children>
                   <ImageView fitHeight="106.0" fitWidth="221.0" mouseTransparent="true" pickOnBounds="true" preserveRatio="true">
                       <image>
-                          <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png" />
+                          <Image url="@../images/logo.png" />
                       </image>
                       <effect>
                           <ColorAdjust brightness="1.0" />
