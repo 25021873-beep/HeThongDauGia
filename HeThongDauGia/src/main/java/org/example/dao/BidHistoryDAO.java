@@ -21,13 +21,13 @@ public class BidHistoryDAO {
     // ── INSERT ────────────────────────────────────────────────────────────────
 
     // Hàm thêm lịch sử bid
-    public void addBidHistory(BidHistory entry) {
+    public void addBidHistory(Connection conn, BidHistory entry) {
         String sql = """
                 INSERT INTO bid_history (auction_id, bidder_id, price, bid_time)
                 VALUES (?, ?, ?, ?)
                 """;
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setLong(1, entry.getAuctionId());
             stmt.setLong(2, entry.getBidderId());
             stmt.setBigDecimal(3, entry.getPrice());
