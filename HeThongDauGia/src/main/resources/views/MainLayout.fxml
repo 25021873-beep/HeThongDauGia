@@ -47,7 +47,7 @@
                     <!-- Gavel icon cropped from logo (white) -->
                     <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                         <image>
-                            <Image url="@../images/Thiết%20kế%20chưa%20có%20tên.png"/>
+                            <Image url="@../images/logo.png"/>
                         </image>
                         <viewport>
                             <Rectangle2D minX="1300" minY="80" width="748" height="900"/>
