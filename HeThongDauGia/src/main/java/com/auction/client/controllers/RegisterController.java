@@ -1,5 +1,9 @@
 package com.auction.client.controllers;
 
+import com.auction.client.network.ConnectionManager;
+import com.auction.client.network.ServerClient;
+import com.google.gson.JsonObject;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,7 +27,6 @@ public class RegisterController {
 
     @FXML
     public void initialize() {
-        //dsach vai tro
         cboRole.setItems(FXCollections.observableArrayList("Bidder", "Seller"));
         cboRole.getSelectionModel().selectFirst();
     }
@@ -37,41 +40,63 @@ public class RegisterController {
         String confirmPassword = txtConfirmPassword.getText();
         String role = cboRole.getValue();
 
-        //kiem tra cac field bat buoc
         if (fullName.isEmpty() || username.isEmpty() || email.isEmpty() || password.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng điền đầy đủ thông tin!");
             return;
         }
 
-        //kiem tra email hople
         if (!email.contains("@") || !email.contains(".")) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Email không hợp lệ!");
             return;
         }
 
-        //ktra mk khop
         if (!password.equals(confirmPassword)) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Mật khẩu xác nhận không khớp!");
             return;
         }
 
-        //ktra do dai mk
         if (password.length() < 3) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Mật khẩu phải có ít nhất 3 ký tự!");
             return;
         }
-//ktra role
+
         if (role == null) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng chọn vai trò!");
             return;
         }
 
-        //dki thanh cong
-        System.out.println("Đăng ký thành công: " + username + " / " + role);
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng ký tài khoản thành công!\nBạn có thể đăng nhập ngay.");
+        // Gửi request REGISTER lên server
+        Thread registerThread = new Thread(() -> {
+            try {
+                ConnectionManager conn = ConnectionManager.getInstance();
+                if (!conn.isConnected()) {
+                    conn.connect("127.0.0.1", 8888);
+                }
 
-        //chuyen ve mh dang nhap
-        handleGoToLogin(event);
+                JsonObject request = new JsonObject();
+                request.addProperty("command", "REGISTER");
+                request.addProperty("username", username);
+                request.addProperty("password", password);
+                request.addProperty("email", email);
+                request.addProperty("role", role.toUpperCase()); // "BIDDER" hoặc "SELLER"
+
+                JsonObject response = conn.sendAndWait(request);
+
+                Platform.runLater(() -> {
+                    if (ServerClient.isSuccess(response)) {
+                        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng ký tài khoản thành công!\nBạn có thể đăng nhập ngay.");
+                        handleGoToLogin(event);
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Lỗi", ServerClient.messageOf(response));
+                    }
+                });
+
+            } catch (IOException e) {
+                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage()));
+            }
+        });
+        registerThread.setDaemon(true);
+        registerThread.start();
     }
 
     @FXML

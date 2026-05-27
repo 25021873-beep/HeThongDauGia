@@ -1,91 +1,244 @@
 package com.auction.client.network;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import javafx.application.Platform;
+
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+/**
+ * Singleton quản lý kết nối Socket persistent tới Server.
+ *
+ * - Giữ socket mở liên tục sau khi LOGIN thành công
+ * - Thread daemon lắng nghe mọi message từ server (push + response)
+ * - Hỗ trợ sendAndWait() cho request-response đồng bộ
+ * - Hỗ trợ setOnPush() cho realtime push (BID_UPDATE, AUCTION_END, ...)
+ */
 public class ConnectionManager {
-    private static final String HOST = "172.16.66.216";
-    private static final int PORT = 9999;
-    private static final int CONNECT_TIMEOUT = 5000; // 5 giây
-    private static final int RETRY_COUNT = 3;
-    private static final int RETRY_DELAY = 1000; // 1 giây
+
+    private static final int CONNECT_TIMEOUT_MS = 5000;
+    private static final int WAIT_TIMEOUT_SECONDS = 10;
+    private static final Gson GSON = new Gson();
+
+    private static ConnectionManager instance;
 
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
-    private Consumer<String> onMessageReceived;
+    private volatile boolean connected = false;
 
-    public void setOnMessageReceived(Consumer<String> callback) {
-        this.onMessageReceived = callback;
-    }
+    // Lưu thông tin user sau khi login thành công
+    private int userId;
+    private String username;
+    private String role;
 
-    public void connect() throws IOException {
-        IOException lastException = null;
+    // Callback cho push messages (BID_UPDATE, AUCTION_END, AUCTION_EXTENDED, AUCTION_STARTED)
+    private Consumer<JsonObject> onPushMessage;
 
-        for (int attempt = 1; attempt <= RETRY_COUNT; attempt++) {
-            try {
-                System.out.println("[CLIENT] Kết nối lần " + attempt + "/" + RETRY_COUNT + "...");
-                socket = new Socket();
-                socket.connect(new java.net.InetSocketAddress(HOST, PORT), CONNECT_TIMEOUT);
+    // Queue chứa các CompletableFuture đang chờ response
+    private final ConcurrentLinkedQueue<CompletableFuture<JsonObject>> pendingRequests = new ConcurrentLinkedQueue<>();
 
-                out = new PrintWriter(socket.getOutputStream(), true);
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                System.out.println("[CLIENT] ✓ Đã kết nối server " + HOST + ":" + PORT);
+    private ConnectionManager() {}
 
-                Thread listener = new Thread(this::listenFromServer);
-                listener.setDaemon(true);
-                listener.start();
-                return;
-
-            } catch (SocketTimeoutException e) {
-                lastException = e;
-                System.out.println("[CLIENT] ✗ Timeout lần " + attempt);
-                if (attempt < RETRY_COUNT) {
-                    try { Thread.sleep(RETRY_DELAY); } catch (InterruptedException ignored) {}
-                }
-            } catch (IOException e) {
-                lastException = e;
-                System.out.println("[CLIENT] ✗ Lỗi lần " + attempt + ": " + e.getMessage());
-                if (attempt < RETRY_COUNT) {
-                    try { Thread.sleep(RETRY_DELAY); } catch (InterruptedException ignored) {}
-                }
-            }
+    public static synchronized ConnectionManager getInstance() {
+        if (instance == null) {
+            instance = new ConnectionManager();
         }
-
-        throw lastException != null ? lastException : new IOException("Không thể kết nối sau " + RETRY_COUNT + " lần thử");
+        return instance;
     }
 
-    private void listenFromServer() {
+    // ── Kết nối ──────────────────────────────────────────────────────────────
+
+    /**
+     * Kết nối tới server và đọc welcome message.
+     * Bắt đầu thread lắng nghe liên tục.
+     */
+    public void connect(String host, int port) throws IOException {
+        if (connected) return;
+
+        socket = new Socket();
+        socket.connect(new InetSocketAddress(host, port), CONNECT_TIMEOUT_MS);
+
+        out = new PrintWriter(
+                new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
+        in = new BufferedReader(
+                new InputStreamReader(socket.getInputStream(), "UTF-8"));
+
+        // Đọc welcome message từ server
+        String welcome = in.readLine();
+        System.out.println("[CLIENT] Server welcome: " + welcome);
+
+        connected = true;
+
+        // Khởi động thread lắng nghe
+        Thread listener = new Thread(this::listenLoop, "ServerListener");
+        listener.setDaemon(true);
+        listener.start();
+
+        System.out.println("[CLIENT] Da ket noi server " + host + ":" + port);
+    }
+
+    // ── Vòng lặp lắng nghe ──────────────────────────────────────────────────
+
+    private void listenLoop() {
         try {
-            String raw;
-            while ((raw = in.readLine()) != null) {
-                System.out.println("[CLIENT] Nhận: " + raw);
-                if (onMessageReceived != null) {
-                    final String msg = raw;
-                    onMessageReceived.accept(msg);
+            String line;
+            while (connected && (line = in.readLine()) != null) {
+                if (line.trim().isEmpty()) continue;
+
+                System.out.println("[CLIENT] Nhan: " + line);
+                JsonObject json = JsonParser.parseString(line).getAsJsonObject();
+
+                String status = json.has("status") ? json.get("status").getAsString() : "";
+
+                // Phân biệt: push message vs response cho request đang chờ
+                if (isPushMessage(status)) {
+                    // Push message → gọi callback trên JavaFX thread
+                    if (onPushMessage != null) {
+                        final JsonObject msg = json;
+                        Platform.runLater(() -> onPushMessage.accept(msg));
+                    }
+                } else {
+                    // Response cho request → complete future đang chờ
+                    CompletableFuture<JsonObject> future = pendingRequests.poll();
+                    if (future != null) {
+                        future.complete(json);
+                    }
                 }
             }
         } catch (IOException e) {
-            System.out.println("[CLIENT] Mất kết nối server");
+            if (connected) {
+                System.err.println("[CLIENT] Mat ket noi server: " + e.getMessage());
+            }
+        } finally {
+            connected = false;
         }
     }
 
-    public void send(String text) {
-        if (out != null) {
-            out.println(text);
-            System.out.println("[CLIENT] Gửi: " + text);
-        }
+    /**
+     * Kiểm tra xem message có phải là push (server tự gửi) hay response cho request.
+     * Push messages có status đặc biệt mà server broadcast tới tất cả clients trong room.
+     */
+    private boolean isPushMessage(String status) {
+        return "UPDATE".equals(status)
+                || "AUCTION_END".equals(status)
+                || "AUCTION_EXTENDED".equals(status)
+                || "AUCTION_STARTED".equals(status);
     }
 
-    public void disconnect() {
+    // ── Gửi request ─────────────────────────────────────────────────────────
+
+    /**
+     * Gửi request và đợi response đồng bộ (blocking, có timeout).
+     * Dùng cho LOGIN, REGISTER, GET_ALL_AUCTIONS, JOIN, BID, ...
+     *
+     * @return JsonObject response từ server
+     * @throws IOException nếu timeout hoặc lỗi kết nối
+     */
+    public JsonObject sendAndWait(JsonObject request) throws IOException {
+        if (!connected || out == null) {
+            throw new IOException("Chua ket noi server");
+        }
+
+        CompletableFuture<JsonObject> future = new CompletableFuture<>();
+        pendingRequests.add(future);
+
+        String json = GSON.toJson(request);
+        System.out.println("[CLIENT] Gui: " + hidePassword(json));
+        out.println(json);
+
         try {
-            if (socket != null && !socket.isClosed()) socket.close();
-        } catch (IOException ignored) {}
+            return future.get(WAIT_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            pendingRequests.remove(future);
+            throw new IOException("Server khong phan hoi sau " + WAIT_TIMEOUT_SECONDS + "s", e);
+        }
     }
 
-    public boolean isConnected() {
-        return socket != null && socket.isConnected() && !socket.isClosed();
+    /**
+     * Gửi request mà không cần đợi response (fire-and-forget).
+     * Dùng cho LOGOUT.
+     */
+    public void sendOnly(JsonObject request) {
+        if (connected && out != null) {
+            String json = GSON.toJson(request);
+            System.out.println("[CLIENT] Gui (no-wait): " + json);
+            out.println(json);
+        }
+    }
+
+    // ── Push callback ────────────────────────────────────────────────────────
+
+    /**
+     * Đăng ký callback nhận push messages từ server.
+     * Callback sẽ được gọi trên JavaFX Application Thread.
+     */
+    public void setOnPushMessage(Consumer<JsonObject> callback) {
+        this.onPushMessage = callback;
+    }
+
+    /**
+     * Xóa push callback (khi rời màn hình AuctionDetail).
+     */
+    public void clearPushCallback() {
+        this.onPushMessage = null;
+    }
+
+    // ── Ngắt kết nối ─────────────────────────────────────────────────────────
+
+    /**
+     * Gửi LOGOUT và đóng socket.
+     */
+    public void disconnect() {
+        if (connected) {
+            try {
+                JsonObject logout = new JsonObject();
+                logout.addProperty("command", "LOGOUT");
+                sendOnly(logout);
+            } catch (Exception ignored) {}
+        }
+
+        connected = false;
+        clearPushCallback();
+        pendingRequests.clear();
+        userId = 0;
+        username = null;
+        role = null;
+
+        try {
+            if (out != null) out.close();
+            if (in != null) in.close();
+            if (socket != null && !socket.isClosed()) socket.close();
+        } catch (IOException e) {
+            System.err.println("[CLIENT] Loi dong socket: " + e.getMessage());
+        }
+
+        System.out.println("[CLIENT] Da ngat ket noi");
+    }
+
+    // ── User info (lưu sau khi login thành công) ─────────────────────────────
+
+    public int getUserId()       { return userId; }
+    public String getUsername()  { return username; }
+    public String getRole()      { return role; }
+    public boolean isConnected() { return connected; }
+
+    public void setUserInfo(int userId, String username, String role) {
+        this.userId = userId;
+        this.username = username;
+        this.role = role;
+    }
+
+    // ── Helper ───────────────────────────────────────────────────────────────
+
+    private String hidePassword(String json) {
+        return json.replaceAll("\"password\"\\s*:\\s*\"[^\"]*\"", "\"password\":\"***\"");
     }
 }

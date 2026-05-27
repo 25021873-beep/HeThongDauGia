@@ -1,5 +1,9 @@
 package com.auction.client.controllers;
 
+import com.auction.client.network.ConnectionManager;
+import com.auction.client.network.ServerClient;
+import com.google.gson.JsonObject;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -11,92 +15,9 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.util.function.Consumer;
 
 public class LoginController {
-
-
-    public class SocketClient {
-
-        private static final String HOST = "127.0.0.1";
-        private static final int PORT = 8888;
-
-        private Socket socket;
-        private PrintWriter out;
-        private BufferedReader in;
-        private Consumer<String> onMessageReceived;
-
-        public void setOnMessageReceived(Consumer<String> callback) {
-            this.onMessageReceived = callback;
-        }
-
-        public void connect() throws IOException {
-            socket = new Socket(HOST, PORT);
-            out = new PrintWriter(socket.getOutputStream(), true);
-            in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("[CLIENT] Đã kết nối server cổng " + PORT);
-
-            Thread listener = new Thread(this::listenFromServer);
-            listener.setDaemon(true);
-            listener.start();
-        }
-
-        private void listenFromServer() {
-            try {
-                String raw;
-                while ((raw = in.readLine()) != null) {
-                    System.out.println("[CLIENT] Nhận: " + raw);
-                    if (onMessageReceived != null) {
-                        final String msg = raw;
-                        onMessageReceived.accept(msg);
-                    }
-                }
-            } catch (IOException e) {
-                System.out.println("[CLIENT] Mất kết nối server");
-            }
-        }
-
-        private void sendRaw(String text) {
-            if (out != null) {
-                out.println(text);
-                System.out.println("[CLIENT] Gửi: " + text);
-            }
-        }
-
-        // Gửi đúng format Backend yêu cầu
-        public void login(String username, String password) {
-            sendRaw("LOGIN|" + username + "|" + password);
-        }
-
-        public void joinAuction(String auctionId) {
-            sendRaw("JOIN|" + auctionId);
-        }
-
-        public void placeBid(String auctionId, double amount) {
-            sendRaw("BID|" + auctionId + "|" + amount);
-        }
-
-        public void getAllAuctions() {
-            sendRaw("GET_ALL_AUCTIONS");
-        }
-
-        public void logout() {
-            sendRaw("LOGOUT");
-        }
-
-        public void disconnect() {
-            try {
-                if (socket != null) socket.close();
-            } catch (IOException ignored) {}
-        }
-    }
-
-    private SocketClient socketClient = new SocketClient();
 
     @FXML
     private TextField txtUsername;
@@ -106,46 +27,57 @@ public class LoginController {
 
     @FXML
     public void handleLogin(ActionEvent event) {
-        String username = txtUsername.getText();
-        String password = txtPassword.getText();
+        String username = txtUsername.getText().trim();
+        String password = txtPassword.getText().trim();
 
-        try {
-            socketClient.connect();
-            socketClient.login(username, password);
-            
-            // Lắng nghe phản hồi từ server (nếu cần)
-            socketClient.setOnMessageReceived(message -> {
-                System.out.println("Server trả về: " + message);
-                // Xử lý logic khi server phản hồi (ví dụ: đăng nhập thành công hay thất bại)
-            });
-            
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
-            // Có thể return ở đây nếu muốn bắt buộc phải có mạng để đăng nhập
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert("Lỗi", "Vui lòng nhập tên đăng nhập và mật khẩu!");
+            return;
         }
 
-        //xac thuc nguoi dung (tạm thời vẫn dùng fake data của bạn)
-        String userRole = authenticateUser(username, password);
+        // Gửi request LOGIN qua socket trên background thread
+        Thread loginThread = new Thread(() -> {
+            try {
+                // 1. Kết nối server (nếu chưa kết nối)
+                ConnectionManager conn = ConnectionManager.getInstance();
+                if (!conn.isConnected()) {
+                    conn.connect("127.0.0.1", 8888);
+                }
 
-        if (userRole != null) {
-            //dnhap tcong -> mainlayout
-            loadMainLayout(event, userRole);
-        } else {
-            //dnhap fail -> loi
-            showAlert("Đăng nhập thất bại", "Tên đăng nhập hoặc mật khẩu không chính xác!");
-        }
+                // 2. Gửi JSON LOGIN và đợi response
+                JsonObject request = new JsonObject();
+                request.addProperty("command", "LOGIN");
+                request.addProperty("username", username);
+                request.addProperty("password", password);
+
+                JsonObject response = conn.sendAndWait(request);
+
+                // 3. Xử lý response trên JavaFX thread
+                Platform.runLater(() -> {
+                    if (ServerClient.isSuccess(response)) {
+                        // Lưu thông tin user
+                        int userId = response.has("userId") ? response.get("userId").getAsInt() : 0;
+                        String role = response.has("role") ? response.get("role").getAsString() : "BIDDER";
+                        conn.setUserInfo(userId, username, role);
+
+                        // Chuyển sang MainLayout
+                        loadMainLayout(event, role);
+                    } else {
+                        showAlert("Đăng nhập thất bại", ServerClient.messageOf(response));
+                    }
+                });
+
+            } catch (IOException e) {
+                Platform.runLater(() -> {
+                    showAlert("Lỗi kết nối",
+                            "Không thể kết nối đến server 127.0.0.1:8888.\n"
+                                    + "Hãy chạy ServerMain trước.\n" + e.getMessage());
+                });
+            }
+        });
+        loginThread.setDaemon(true);
+        loginThread.start();
     }
-
-    //fake data
-    private String authenticateUser(String username, String password) {
-        if ("bidder".equals(username) && "123".equals(password)) return "Bidder";
-        if ("seller".equals(username) && "123".equals(password)) return "Seller";
-        if ("admin".equals(username) && "123".equals(password)) return "Admin";
-
-        return null;
-    }
-
 
     private void loadMainLayout(ActionEvent event, String role) {
         try {
