@@ -6,8 +6,8 @@ import java.net.SocketTimeoutException;
 import java.util.function.Consumer;
 
 public class ConnectionManager {
-    private static final String HOST = "172.16.66.216";
-    private static final int PORT = 9999;
+    private static final String HOST = "26.139.15.134";
+    private static final int PORT = 8888;
     private static final int CONNECT_TIMEOUT = 5000; // 5 giây
     private static final int RETRY_COUNT = 3;
     private static final int RETRY_DELAY = 1000; // 1 giây

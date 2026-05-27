@@ -12,7 +12,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public final class ServerClient {
-    private static final String HOST = "127.0.0.1";
+    private static final String HOST = "26.139.15.134";
     private static final int PORT = 8888;
     private static final int CONNECT_TIMEOUT_MS = 3000;
     private static final int READ_TIMEOUT_MS = 10000;
