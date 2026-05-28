@@ -57,6 +57,10 @@ public class CommandRouter {
             case "TOP_UP":
                 userController.handleTopUp(json);
                 return false;
+                
+            case "GET_ALL_USERS":
+                userController.handleGetAllUsers();
+                return false;
 
             // ── NHÓM LỆNH QUẢN LÝ SẢN PHẨM & PHIÊN ĐẤU GIÁ (DÀNH CHO SELLER/ADMIN) ──
             case "GET_SELLER_ITEMS":

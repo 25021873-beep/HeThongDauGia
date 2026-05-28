@@ -49,4 +49,31 @@ public class UserController {
             session.send(SimpleResponse.error("Nap tien that bai"));
         }
     }
+    public void handleGetAllUsers() {
+        if (!session.requireLogin()) return;
+
+        try {
+            java.util.List<User> users = userService.getAllUsers();
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "SUCCESS");
+            
+            com.google.gson.JsonArray usersArray = new com.google.gson.JsonArray();
+            for (User u : users) {
+                JsonObject obj = new JsonObject();
+                obj.addProperty("username", u.getUsername());
+                // Chú ý: CSDL hiện tại chưa có fullname nên tạm thời dùng username hoặc mock name
+                obj.addProperty("fullName", u.getUsername()); 
+                obj.addProperty("email", u.getEmail());
+                obj.addProperty("role", u.getRole());
+                obj.addProperty("status", "Hoạt động"); // Tạm thời mặc định là hoạt động vì db chưa có trường trạng thái block
+                usersArray.add(obj);
+            }
+            response.add("users", usersArray);
+            session.sendRaw(response.toString());
+
+        } catch (Exception e) {
+            System.err.println("[USER_CTRL] Loi lay danh sach user: " + e.getMessage());
+            session.send(SimpleResponse.error("Loi he thong khi lay danh sach user"));
+        }
+    }
 }

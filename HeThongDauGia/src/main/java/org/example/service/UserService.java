@@ -99,6 +99,10 @@ public class UserService {
         return userDAO.getUserByUsername(username);
     }
 
+    public java.util.List<User> getAllUsers() {
+        return userDAO.getAllUsers();
+    }
+
     // ── Nạp tiền ──────────────────────────────────────────────────────────────
 
 
