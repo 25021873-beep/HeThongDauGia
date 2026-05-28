@@ -46,6 +46,7 @@ public class ConnectionManager {
     private int userId;
     private String username;
     private String role;
+    private double balance;
 
     // Callback cho push messages (BID_UPDATE, AUCTION_END, AUCTION_EXTENDED, AUCTION_STARTED)
     private Consumer<JsonObject> onPushMessage;
@@ -227,6 +228,7 @@ public class ConnectionManager {
         userId = 0;
         username = null;
         role = null;
+        balance = 0.0;
 
         try {
             if (out != null) out.close();
@@ -244,12 +246,15 @@ public class ConnectionManager {
     public int getUserId()       { return userId; }
     public String getUsername()  { return username; }
     public String getRole()      { return role; }
+    public double getBalance()   { return balance; }
+    public void setBalance(double balance) { this.balance = balance; }
     public boolean isConnected() { return connected; }
 
-    public void setUserInfo(int userId, String username, String role) {
+    public void setUserInfo(int userId, String username, String role, double balance) {
         this.userId = userId;
         this.username = username;
         this.role = role;
+        this.balance = balance;
     }
 
     // ── Helper ───────────────────────────────────────────────────────────────

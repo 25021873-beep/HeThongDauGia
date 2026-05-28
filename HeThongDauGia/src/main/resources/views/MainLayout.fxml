@@ -65,6 +65,15 @@
                         </HBox.margin>
                     </Label>
 
+                    <Label fx:id="lblBalance" text="Số dư: 0 VND" textFill="#FCBF49">
+                        <font>
+                            <Font name="System Bold" size="16.0" />
+                        </font>
+                        <HBox.margin>
+                            <Insets left="24.0" />
+                        </HBox.margin>
+                    </Label>
+
                     <Region HBox.hgrow="ALWAYS" />
 
                     <Label fx:id="lblUserInfo" text="Xin chào, User" textFill="#CCCCCC">
@@ -103,6 +112,10 @@
                     </Button>
 
                     <Button fx:id="btnUserMgmt" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowUserMgmt" style="-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;" text="👤  Quản lý Người dùng">
+                        <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
+                    </Button>
+
+                    <Button fx:id="btnDeposit" alignment="BASELINE_LEFT" maxWidth="Infinity" mnemonicParsing="false" onAction="#handleShowDeposit" style="-fx-background-color: transparent; -fx-text-fill: #4CAF50; -fx-font-size: 14px; -fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 8;" text="💰  Nạp tiền">
                         <padding><Insets bottom="12.0" left="14.0" right="14.0" top="12.0" /></padding>
                     </Button>
 

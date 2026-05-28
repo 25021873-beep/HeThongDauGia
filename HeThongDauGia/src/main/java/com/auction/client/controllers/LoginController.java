@@ -59,7 +59,8 @@ public class LoginController {
                         // Lưu thông tin user
                         int userId = response.has("userId") ? response.get("userId").getAsInt() : 0;
                         String role = response.has("role") ? response.get("role").getAsString() : "BIDDER";
-                        conn.setUserInfo(userId, username, role);
+                        double balance = response.has("balance") && !response.get("balance").isJsonNull() ? response.get("balance").getAsDouble() : 0.0;
+                        conn.setUserInfo(userId, username, role, balance);
 
                         // Chuyển sang MainLayout
                         loadMainLayout(event, role);

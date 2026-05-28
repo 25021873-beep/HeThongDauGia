@@ -19,13 +19,14 @@ import java.io.IOException;
 public class MainController {
 
     @FXML private Label lblUserInfo;
+    @FXML private Label lblBalance;
     @FXML private StackPane contentArea;
     @FXML private StackPane rootPane;
     @FXML private ImageView bgTexture;
     @FXML private ImageView bgPattern;
 
     //nut sidebar
-    @FXML private Button btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt;
+    @FXML private Button btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt, btnDeposit;
 
     private static final String ACTIVE_STYLE = "-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;";
     private static final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;";
@@ -37,6 +38,8 @@ public class MainController {
         setButtonVisible(btnBidHistory, false);
         setButtonVisible(btnProductMgmt, false);
         setButtonVisible(btnUserMgmt, false);
+        setButtonVisible(btnDeposit, false);
+        if (lblBalance != null) lblBalance.setVisible(false);
 
         //bind background images to window size
         if (rootPane != null && bgTexture != null && bgPattern != null) {
@@ -49,12 +52,17 @@ public class MainController {
 
 //ham dc goi de truyen role sau khi dang nhap
     public void configureSidebar(String role) {
-        lblUserInfo.setText("Xin chào, " + role);
+        lblUserInfo.setText("Xin chào, " + ConnectionManager.getInstance().getUsername());
 
         //bat cac menu tuong ung role
         if ("BIDDER".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnBidHistory, true);
+            setButtonVisible(btnDeposit, true);
+            if (lblBalance != null) {
+                lblBalance.setVisible(true);
+                updateBalanceDisplay();
+            }
             handleShowAuctionList(); //mac dinh dsach dau gia cho bidder
 
         } else if ("SELLER".equalsIgnoreCase(role)) {
@@ -79,7 +87,7 @@ public class MainController {
 
     //ham highlight nut dang active
     private void setActiveButton(Button activeBtn) {
-        Button[] allButtons = {btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt};
+        Button[] allButtons = {btnAuctionList, btnBidHistory, btnProductMgmt, btnUserMgmt, btnDeposit};
         for (Button btn : allButtons) {
             if (btn != null) {
                 btn.setStyle(INACTIVE_STYLE);
@@ -117,6 +125,13 @@ public class MainController {
         return contentArea;
     }
 
+    public void updateBalanceDisplay() {
+        if (lblBalance != null) {
+            double balance = ConnectionManager.getInstance().getBalance();
+            lblBalance.setText(String.format("Số dư: %,.0f VND", balance));
+        }
+    }
+
     // =========================================================
     // --- CÁC SỰ KIỆN CLICK TỪ SIDEBAR (ĐÃ ĐỒNG BỘ VỚI FXML) ---
     // =========================================================
@@ -147,6 +162,28 @@ public class MainController {
         setActiveButton(btnUserMgmt);
         // Tải màn hình Quản lý người dùng của Admin
         loadContent("UserManagement.fxml");
+    }
+
+    @FXML
+    private void handleShowDeposit() {
+        setActiveButton(btnDeposit);
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Deposit.fxml"));
+            Parent root = loader.load();
+            
+            // Pass this MainController to the DepositController so it can update balance after success
+            com.auction.client.controllers.DepositController controller = loader.getController();
+            controller.setMainController(this);
+
+            Stage stage = new Stage();
+            stage.setTitle("Nạp tiền vào tài khoản");
+            stage.setScene(new Scene(root));
+            stage.setResizable(false);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi nạp file Deposit.fxml");
+        }
     }
 
     @FXML
