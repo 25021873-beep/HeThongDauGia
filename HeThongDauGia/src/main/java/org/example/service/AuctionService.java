@@ -176,7 +176,7 @@ public class AuctionService {
             entry.setBidderId(bidderId);
             entry.setPrice(bidAmount);
             entry.setBidTime(LocalDateTime.now());
-            bidHistoryDAO.addBidHistory(entry);
+            bidHistoryDAO.addBidHistory(conn, entry);
 
             // ==========================================================
             // III. XỬ LÝ ANTI-SNIPE (GIA HẠN THỜI GIAN)
