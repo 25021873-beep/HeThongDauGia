@@ -27,7 +27,8 @@ public class ProductManagementController {
     @FXML private ComboBox<String> cboCategory;
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartPrice;
-    @FXML private TextField txtDuration; // Không thực sự dùng vì Item không lưu duration
+    @FXML private TextField txtStartTime;
+    @FXML private TextField txtEndTime;
 
     private ObservableList<String[]> productData;
 
@@ -67,11 +68,13 @@ public class ProductManagementController {
                                 JsonObject item = elem.getAsJsonObject();
                                 String name = item.has("name") ? item.get("name").getAsString() : "";
                                 String type = item.has("itemType") ? item.get("itemType").getAsString() : "";
-                                String status = item.has("status") ? item.get("status").getAsString() : "";
+                                String status = item.has("auction_status") ? item.get("auction_status").getAsString() : (item.has("status") ? item.get("status").getAsString() : "");
                                 double price = item.has("startingPrice") ? item.get("startingPrice").getAsDouble() : 0;
                                 String formattedPrice = String.format("%,.0f", price);
+                                String startT = item.has("start_time") ? item.get("start_time").getAsString() : "N/A";
+                                String endT = item.has("end_time") ? item.get("end_time").getAsString() : "N/A";
                                 
-                                productData.add(new String[]{name, type, formattedPrice, "N/A", "N/A", status});
+                                productData.add(new String[]{name, type, formattedPrice, startT, endT, status});
                             });
                         }
                     } else {
@@ -99,20 +102,34 @@ public class ProductManagementController {
         String description = txtDescription.getText().trim();
         String priceText = txtStartPrice.getText().trim();
 
-        String durationText = txtDuration.getText().trim();
+        String startTimeText = txtStartTime.getText().trim();
+        String endTimeText = txtEndTime.getText().trim();
 
-        if (name.isEmpty() || category == null || priceText.isEmpty() || durationText.isEmpty()) {
+        if (name.isEmpty() || category == null || priceText.isEmpty() || startTimeText.isEmpty() || endTimeText.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng điền đầy đủ thông tin sản phẩm và thời gian!");
             return;
         }
 
         double price;
-        int duration;
         try {
             price = Double.parseDouble(priceText);
-            duration = Integer.parseInt(durationText);
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm và thời gian phải là số hợp lệ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm phải là số hợp lệ!");
+            return;
+        }
+
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        java.time.LocalDateTime startTime;
+        java.time.LocalDateTime endTime;
+        try {
+            startTime = java.time.LocalDateTime.parse(startTimeText, formatter);
+            endTime = java.time.LocalDateTime.parse(endTimeText, formatter);
+            if (!startTime.isBefore(endTime)) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Thời gian bắt đầu phải trước thời gian kết thúc!");
+                return;
+            }
+        } catch (java.time.format.DateTimeParseException e) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Định dạng thời gian không hợp lệ. Vui lòng dùng YYYY-MM-DD HH:mm");
             return;
         }
 
@@ -127,7 +144,8 @@ public class ProductManagementController {
                 req.addProperty("name", name);
                 req.addProperty("description", description);
                 req.addProperty("startingPrice", price);
-                req.addProperty("duration", duration);
+                req.addProperty("start_time", startTimeText);
+                req.addProperty("end_time", endTimeText);
 
                 // Thêm các thuộc tính giả định cho subclass để tránh lỗi Gson khi deserialize
                 if ("ELECTRONICS".equals(itemType)) req.addProperty("warrantyMonths", 12);
@@ -139,7 +157,7 @@ public class ProductManagementController {
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
                         String formattedPrice = String.format("%,.0f", price);
-                        productData.add(new String[]{name, category, formattedPrice, "N/A", "N/A", "IN_AUCTION"});
+                        productData.add(new String[]{name, category, formattedPrice, startTimeText, endTimeText, "Đang xử lý"});
                         showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng bán sản phẩm \"" + name + "\" thành công!");
                         formPane.setExpanded(false);
                         clearForm();
@@ -167,7 +185,8 @@ public class ProductManagementController {
         cboCategory.getSelectionModel().clearSelection();
         txtDescription.clear();
         txtStartPrice.clear();
-        if (txtDuration != null) txtDuration.clear();
+        if (txtStartTime != null) txtStartTime.clear();
+        if (txtEndTime != null) txtEndTime.clear();
     }
 
     private String mapCategoryToItemType(String category) {

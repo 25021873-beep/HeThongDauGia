@@ -209,6 +209,32 @@ public class AuctionDAO {
         return list;
     }
 
+    public List<Auction> getAuctionsBySeller(int sellerId) {
+        List<Auction> list = new ArrayList<>();
+        String sql = """
+            SELECT a.*,
+                   i.id AS item_id, i.item_type AS item_item_type,
+                   i.name AS item_name, i.description AS item_description,
+                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   i.warranty_months AS item_warranty_months, i.author AS item_author,
+                   i.engine_type AS item_engine_type
+            FROM auctions a
+            JOIN items i ON a.item_id = i.id
+            WHERE a.seller_id = ?
+            ORDER BY a.id DESC
+            """;
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, sellerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) list.add(mapRow(rs));
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Loi khi lay danh sach phien dau gia cua seller: " + sellerId, e);
+        }
+        return list;
+    }
+
     // ── Helper ────────────────────────────────────────────────────────────────
 
     private Auction mapRow(ResultSet rs) throws SQLException {

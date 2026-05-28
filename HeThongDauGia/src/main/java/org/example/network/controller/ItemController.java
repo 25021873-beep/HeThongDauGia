@@ -67,8 +67,11 @@ public class ItemController {
             int newItemId = itemService.postItem(newItem);
 
             if (newItemId > 0) {
-                int duration = json.has("duration") ? json.get("duration").getAsInt() : 30;
-                AuctionService.getInstance().openAuction(newItemId, LocalDateTime.now(), LocalDateTime.now().plusMinutes(duration));
+                java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+                LocalDateTime startTime = LocalDateTime.parse(json.get("start_time").getAsString(), formatter);
+                LocalDateTime endTime = LocalDateTime.parse(json.get("end_time").getAsString(), formatter);
+
+                AuctionService.getInstance().openAuction(newItemId, startTime, endTime);
                 session.send(SimpleResponse.success("Dang ban san pham moi va mo phien dau gia thanh cong!"));
             } else {
                 session.send(SimpleResponse.error("Khong the dang ban san pham. Vui long kiem tra lai dữ liệu"));
@@ -88,20 +91,27 @@ public class ItemController {
 
         try {
             int currentUserId = session.getCurrentUser().getId();
-            ItemDAO itemDAO = new ItemDAO();
-            List<Item> items = itemDAO.getItemsBySeller(currentUserId);
+            org.example.dao.AuctionDAO auctionDAO = new org.example.dao.AuctionDAO();
+            List<org.example.entity.Auction> auctions = auctionDAO.getAuctionsBySeller(currentUserId);
             
             JsonObject response = new JsonObject();
             response.addProperty("status", "SUCCESS");
             
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             JsonArray itemsArray = new JsonArray();
-            for (Item item : items) {
+            for (org.example.entity.Auction auction : auctions) {
+                Item item = auction.getItem();
                 JsonObject itemJson = new JsonObject();
                 itemJson.addProperty("id", item.getId());
                 itemJson.addProperty("name", item.getName());
                 itemJson.addProperty("description", item.getDescription());
                 itemJson.addProperty("startingPrice", item.getStartingPrice().doubleValue());
-                itemJson.addProperty("status", item.getStatus());
+                itemJson.addProperty("status", item.getStatus()); // item status (AVAILABLE, IN_AUCTION, SOLD)
+                
+                // Thuộc tính mới từ bảng auctions
+                itemJson.addProperty("auction_status", auction.getStatus()); // OPEN, RUNNING, FINISHED, CANCELED
+                itemJson.addProperty("start_time", auction.getStartTime().format(formatter));
+                itemJson.addProperty("end_time", auction.getEndTime().format(formatter));
                 
                 if (item instanceof Electronics) itemJson.addProperty("itemType", "Điện tử");
                 else if (item instanceof Art) itemJson.addProperty("itemType", "Nghệ thuật");
