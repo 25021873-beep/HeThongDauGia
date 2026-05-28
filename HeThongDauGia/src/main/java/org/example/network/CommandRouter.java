@@ -85,6 +85,10 @@ public class CommandRouter {
                 auctionController.handleGetBidHistory(json);
                 return false;
 
+            case "GET_USER_BID_HISTORY":
+                bidController.handleGetUserBidHistory();
+                return false;
+
             // ── NHÓM LỆNH TƯƠNG TÁC ĐẤU GIÁ (REAL-TIME) ──
             case "JOIN":
                 auctionController.handleJoin(json);

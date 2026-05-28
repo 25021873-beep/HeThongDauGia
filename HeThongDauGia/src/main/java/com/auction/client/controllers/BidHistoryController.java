@@ -25,20 +25,55 @@ public class BidHistoryController {
         colAuctionStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[3]));
         colResult.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[4]));
 
-        //nap du lieu fake
-        loadMockBidHistory();
+        //nap du lieu tu server
+        loadBidHistoryFromServer();
     }
 
-    private void loadMockBidHistory() {
-        ObservableList<String[]> data = FXCollections.observableArrayList(
-                new String[]{"Laptop Gaming ASUS", "15,000,000", "2025-05-10 14:30:25", "FINISHED", "🏆 Thắng"},
-                new String[]{"iPhone 15 Pro Max", "28,500,000", "2025-05-10 15:12:10", "FINISHED", "❌ Thua"},
-                new String[]{"Bức tranh sơn dầu cổ", "5,200,000", "2025-05-09 20:45:33", "RUNNING", "⏳ Đang đấu"},
-                new String[]{"Xe Honda SH 150i", "45,000,000", "2025-05-09 18:20:15", "FINISHED", "❌ Thua"},
-                new String[]{"Đồng hồ Rolex Vintage", "120,000,000", "2025-05-08 10:05:50", "FINISHED", "🏆 Thắng"},
-                new String[]{"Camera Sony A7IV", "32,000,000", "2025-05-08 09:30:00", "RUNNING", "⏳ Đang đấu"},
-                new String[]{"Bộ sưu tập tem cổ", "8,500,000", "2025-05-07 16:45:20", "CANCELED", "⛔ Hủy"}
-        );
-        tableBidHistory.setItems(data);
+    private void loadBidHistoryFromServer() {
+        Thread t = new Thread(() -> {
+            try {
+                com.auction.client.network.ConnectionManager conn = com.auction.client.network.ConnectionManager.getInstance();
+                if (!conn.isConnected()) return;
+
+                com.google.gson.JsonObject req = new com.google.gson.JsonObject();
+                req.addProperty("command", "GET_USER_BID_HISTORY");
+
+                com.google.gson.JsonObject res = conn.sendAndWait(req);
+
+                javafx.application.Platform.runLater(() -> {
+                    if (com.auction.client.network.ServerClient.isSuccess(res)) {
+                        ObservableList<String[]> data = FXCollections.observableArrayList();
+                        if (res.has("history")) {
+                            res.getAsJsonArray("history").forEach(elem -> {
+                                com.google.gson.JsonObject obj = elem.getAsJsonObject();
+                                String name = obj.has("productName") ? obj.get("productName").getAsString() : "";
+                                double price = obj.has("bidAmount") ? obj.get("bidAmount").getAsDouble() : 0;
+                                String formattedPrice = String.format("%,.0f VNĐ", price);
+                                String time = obj.has("bidTime") ? obj.get("bidTime").getAsString() : "";
+                                
+                                String status = obj.has("status") ? obj.get("status").getAsString() : "";
+                                String displayStatus = "RUNNING".equals(status) ? "Đang diễn ra" : 
+                                                       "OPEN".equals(status) ? "Sắp bắt đầu" : 
+                                                       "CANCELED".equals(status) ? "Đã hủy" : "Đã kết thúc";
+                                
+                                String result = obj.has("result") ? obj.get("result").getAsString() : "Đang đấu";
+                                String displayResult = "Thắng".equals(result) ? "🏆 Thắng" : 
+                                                       "Thua".equals(result) ? "❌ Thua" : 
+                                                       "Hủy".equals(result) ? "⛔ Hủy" : "⏳ Đang đấu";
+
+                                data.add(new String[]{name, formattedPrice, time, displayStatus, displayResult});
+                            });
+                        }
+                        tableBidHistory.setItems(data);
+                    } else {
+                        System.err.println("Loi: " + com.auction.client.network.ServerClient.messageOf(res));
+                    }
+                });
+            } catch (java.io.IOException e) {
+                e.printStackTrace();
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 }

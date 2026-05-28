@@ -126,4 +126,25 @@ public class BidController {
             session.send(SimpleResponse.error("Loi dang ky auto-bid: " + e.getMessage()));
         }
     }
+
+    // ── GET_USER_BID_HISTORY ──────────────────────────────────────────────────
+
+    public void handleGetUserBidHistory() {
+        if (!session.requireLogin()) return;
+
+        try {
+            org.example.dao.BidHistoryDAO dao = new org.example.dao.BidHistoryDAO();
+            com.google.gson.JsonArray history = dao.getUserBidHistory(session.getCurrentUser().getId());
+
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "SUCCESS");
+            response.add("history", history);
+
+            session.sendRaw(response.toString());
+
+        } catch (Exception e) {
+            System.err.println("[BID_CTRL] Loi lay lich su: " + e.getMessage());
+            session.send(SimpleResponse.error("Loi he thong khi lay lich su dau gia."));
+        }
+    }
 }

@@ -63,6 +63,45 @@ public class BidHistoryDAO {
         return queryList(sql, auctionId);
     }
 
+    // Hàm lấy lịch sử đấu giá của một user cụ thể
+    public com.google.gson.JsonArray getUserBidHistory(long bidderId) {
+        String sql = "SELECT i.name AS product_name, bh.price, bh.bid_time, a.status, a.winner_id " +
+                     "FROM bid_history bh " +
+                     "JOIN auctions a ON bh.auction_id = a.id " +
+                     "JOIN items i ON a.item_id = i.id " +
+                     "WHERE bh.bidder_id = ? " +
+                     "ORDER BY bh.bid_time DESC";
+                     
+        com.google.gson.JsonArray array = new com.google.gson.JsonArray();
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            stmt.setLong(1, bidderId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    com.google.gson.JsonObject obj = new com.google.gson.JsonObject();
+                    obj.addProperty("productName", rs.getString("product_name"));
+                    obj.addProperty("bidAmount", rs.getBigDecimal("price"));
+                    obj.addProperty("bidTime", rs.getTimestamp("bid_time").toString());
+                    obj.addProperty("status", rs.getString("status"));
+                    
+                    int winnerId = rs.getInt("winner_id");
+                    String result = "Đang đấu";
+                    String status = rs.getString("status");
+                    if ("CLOSED".equals(status) || "FINISHED".equals(status)) {
+                        result = (winnerId == bidderId) ? "Thắng" : "Thua";
+                    } else if ("CANCELED".equals(status)) {
+                        result = "Hủy";
+                    }
+                    
+                    obj.addProperty("result", result);
+                    array.add(obj);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Loi khi lay lich su cua user: ", e);
+        }
+        return array;
+    }
+
     // Hàm đếm số lượng bid có trong 1 phiên
     public int countByAuctionId(long auctionId) {
         String sql = "SELECT COUNT(*) FROM bid_history WHERE auction_id = ?";

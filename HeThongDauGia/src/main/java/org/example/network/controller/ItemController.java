@@ -111,7 +111,7 @@ public class ItemController {
                 itemsArray.add(itemJson);
             }
             response.add("items", itemsArray);
-            session.send(response);
+            session.sendRaw(response.toString());
             
         } catch (Exception e) {
             System.err.println("[ITEM_CTRL] Loi lay danh sach san pham: " + e.getMessage());
