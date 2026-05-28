@@ -90,8 +90,11 @@ public class AuctionService {
             newAuction.setStatus("RUNNING");
         }
 
-        if (auctionDAO.createAuction(newAuction)<=0)
+        int newAuctionId = auctionDAO.createAuction(newAuction);
+        if (newAuctionId <= 0)
             throw new AuctionSystemException("Loi khi mo Auction");
+            
+        newAuction.setId(newAuctionId);
 
         itemDAO.updateItemStatus(itemId, "IN_AUCTION");
 

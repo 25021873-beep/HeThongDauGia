@@ -77,7 +77,7 @@ public class AuctionDAO {
                    i.engine_type AS item_engine_type
             FROM auctions a
             JOIN items i ON a.item_id = i.id
-            WHERE a.status = 'RUNNING'
+            WHERE a.status IN ('RUNNING', 'OPEN')
             """;
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);

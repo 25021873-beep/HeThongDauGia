@@ -158,9 +158,9 @@ public class AuctionEngine {
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void addAuction(Auction auction) {
-        if (auction == null || !STATUS_OPEN.equals(auction.getStatus())) {
+        if (auction == null || (!STATUS_OPEN.equals(auction.getStatus()) && !"RUNNING".equals(auction.getStatus()))) {
             throw new IllegalArgumentException(
-                    "[ENGINE] Chi nap phien co trang thai: " + STATUS_OPEN);
+                    "[ENGINE] Chi nap phien co trang thai: " + STATUS_OPEN + " hoac RUNNING");
         }
         activeAuctions.add(auction);
         roomManager.getOrCreateRoom(auction); // Tạo phòng mới
