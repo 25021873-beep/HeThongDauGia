@@ -70,23 +70,48 @@ public class UserManagementController {
             }
         });
 
-        loadMockUsers();
+        loadUsersFromServer();
     }
 
-    private void loadMockUsers() {
-        userData = FXCollections.observableArrayList(
-                new String[]{"bidder", "Phùng Thanh Độ", "dochet1989@email.com", "Bidder", "Hoạt động"},
-                new String[]{"bidder02", "Ngô Đức Minh", "minhngu67@email.com", "Bidder", "Hoạt động"},
-                new String[]{"seller", "Đỗ Tuấn Dương", "cuongduong69@email.com", "Seller", "Hoạt động"},
-                new String[]{"seller02", "Đỗ Trọng Nghĩa", "nghiatinh@email.com", "Seller", "Bị khóa"},
-                new String[]{"bidder03", "Hoàng Thị Hà Linh", "hhloz@email.com", "Bidder", "Hoạt động"},
-                new String[]{"seller03", "Bùi Phương Linh", "120yenlang1@email.com", "Seller", "Hoạt động"},
-                new String[]{"seller04", "Phạm Minh Ngọc", "vinhomesoceanpark@email.com", "Seller", "Hoạt động"},
-                new String[]{"bidder03", "Trần Viết Anh", "hadong@email.com", "Seller", "Hoạt động"},
-                new String[]{"bidder05", "Dương Quỳnh Nga", "ngatuvong@email.com", "Seller", "Hoạt động"},
-                new String[]{"bidder05", "Mạc Minh Phúc", "phucchimbe@email.com", "Seller", "Hoạt động"}
-        );
+    private void loadUsersFromServer() {
+        userData = FXCollections.observableArrayList();
         tableUsers.setItems(userData);
+        
+        Thread t = new Thread(() -> {
+            try {
+                com.auction.client.network.ConnectionManager conn = com.auction.client.network.ConnectionManager.getInstance();
+                if (!conn.isConnected()) return;
+
+                com.google.gson.JsonObject req = new com.google.gson.JsonObject();
+                req.addProperty("command", "GET_ALL_USERS");
+
+                com.google.gson.JsonObject res = conn.sendAndWait(req);
+
+                javafx.application.Platform.runLater(() -> {
+                    if (com.auction.client.network.ServerClient.isSuccess(res)) {
+                        userData.clear();
+                        if (res.has("users")) {
+                            res.getAsJsonArray("users").forEach(elem -> {
+                                com.google.gson.JsonObject obj = elem.getAsJsonObject();
+                                String username = obj.has("username") ? obj.get("username").getAsString() : "";
+                                String fullName = obj.has("fullName") ? obj.get("fullName").getAsString() : "";
+                                String email = obj.has("email") ? obj.get("email").getAsString() : "";
+                                String role = obj.has("role") ? obj.get("role").getAsString() : "";
+                                String status = obj.has("status") ? obj.get("status").getAsString() : "Hoạt động";
+                                
+                                userData.add(new String[]{username, fullName, email, role, status});
+                            });
+                        }
+                    } else {
+                        showAlert("Lỗi: " + com.auction.client.network.ServerClient.messageOf(res));
+                    }
+                });
+            } catch (java.io.IOException e) {
+                javafx.application.Platform.runLater(() -> showAlert("Lỗi kết nối khi lấy danh sách user"));
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     private void showAlert(String message) {

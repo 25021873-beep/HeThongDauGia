@@ -36,7 +36,7 @@ public class UserService {
         User existingUser = userDAO.getUserByUsername(username);
         if (existingUser == null) throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
 
-        if (!passwordMatches(password, existingUser)) {
+        if (!BCrypt.checkpw(password, existingUser.getPassword())) {
             throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
         }
         return existingUser;
@@ -147,6 +147,10 @@ public class UserService {
      */
     public User getUserByUsername(String username) {
         return userDAO.getUserByUsername(username);
+    }
+
+    public java.util.List<User> getAllUsers() {
+        return userDAO.getAllUsers();
     }
 
     // ── Nạp tiền ──────────────────────────────────────────────────────────────
