@@ -55,8 +55,8 @@ public class AuthController {
     public void handleRegister(JsonObject json) {
         RegisterRequest req = gson.fromJson(json, RegisterRequest.class);
 
-        if (req.getUsername() == null || req.getPassword() == null) {
-            session.send(SimpleResponse.error("Thieu thong tin dang ky"));
+        if (req.getUsername() == null || req.getPassword() == null || req.getEmail() == null) {
+            session.send(SimpleResponse.error("Thieu username, password hoac email"));
             return;
         }
         if (req.getRole() == null) req.setRole("BIDDER");

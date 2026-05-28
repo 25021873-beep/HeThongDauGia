@@ -11,6 +11,7 @@ import org.example.exception.balance.InvalidTopUpAmountException;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.math.BigDecimal;
+import java.util.Locale;
 
 public class UserService {
     private final UserDAO userDAO = new UserDAO();
@@ -35,37 +36,71 @@ public class UserService {
         User existingUser = userDAO.getUserByUsername(username);
         if (existingUser == null) throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
 
-        String dbPassword = existingUser.getPassword();
-        boolean passwordMatches = false;
-        
-        if (dbPassword != null && dbPassword.startsWith("$2")) {
-            try {
-                passwordMatches = BCrypt.checkpw(password, dbPassword);
-            } catch (Exception e) {
-                passwordMatches = false;
-            }
-        } else {
-            // Hỗ trợ cho các tài khoản mock data cũ chưa được hash password
-            passwordMatches = password.equals(dbPassword);
-        }
-
-        if (!passwordMatches) {
+        if (!BCrypt.checkpw(password, existingUser.getPassword())) {
             throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
         }
         return existingUser;
+    }
+
+    private boolean passwordMatches(String rawPassword, User user) {
+        String storedPassword = user.getPassword();
+        if (rawPassword == null || storedPassword == null) {
+            return false;
+        }
+
+        if (isBcryptHash(storedPassword)) {
+            try {
+                return BCrypt.checkpw(rawPassword, storedPassword);
+            } catch (IllegalArgumentException e) {
+                return false;
+            }
+        }
+
+        if (rawPassword.equals(storedPassword)) {
+            String hashedPassword = BCrypt.hashpw(rawPassword, BCrypt.gensalt(12));
+            userDAO.changePassword(hashedPassword, user.getUsername());
+            user.setPassword(hashedPassword);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isBcryptHash(String value) {
+        return value.startsWith("$2a$") || value.startsWith("$2b$") || value.startsWith("$2y$");
     }
 
     // ── Đăng ký ───────────────────────────────────────────────────────────────
 
 
     public boolean register(RegisterRequest request) {
-        if (userDAO.getUserByUsername(request.getUsername()) != null) {
+        if (request == null) {
+            throw new AuctionSystemException("Loi: Thieu thong tin dang ky");
+        }
+
+        String username = trimToNull(request.getUsername());
+        String password = request.getPassword();
+        String email = trimToNull(request.getEmail());
+
+        if (username == null || password == null || password.trim().isEmpty() || email == null) {
+            throw new AuctionSystemException("Loi: Vui long nhap day du username, password va email");
+        }
+        if (!isValidEmail(email)) {
+            throw new AuctionSystemException("Loi: Email khong hop le");
+        }
+
+        if (userDAO.getUserByUsername(username) != null) {
             throw new DuplicateUsernameException("Lỗi: Tên tài khoản đã có người sử dụng");
         }
 
-        String role = (request.getRole() != null) ? request.getRole().toUpperCase() : "BIDDER";
+        String role = (request.getRole() != null)
+                ? request.getRole().trim().toUpperCase(Locale.ROOT)
+                : "BIDDER";
+        if (!"BIDDER".equals(role) && !"SELLER".equals(role)) {
+            throw new InvalidRoleException("Loi: Vai tro chi duoc la BIDDER hoac SELLER");
+        }
 
-        String hashedPassword = BCrypt.hashpw(request.getPassword(), BCrypt.gensalt(12));
+        String hashedPassword = BCrypt.hashpw(password, BCrypt.gensalt(12));
 
         User newUser;
         if ("SELLER".equalsIgnoreCase(role)) {
@@ -74,11 +109,26 @@ public class UserService {
             newUser = new Bidder();
         }
 
-        newUser.setUsername(request.getUsername());
+        newUser.setUsername(username);
         newUser.setPassword(hashedPassword);
+        newUser.setEmail(email);
         newUser.setRole(role);
 
-        return (userDAO.addUser(newUser)>=0);
+        return userDAO.addUser(newUser) > 0;
+    }
+
+    private String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private boolean isValidEmail(String email) {
+        int at = email.indexOf('@');
+        int dot = email.lastIndexOf('.');
+        return at > 0 && dot > at + 1 && dot < email.length() - 1;
     }
 
     // ── Lấy profile ───────────────────────────────────────────────────────────

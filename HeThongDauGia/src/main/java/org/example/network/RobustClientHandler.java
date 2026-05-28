@@ -97,7 +97,10 @@ public class RobustClientHandler extends ClientHandler {
                     session.send(SimpleResponse.error("Dinh dang JSON khong hop le"));
                 } catch (Exception e) {
                     session.send(SimpleResponse.error(e.getMessage()));
-                    System.err.println("[NETWORK] Loi xu ly request: " + e.getMessage());
+                    System.err.println("[NETWORK] Loi xu ly request: " + e.getMessage()
+                            + " | Nguyen nhan goc: " + rootCauseMessage(e));
+                    e.printStackTrace();
+
                 }
             }
 
@@ -145,5 +148,13 @@ public class RobustClientHandler extends ClientHandler {
         } catch (IOException e) {
             System.err.println("[NETWORK] Loi khi dong ket noi: " + e.getMessage());
         }
+    }
+
+    private String rootCauseMessage(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current.getMessage();
     }
 }

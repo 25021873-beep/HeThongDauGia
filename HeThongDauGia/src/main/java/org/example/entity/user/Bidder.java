@@ -7,6 +7,7 @@ public class Bidder extends User {
 
     public Bidder() {
         this.role = "BIDDER";
+        this.balance = BigDecimal.ZERO;
     }
 
     public BigDecimal getBalance() { return balance; }
