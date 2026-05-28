@@ -17,7 +17,7 @@ class UserDAOTest {
         boolean updated = new UserDAO().addBalance(recording.connection(), 3, new BigDecimal("1200"));
 
         assertTrue(updated);
-        assertEquals("UPDATE Users SET balance = ? WHERE id = ?", recording.sql());
+        assertEquals("UPDATE users SET balance = balance + ? WHERE id = ?", recording.sql());
         assertEquals(new BigDecimal("1200"), recording.parameter(1));
         assertEquals(3, recording.parameter(2));
         assertTrue(recording.statementClosed());

@@ -16,7 +16,7 @@ public class BidTransactionDAO {
 
     // Thêm lượt trả giá mới
     public boolean addBid(BidTransaction bid) {
-        String sql = "INSERT INTO Bid_Transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO bid_transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?,?,?,?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -34,7 +34,7 @@ public class BidTransactionDAO {
 
     // Thêm lượt trả giá mới nhưng nhận Connection từ ngoài truyền vào, có throws SQLException
     public boolean addBid(Connection conn, BidTransaction bid) throws SQLException {
-        String sql = "INSERT INTO Bid_Transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO bid_transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?, ?, ?, ?)";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, bid.getAuctionId());
             pstmt.setInt(2, bid.getBidderId());
@@ -47,7 +47,7 @@ public class BidTransactionDAO {
     // Lấy lịch sử trả giá của một phiên đấu giá
     public List<BidTransaction> getBidsByAuction(int auctionId) {
         List<BidTransaction> list = new ArrayList<>();
-        String sql = "SELECT * FROM Bid_Transactions WHERE auction_id = ? ORDER BY bid_time DESC";
+        String sql = "SELECT * FROM bid_transactions WHERE auction_id = ? ORDER BY bid_time DESC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -74,7 +74,7 @@ public class BidTransactionDAO {
     // Lấy lịch sử trả giá của một Bidder
     public List<BidTransaction> getBidsByUser(int bidderId) {
         List<BidTransaction> list = new ArrayList<>();
-        String sql = "SELECT * FROM Bid_Transactions WHERE bidder_id = ? ORDER BY bid_time DESC";
+        String sql = "SELECT * FROM bid_transactions WHERE bidder_id = ? ORDER BY bid_time DESC";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -101,7 +101,7 @@ public class BidTransactionDAO {
     // Lấy lượt trả giá cao nhất (Dùng để check xem giá mới nhập vào có hợp lệ không)
     public BidTransaction getHighestBid(int auctionId) {
         // Sắp xếp theo giá giảm dần (DESC) và chỉ lấy đúng 1 dòng đầu tiên (LIMIT 1)
-        String sql = "SELECT * FROM Bid_Transactions WHERE auction_id = ? ORDER BY bid_price DESC LIMIT 1";
+        String sql = "SELECT * FROM bid_transactions WHERE auction_id = ? ORDER BY bid_price DESC LIMIT 1";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

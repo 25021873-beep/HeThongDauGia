@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import javafx.application.Platform;
+import org.example.utils.ConfigManager;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -28,8 +29,10 @@ public class ConnectionManager {
     private static final Gson GSON = new Gson();
 
     private static ConnectionManager instance;
-    private static final String HOST = "26.139.15.134";
-    private static final int PORT = 8888;
+    private static final String DEFAULT_HOST =
+            ConfigManager.getInstance().getString("client.server.host", "26.139.15.134");
+    private static final int DEFAULT_PORT =
+            ConfigManager.getInstance().getInt("client.server.port", 8888);
     private static final int CONNECT_TIMEOUT = 5000; // 5 giây
     private static final int RETRY_COUNT = 3;
     private static final int RETRY_DELAY = 1000; // 1 giây
@@ -88,6 +91,14 @@ public class ConnectionManager {
         listener.start();
 
         System.out.println("[CLIENT] Da ket noi server " + host + ":" + port);
+    }
+
+    public void connectDefault() throws IOException {
+        connect(DEFAULT_HOST, DEFAULT_PORT);
+    }
+
+    public static String getDefaultEndpoint() {
+        return DEFAULT_HOST + ":" + DEFAULT_PORT;
     }
 
     // ── Vòng lặp lắng nghe ──────────────────────────────────────────────────

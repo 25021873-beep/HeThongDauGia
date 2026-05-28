@@ -70,7 +70,7 @@ public class RegisterController {
             try {
                 ConnectionManager conn = ConnectionManager.getInstance();
                 if (!conn.isConnected()) {
-                    conn.connect("127.0.0.1", 8888);
+                    conn.connectDefault();
                 }
 
                 JsonObject request = new JsonObject();
@@ -92,7 +92,8 @@ public class RegisterController {
                 });
 
             } catch (IOException e) {
-                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage()));
+                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối",
+                        "Không thể kết nối đến server " + ConnectionManager.getDefaultEndpoint() + ": " + e.getMessage()));
             }
         });
         registerThread.setDaemon(true);

@@ -86,7 +86,7 @@ public class ConnectedLoginController {
                 Platform.runLater(() -> handler.handle(response));
             } catch (IOException e) {
                 Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Loi ket noi",
-                        "Khong the ket noi den server 127.0.0.1:8888. Hay chay ServerMain truoc.\n"
+                        "Khong the ket noi den server " + ServerClient.endpoint() + ". Hay chay ServerMain truoc.\n"
                                 + e.getMessage()));
             }
         });

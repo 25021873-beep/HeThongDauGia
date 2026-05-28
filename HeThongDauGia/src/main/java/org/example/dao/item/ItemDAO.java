@@ -16,7 +16,7 @@ public class ItemDAO {
     // Thêm/Đăng bán sản phẩm mới
     public int addItem(Item item) {
             // Tọng cả 4 cột dữ liệu đặc thù vào chung 1 lệnh INSERT
-            String sql = "INSERT INTO Items (name, description, starting_price, seller_id, status, item_type, warranty_months, author, engine_type) " +
+            String sql = "INSERT INTO items (name, description, starting_price, seller_id, status, item_type, warranty_months, author, engine_type) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -53,8 +53,10 @@ public class ItemDAO {
                 int affectedRows = pstmt.executeUpdate();
                 if (affectedRows>0) {
                     try (ResultSet rs = pstmt.getGeneratedKeys()){
-                        int newItemid = rs.getInt(1);
-                        return newItemid;
+                        if (rs.next()) {
+                            int newItemid = rs.getInt(1);
+                            return newItemid;
+                        }
                     }
                 }
             } catch (SQLException e) {
@@ -66,7 +68,7 @@ public class ItemDAO {
     // Lấy toàn bộ sản phẩm (Dành cho trang chủ của Bidder)
     public List<Item> getAllItems() {
         List<Item> itemList = new ArrayList<>();
-        String sql = "SELECT * FROM Items";
+        String sql = "SELECT * FROM items";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -85,7 +87,7 @@ public class ItemDAO {
     // Lấy sản phẩm theo ID của Seller (Dành cho màn hình Quản lý của Seller)
     public List<Item> getItemsBySeller(int sellerId) {
         List<Item> itemList = new ArrayList<>();
-        String sql = "SELECT * FROM Items WHERE seller_id = ?";
+        String sql = "SELECT * FROM items WHERE seller_id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -106,7 +108,7 @@ public class ItemDAO {
 
     // Lấy chi tiết 1 sản phẩm theo ID (Dùng khi người dùng bấm vào xem chi tiết)
     public Item getItemById(int id) {
-        String sql = "SELECT * FROM Items WHERE id = ?";
+        String sql = "SELECT * FROM items WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -127,7 +129,7 @@ public class ItemDAO {
 
     // Sửa thông tin sản phẩm
     public boolean updateItem(Item item) {
-        String sql = "UPDATE Items SET name = ?, description = ?, starting_price = ?, " +
+        String sql = "UPDATE items SET name = ?, description = ?, starting_price = ?, " +
                 "warranty_months = ?, author = ?, engine_type = ? " +
                 "WHERE id = ?";
 
@@ -171,7 +173,7 @@ public class ItemDAO {
 
     // Xóa sản phẩm
     public boolean deleteItem(int id) {
-        String sql = "DELETE FROM Items WHERE id = ?";
+        String sql = "DELETE FROM items WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -188,7 +190,7 @@ public class ItemDAO {
 
     // Tìm sản phẩm dựa theo trạng thái hiện tại
     public List<Item> getItemsByStatus(String status) {
-        String sql = "SELECT * FROM Items WHERE status = ?";
+        String sql = "SELECT * FROM items WHERE status = ?";
         ArrayList<Item> itemsList = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -212,7 +214,7 @@ public class ItemDAO {
     public List<Item> searchItems(String keyword) {
         List<Item> searchResults = new ArrayList<>();
 
-        String sql = "SELECT * FROM Items WHERE name LIKE ?";
+        String sql = "SELECT * FROM items WHERE name LIKE ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -235,7 +237,7 @@ public class ItemDAO {
 
     // Hàm thay đổi trạng thái Item
     public boolean updateItemStatus(int itemId, String newStatus) {
-        String sql = "UPDATE Items SET status = ? WHERE id = ?";
+        String sql = "UPDATE items SET status = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

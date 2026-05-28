@@ -19,7 +19,7 @@ public class UserDAO {
     // Hàm lấy danh sách người dùng
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
-        String sql = "SELECT * FROM Users";
+        String sql = "SELECT * FROM users";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -37,7 +37,7 @@ public class UserDAO {
 
     // Hàm kiểm tra xem Username đã tồn tại chưa (Dùng trước khi Đăng ký)
     public boolean checkUsernameExists(String username) {
-        String sql = "SELECT id FROM Users WHERE username = ?";
+        String sql = "SELECT id FROM users WHERE username = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -54,7 +54,7 @@ public class UserDAO {
 
     // Hàm Đăng ký người dùng mới
     public int addUser(User user) {
-        String sql = "INSERT INTO Users (username, password, email, role, balance, rating) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (username, password, email, role, balance, rating) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
@@ -77,8 +77,10 @@ public class UserDAO {
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
-                    int newUserId = rs.getInt(1);
-                    return newUserId;
+                    if (rs.next()) {
+                        int newUserId = rs.getInt(1);
+                        return newUserId;
+                    }
 
                 }
             }
@@ -90,7 +92,7 @@ public class UserDAO {
 
     // Hàm Đăng nhập
     public User checkLogin(String username, String password) {
-        String sql = "SELECT * FROM Users WHERE username = ? AND password = ?";
+        String sql = "SELECT * FROM users WHERE username = ? AND password = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -111,7 +113,7 @@ public class UserDAO {
 
     // Hàm lấy thông tin User qua ID
     public User getUserById(int id) {
-        String sql = "SELECT * FROM Users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -131,7 +133,7 @@ public class UserDAO {
 
     // Hàm lấy thông tin User qua username
     public User getUserByUsername(String username) {
-        String sql = "SELECT * FROM Users WHERE username = ?";
+        String sql = "SELECT * FROM users WHERE username = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -151,7 +153,7 @@ public class UserDAO {
 
     // Hàm đổi mật khẩu
     public boolean changePassword(String newpass, String username) {
-        String sql = "UPDATE Users SET password = ? WHERE username = ?";
+        String sql = "UPDATE users SET password = ? WHERE username = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -185,15 +187,14 @@ public class UserDAO {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setBigDecimal(1, amount);
             ps.setInt(2, userId);
-            ps.executeUpdate();
             return ps.executeUpdate() > 0;
         }
     }
 
     // Hàm cập nhật thông tin User
     public boolean updateUser(User user) {
-        // Câu SQL update toàn bộ các cột trong bảng Users
-        String sql = "UPDATE Users SET username = ?, password = ?, email = ?, role = ?, balance = ?, rating = ? WHERE id = ?";
+        // Câu SQL update toàn bộ các cột trong bảng users
+        String sql = "UPDATE users SET username = ?, password = ?, email = ?, role = ?, balance = ?, rating = ? WHERE id = ?";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

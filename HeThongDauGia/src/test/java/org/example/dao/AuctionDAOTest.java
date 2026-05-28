@@ -18,7 +18,7 @@ class AuctionDAOTest {
                 recording.connection(), 7, new BigDecimal("1500"));
 
         assertTrue(updated);
-        assertEquals("UPDATE Auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')",
+        assertEquals("UPDATE auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')",
                 recording.sql());
         assertEquals(new BigDecimal("1500"), recording.parameter(1));
         assertEquals(7, recording.parameter(2));

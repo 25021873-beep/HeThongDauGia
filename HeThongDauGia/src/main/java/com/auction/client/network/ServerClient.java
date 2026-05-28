@@ -2,6 +2,7 @@ package com.auction.client.network;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.example.utils.ConfigManager;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,8 +13,10 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public final class ServerClient {
-    private static final String HOST = "26.139.15.134";
-    private static final int PORT = 8888;
+    private static final String HOST =
+            ConfigManager.getInstance().getString("client.server.host", "26.139.15.134");
+    private static final int PORT =
+            ConfigManager.getInstance().getInt("client.server.port", 8888);
     private static final int CONNECT_TIMEOUT_MS = 3000;
     private static final int READ_TIMEOUT_MS = 10000;
     private static final Gson GSON = new Gson();
@@ -58,6 +61,10 @@ public final class ServerClient {
             return response.get("message").getAsString();
         }
         return "Khong co phan hoi tu server";
+    }
+
+    public static String endpoint() {
+        return HOST + ":" + PORT;
     }
 
     private static String hidePassword(String json) {

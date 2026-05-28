@@ -16,7 +16,7 @@ import static org.example.dao.item.ItemFactory.createItem;
 public class AuctionDAO {
 
     public int createAuction(Auction auction) {
-        String sql = "INSERT INTO Auctions (item_id, start_time, end_time, current_price, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auctions (item_id, start_time, end_time, current_price, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, auction.getItemId());
@@ -50,8 +50,8 @@ public class AuctionDAO {
                    i.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
-            FROM Auctions a
-            JOIN Items i ON a.item_id = i.id
+            FROM auctions a
+            JOIN items i ON a.item_id = i.id
             WHERE a.id = ?
             """;
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -75,8 +75,8 @@ public class AuctionDAO {
                    i.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
-            FROM Auctions a
-            JOIN Items i ON a.item_id = i.id
+            FROM auctions a
+            JOIN items i ON a.item_id = i.id
             WHERE a.status = 'RUNNING'
             """;
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -90,7 +90,7 @@ public class AuctionDAO {
     }
 
     public boolean updateCurrentPrice(int auctionId, BigDecimal newPrice) {
-        String sql = "UPDATE Auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
+        String sql = "UPDATE auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setBigDecimal(1, newPrice);
@@ -102,7 +102,7 @@ public class AuctionDAO {
     }
 
     public boolean updateCurrentPrice(Connection conn, int id, BigDecimal newPrice) throws SQLException {
-        String sql = "UPDATE Auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
+        String sql = "UPDATE auctions SET current_price = ? WHERE id = ? AND status IN ('OPEN', 'RUNNING')";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setBigDecimal(1, newPrice);
             pstmt.setInt(2, id);
@@ -136,7 +136,7 @@ public class AuctionDAO {
     // ─────────────────────────────────────────────────────────────────────────
 
     public boolean closeAuction(int auctionId, int winnerId) {
-        String sql = "UPDATE Auctions SET status = 'FINISHED', winner_id = ? WHERE id = ?";
+        String sql = "UPDATE auctions SET status = 'FINISHED', winner_id = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, winnerId);
@@ -148,7 +148,7 @@ public class AuctionDAO {
     }
 
     public boolean updateAuctionStatus(String status, int auctionId) {
-        String sql = "UPDATE Auctions SET status = ? WHERE id = ?";
+        String sql = "UPDATE auctions SET status = ? WHERE id = ?";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, status);
@@ -168,8 +168,8 @@ public class AuctionDAO {
                    i.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
-            FROM Auctions a
-            JOIN Items i ON a.item_id = i.id
+            FROM auctions a
+            JOIN items i ON a.item_id = i.id
             WHERE a.winner_id = ? AND a.status = 'FINISHED'
             """;
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -193,8 +193,8 @@ public class AuctionDAO {
                    i.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
-            FROM Auctions a
-            JOIN Items i ON a.item_id = i.id
+            FROM auctions a
+            JOIN items i ON a.item_id = i.id
             WHERE a.item_id = ?
             """;
         try (Connection conn = DatabaseConnection.getInstance().getConnection();

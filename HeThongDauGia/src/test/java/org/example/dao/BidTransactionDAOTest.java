@@ -21,7 +21,7 @@ class BidTransactionDAOTest {
         boolean inserted = new BidTransactionDAO().addBid(recording.connection(), bid);
 
         assertTrue(inserted);
-        assertEquals("INSERT INTO Bid_Transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?, ?, ?, ?)",
+        assertEquals("INSERT INTO bid_transactions (auction_id, bidder_id, bid_price, bid_time) VALUES (?, ?, ?, ?)",
                 recording.sql());
         assertEquals(2, recording.parameter(1));
         assertEquals(3, recording.parameter(2));

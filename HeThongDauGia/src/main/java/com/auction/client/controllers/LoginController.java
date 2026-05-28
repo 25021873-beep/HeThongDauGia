@@ -42,7 +42,7 @@ public class LoginController {
                 // 1. Kết nối server (nếu chưa kết nối)
                 ConnectionManager conn = ConnectionManager.getInstance();
                 if (!conn.isConnected()) {
-                    conn.connect("26.139.15.134", 8888);
+                    conn.connectDefault();
                 }
 
                 // 2. Gửi JSON LOGIN và đợi response
@@ -71,7 +71,7 @@ public class LoginController {
             } catch (IOException e) {
                 Platform.runLater(() -> {
                     showAlert("Lỗi kết nối",
-                            "Không thể kết nối đến server 127.0.0.1:8888.\n"
+                            "Không thể kết nối đến server " + ConnectionManager.getDefaultEndpoint() + ".\n"
                                     + "Hãy chạy ServerMain trước.\n" + e.getMessage());
                 });
             }
