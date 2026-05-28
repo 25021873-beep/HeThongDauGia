@@ -83,7 +83,8 @@ public class UserManagementController {
                 new String[]{"seller03", "Bùi Phương Linh", "120yenlang1@email.com", "Seller", "Hoạt động"},
                 new String[]{"seller04", "Phạm Minh Ngọc", "vinhomesoceanpark@email.com", "Seller", "Hoạt động"},
                 new String[]{"bidder03", "Trần Viết Anh", "hadong@email.com", "Seller", "Hoạt động"},
-                new String[]{"bidder05", "Dương Quỳnh Nga", "ngatuvong@email.com", "Seller", "Hoạt động"}
+                new String[]{"bidder05", "Dương Quỳnh Nga", "ngatuvong@email.com", "Seller", "Hoạt động"},
+                new String[]{"bidder05", "Mạc Minh Phúc", "phucchimbe@email.com", "Seller", "Hoạt động"}
         );
         tableUsers.setItems(userData);
     }

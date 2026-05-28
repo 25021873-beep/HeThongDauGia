@@ -1,10 +1,16 @@
 package com.auction.client.controllers;
 
+import com.auction.client.network.ConnectionManager;
+import com.auction.client.network.ServerClient;
+import com.google.gson.JsonObject;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+
+import java.io.IOException;
 
 public class ProductManagementController {
 
@@ -21,13 +27,12 @@ public class ProductManagementController {
     @FXML private ComboBox<String> cboCategory;
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartPrice;
-    @FXML private TextField txtDuration;
+    @FXML private TextField txtDuration; // Không thực sự dùng vì Item không lưu duration
 
     private ObservableList<String[]> productData;
 
     @FXML
     public void initialize() {
-        //thiet lap column
         colName.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[0]));
         colCategory.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[1]));
         colStartPrice.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[2]));
@@ -35,26 +40,15 @@ public class ProductManagementController {
         colEndTime.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[4]));
         colStatus.setCellValueFactory(data -> new SimpleStringProperty(data.getValue()[5]));
 
-        //danh muc spham
-        cboCategory.setItems(FXCollections.observableArrayList("Điện tử", "Nghệ thuật", "Xe cộ", "Đồ cổ", "Khác"));
-
-        //nap du lieu fake
-        loadMockProducts();
-    }
-
-    private void loadMockProducts() {
-        productData = FXCollections.observableArrayList(
-                new String[]{"Laptop Gaming ASUS ROG", "Điện tử", "12,000,000", "2025-05-10 14:00", "2025-05-10 15:00", "RUNNING"},
-                new String[]{"Bức tranh sơn dầu phong cảnh", "Nghệ thuật", "3,000,000", "2025-05-09 10:00", "2025-05-09 22:00", "FINISHED"},
-                new String[]{"iPhone 15 Pro Max 256GB", "Điện tử", "20,000,000", "2025-05-11 09:00", "2025-05-11 21:00", "OPEN"},
-                new String[]{"Honda SH 150i 2024", "Xe cộ", "35,000,000", "2025-05-12 08:00", "2025-05-12 20:00", "OPEN"}
-        );
+        cboCategory.setItems(FXCollections.observableArrayList("Điện tử", "Nghệ thuật", "Xe cộ"));
+        productData = FXCollections.observableArrayList();
         tableProducts.setItems(productData);
+
+        // Lưu ý: Chưa có API để lấy danh sách sản phẩm của Seller, nên bảng sẽ trống lúc đầu
     }
 
     @FXML
     private void handleAddProduct() {
-        //add spham
         formPane.setExpanded(true);
         clearForm();
     }
@@ -64,30 +58,57 @@ public class ProductManagementController {
         String name = txtProductName.getText().trim();
         String category = cboCategory.getValue();
         String description = txtDescription.getText().trim();
-        String price = txtStartPrice.getText().trim();
-        String duration = txtDuration.getText().trim();
+        String priceText = txtStartPrice.getText().trim();
 
-        //ktra dlieu
-        if (name.isEmpty() || category == null || price.isEmpty() || duration.isEmpty()) {
+        if (name.isEmpty() || category == null || priceText.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng điền đầy đủ thông tin sản phẩm!");
             return;
         }
 
+        double price;
         try {
-            Double.parseDouble(price);
-            Integer.parseInt(duration);
+            price = Double.parseDouble(priceText);
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm và thời gian phải là số hợp lệ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm phải là số hợp lệ!");
             return;
         }
 
-        //them spham mock
-        String formattedPrice = String.format("%,.0f", Double.parseDouble(price));
-        productData.add(new String[]{name, category, formattedPrice, "Chưa bắt đầu", "Chưa xác định", "OPEN"});
+        String itemType = mapCategoryToItemType(category);
 
-        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Thêm sản phẩm \"" + name + "\" thành công!");
-        formPane.setExpanded(false);
-        clearForm();
+        Thread t = new Thread(() -> {
+            try {
+                ConnectionManager conn = ConnectionManager.getInstance();
+                JsonObject req = new JsonObject();
+                req.addProperty("command", "POST_ITEM");
+                req.addProperty("itemType", itemType);
+                req.addProperty("name", name);
+                req.addProperty("description", description);
+                req.addProperty("startingPrice", price);
+
+                // Thêm các thuộc tính giả định cho subclass để tránh lỗi Gson khi deserialize
+                if ("ELECTRONICS".equals(itemType)) req.addProperty("warrantyMonths", 12);
+                if ("ART".equals(itemType)) req.addProperty("author", "Unknown");
+                if ("VEHICLE".equals(itemType)) req.addProperty("engineType", "Standard");
+
+                JsonObject res = conn.sendAndWait(req);
+
+                Platform.runLater(() -> {
+                    if (ServerClient.isSuccess(res)) {
+                        String formattedPrice = String.format("%,.0f", price);
+                        productData.add(new String[]{name, category, formattedPrice, "N/A", "N/A", "AVAILABLE"});
+                        showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng bán sản phẩm \"" + name + "\" thành công!");
+                        formPane.setExpanded(false);
+                        clearForm();
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Lỗi thêm sản phẩm", ServerClient.messageOf(res));
+                    }
+                });
+            } catch (IOException e) {
+                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", e.getMessage()));
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
@@ -101,7 +122,15 @@ public class ProductManagementController {
         cboCategory.getSelectionModel().clearSelection();
         txtDescription.clear();
         txtStartPrice.clear();
-        txtDuration.clear();
+        if (txtDuration != null) txtDuration.clear();
+    }
+
+    private String mapCategoryToItemType(String category) {
+        switch (category) {
+            case "Nghệ thuật": return "ART";
+            case "Xe cộ": return "VEHICLE";
+            default: return "ELECTRONICS";
+        }
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

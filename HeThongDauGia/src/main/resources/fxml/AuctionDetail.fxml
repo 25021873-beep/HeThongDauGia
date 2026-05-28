@@ -40,11 +40,14 @@
                                             <Label fx:id="lblSeller" text="Người bán: seller01" style="-fx-text-fill: #AAAAAA; -fx-font-size: 13px;"/>
                                         </VBox>
                                         <!-- Countdown Box -->
-                                        <VBox spacing="8.0" alignment="CENTER" minWidth="200.0"
+                                        <VBox fx:id="countdownBox" spacing="8.0" alignment="CENTER" minWidth="200.0"
                                               style="-fx-background-color: #1A1A1A; -fx-background-radius: 12; -fx-padding: 18;">
                                             <Label fx:id="lblStatus" text="🟢 RUNNING" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2E8B57;"/>
                                             <Label fx:id="lblCountdown" text="⏱ 00:15:30" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FCBF49;"/>
                                             <Label text="Thời gian còn lại" style="-fx-text-fill: #888888; -fx-font-size: 12px;"/>
+                                            <!-- Anti-sniping UI additions -->
+                                            <Label fx:id="lblAntiSniping" text="🛡 Anti-Sniping: Bật (Gia hạn nếu bid &lt; 1p)" style="-fx-text-fill: #00BFFF; -fx-font-size: 11px;"/>
+                                            <Label fx:id="lblTimeExtended" text="+60s Gia hạn!" visible="false" managed="false" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF4500;"/>
                                         </VBox>
                                     </children>
                                 </HBox>
@@ -55,7 +58,7 @@
                         <HBox spacing="18.0">
                             <children>
                                 <!-- Current Price Card -->
-                                <VBox spacing="12.0" HBox.hgrow="ALWAYS"
+                                <VBox spacing="12.0" HBox.hgrow="ALWAYS" maxWidth="Infinity"
                                       style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;">
                                     <padding>
                                         <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
@@ -80,7 +83,7 @@
                                 </VBox>
 
                                 <!-- Auto-Bid Card -->
-                                <VBox spacing="10.0" minWidth="250.0"
+                                <VBox spacing="10.0" HBox.hgrow="ALWAYS" maxWidth="Infinity"
                                       style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;">
                                     <padding>
                                         <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
@@ -104,7 +107,7 @@
                         </HBox>
 
                         <!-- Price Chart -->
-                        <VBox style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;">
+                        <VBox style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;" VBox.vgrow="ALWAYS" maxWidth="Infinity">
                             <padding>
                                 <Insets bottom="12.0" left="12.0" right="12.0" top="12.0"/>
                             </padding>
@@ -121,7 +124,7 @@
                         </VBox>
 
                         <!-- Bid History Table -->
-                        <VBox spacing="10.0" style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;">
+                        <VBox spacing="10.0" style="-fx-background-color: rgba(30,30,30,0.45); -fx-background-radius: 12; -fx-border-color: rgba(245,125,31,0.15); -fx-border-radius: 12; -fx-border-width: 1;" VBox.vgrow="ALWAYS" maxWidth="Infinity">
                             <padding>
                                 <Insets bottom="18.0" left="18.0" right="18.0" top="18.0"/>
                             </padding>

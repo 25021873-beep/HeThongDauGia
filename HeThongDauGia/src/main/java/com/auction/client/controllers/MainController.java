@@ -1,5 +1,7 @@
 package com.auction.client.controllers;
 
+import com.auction.client.network.ConnectionManager;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -50,17 +52,17 @@ public class MainController {
         lblUserInfo.setText("Xin chào, " + role);
 
         //bat cac menu tuong ung role
-        if ("Bidder".equalsIgnoreCase(role)) {
+        if ("BIDDER".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnBidHistory, true);
             handleShowAuctionList(); //mac dinh dsach dau gia cho bidder
 
-        } else if ("Seller".equalsIgnoreCase(role)) {
+        } else if ("SELLER".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnProductMgmt, true);
             handleShowProductMgmt(); // mac dinh mh qly spham cho seller
 
-        } else if ("Admin".equalsIgnoreCase(role)) {
+        } else if ("ADMIN".equalsIgnoreCase(role)) {
             setButtonVisible(btnAuctionList, true);
             setButtonVisible(btnUserMgmt, true);
             handleShowUserMgmt(); // mac dinh qly user cho admin
@@ -149,8 +151,14 @@ public class MainController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
+        // 1. Gửi command LOGOUT và đóng kết nối (không cần đợi)
+        Thread logoutThread = new Thread(() -> {
+            ConnectionManager.getInstance().disconnect();
+        });
+        logoutThread.start();
+
+        // 2. Nạp lại màn hình Login trên JavaFX Thread
         try {
-            // Nạp lại màn hình Login
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
