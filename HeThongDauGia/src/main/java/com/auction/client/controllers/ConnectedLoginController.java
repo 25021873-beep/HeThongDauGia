@@ -20,6 +20,7 @@ import java.io.IOException;
 
 public class ConnectedLoginController {
     @FXML private TextField txtUsername;
+    @FXML private TextField txtEmail;
     @FXML private PasswordField txtPassword;
     @FXML private ComboBox<String> cboRole;
 
@@ -56,11 +57,12 @@ public class ConnectedLoginController {
     @FXML
     public void handleRegister() {
         String username = txtUsername.getText().trim();
+        String email = txtEmail.getText().trim();
         String password = txtPassword.getText().trim();
         String role = cboRole.getValue();
 
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Dang ky that bai", "Vui long nhap username va password.");
+        if (username.isEmpty() || password.isEmpty() || email.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Dang ky that bai", "Vui long nhap username, password va email.");
             return;
         }
 
@@ -68,6 +70,7 @@ public class ConnectedLoginController {
         request.addProperty("command", "REGISTER");
         request.addProperty("username", username);
         request.addProperty("password", password);
+        request.addProperty("email", email);
         request.addProperty("role", role);
 
         sendAsync(request, response -> {

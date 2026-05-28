@@ -62,13 +62,14 @@ public class SocketConsoleClient {
 
         switch (command) {
             case "register":
-                if (parts.length < 4) {
-                    System.out.println("Dung: register <username> <password> <BIDDER|SELLER>");
+                if (parts.length < 5) {
+                    System.out.println("Dung: register <username> <password> <email> <BIDDER|SELLER>");
                     return null;
                 }
                 return "{\"command\":\"REGISTER\",\"username\":\"" + escape(parts[1])
                         + "\",\"password\":\"" + escape(parts[2])
-                        + "\",\"role\":\"" + escape(parts[3].toUpperCase()) + "\"}";
+                        + "\",\"email\":\"" + escape(parts[3])
+                        + "\",\"role\":\"" + escape(parts[4].toUpperCase()) + "\"}";
             case "login":
                 if (parts.length < 3) {
                     System.out.println("Dung: login <username> <password>");
@@ -107,7 +108,7 @@ public class SocketConsoleClient {
 
     private static void printHelp() {
         System.out.println("Lenh:");
-        System.out.println("  register <username> <password> <BIDDER|SELLER>");
+        System.out.println("  register <username> <password> <email> <BIDDER|SELLER>");
         System.out.println("  login <username> <password>");
         System.out.println("  auctions");
         System.out.println("  join <auctionId>");
