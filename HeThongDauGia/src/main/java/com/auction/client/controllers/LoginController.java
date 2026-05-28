@@ -31,31 +31,8 @@ public class LoginController {
         String username = txtUsername.getText().trim();
         String password = txtPassword.getText().trim();
 
-public void handleLogin(ActionEvent event) {
-    String username = txtUsername.getText().trim();
-    String password = txtPassword.getText().trim();
-
-    // 1. Giữ lại phần check rỗng của Trung
-    if (username.isEmpty() || password.isEmpty()) {
-        showAlert("Lỗi", "Vui lòng nhập tên đăng nhập và mật khẩu!");
-        return;
-    }
-
-    // 2. Dùng Thread (Luồng ngầm) để gọi mạng, không dùng SocketClient cũ nữa
-    Thread loginThread = new Thread(() -> {
-        try {
-            // (Giả sử bạn đã chuẩn hóa xong ConnectionManager như AI Codex gợi ý)
-            // Đóng gói JSON và gửi qua ConnectionManager ở đây
-            String jsonRequest = String.format("{\"command\":\"LOGIN\", \"username\":\"%s\", \"password\":\"%s\"}", username, password);
-            ConnectionManager.getInstance().sendMessage(jsonRequest);
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-            Platform.runLater(() -> showAlert("Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage()));
-        }
-    });
-    loginThread.start();
-}
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert("Lỗi", "Vui lòng nhập tên đăng nhập và mật khẩu!");
             return;
         }
 
@@ -65,7 +42,7 @@ public void handleLogin(ActionEvent event) {
                 // 1. Kết nối server (nếu chưa kết nối)
                 ConnectionManager conn = ConnectionManager.getInstance();
                 if (!conn.isConnected()) {
-                    conn.connect("127.0.0.1", 8888);
+                    conn.connect("26.139.15.134", 8888);
                 }
 
                 // 2. Gửi JSON LOGIN và đợi response
