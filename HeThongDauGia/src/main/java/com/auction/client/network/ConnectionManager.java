@@ -28,6 +28,11 @@ public class ConnectionManager {
     private static final Gson GSON = new Gson();
 
     private static ConnectionManager instance;
+    private static final String HOST = "26.139.15.134";
+    private static final int PORT = 8888;
+    private static final int CONNECT_TIMEOUT = 5000; // 5 giây
+    private static final int RETRY_COUNT = 3;
+    private static final int RETRY_DELAY = 1000; // 1 giây
 
     private Socket socket;
     private PrintWriter out;
