@@ -122,7 +122,7 @@ public class LoginController {
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Lỗi kết nối", "Không thể kết nối đến server: " + e.getMessage());
-            // Có thể return ở đây nếu muốn bắt buộc phải có mạng để đăng nhập
+            return;
         }
 
         //xac thuc nguoi dung (tạm thời vẫn dùng fake data của bạn)
