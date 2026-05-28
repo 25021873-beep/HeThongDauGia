@@ -89,8 +89,12 @@
                                             <TextField fx:id="txtStartPrice" promptText="Ví dụ: 1000000"/>
                                         </VBox>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
-                                            <Label text="Thời gian đấu giá (phút):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
-                                            <TextField fx:id="txtDuration" promptText="Ví dụ: 30"/>
+                                            <Label text="Bắt đầu (YYYY-MM-DD HH:mm):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtStartTime" promptText="Ví dụ: 2026-05-28 15:30"/>
+                                        </VBox>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Kết thúc (YYYY-MM-DD HH:mm):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtEndTime" promptText="Ví dụ: 2026-05-28 16:30"/>
                                         </VBox>
                                     </children>
                                 </HBox>
