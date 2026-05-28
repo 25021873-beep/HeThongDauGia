@@ -84,6 +84,7 @@ public class AuctionService {
         newAuction.setCurrentPrice(item.getStartingPrice());
         newAuction.setStartTime(startTime);
         newAuction.setEndTime(endTime);
+        newAuction.setSellerId(item.getSellerId()); // Copy sellerId từ Item sang Auction
         if (startTime.isAfter(LocalDateTime.now())) {
             newAuction.setStatus("OPEN");
         } else {
