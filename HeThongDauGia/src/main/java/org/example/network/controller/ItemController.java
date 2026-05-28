@@ -75,6 +75,7 @@ public class ItemController {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("[ITEM_CTRL] Loi dang ban san pham: " + e.getMessage());
             session.send(SimpleResponse.error("Loi he thong: " + e.getMessage()));
         }
