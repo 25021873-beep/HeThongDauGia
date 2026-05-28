@@ -35,7 +35,21 @@ public class UserService {
         User existingUser = userDAO.getUserByUsername(username);
         if (existingUser == null) throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
 
-        if (!BCrypt.checkpw(password, existingUser.getPassword())) {
+        String dbPassword = existingUser.getPassword();
+        boolean passwordMatches = false;
+        
+        if (dbPassword != null && dbPassword.startsWith("$2")) {
+            try {
+                passwordMatches = BCrypt.checkpw(password, dbPassword);
+            } catch (Exception e) {
+                passwordMatches = false;
+            }
+        } else {
+            // Hỗ trợ cho các tài khoản mock data cũ chưa được hash password
+            passwordMatches = password.equals(dbPassword);
+        }
+
+        if (!passwordMatches) {
             throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
         }
         return existingUser;
