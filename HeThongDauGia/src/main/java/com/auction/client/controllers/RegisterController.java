@@ -92,6 +92,7 @@ public class RegisterController {
                 });
 
             } catch (IOException e) {
+                e.printStackTrace();
                 Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối",
                         "Không thể kết nối đến server " + ConnectionManager.getDefaultEndpoint() + ": " + e.getMessage()));
             }
