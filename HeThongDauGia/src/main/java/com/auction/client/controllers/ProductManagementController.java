@@ -44,7 +44,46 @@ public class ProductManagementController {
         productData = FXCollections.observableArrayList();
         tableProducts.setItems(productData);
 
-        // Lưu ý: Chưa có API để lấy danh sách sản phẩm của Seller, nên bảng sẽ trống lúc đầu
+        // Gọi API lấy danh sách sản phẩm của Seller
+        loadSellerProducts();
+    }
+
+    private void loadSellerProducts() {
+        Thread t = new Thread(() -> {
+            try {
+                ConnectionManager conn = ConnectionManager.getInstance();
+                if (!conn.isConnected()) return;
+
+                JsonObject req = new JsonObject();
+                req.addProperty("command", "GET_SELLER_ITEMS");
+
+                JsonObject res = conn.sendAndWait(req);
+
+                Platform.runLater(() -> {
+                    if (ServerClient.isSuccess(res)) {
+                        productData.clear();
+                        if (res.has("items")) {
+                            res.getAsJsonArray("items").forEach(elem -> {
+                                JsonObject item = elem.getAsJsonObject();
+                                String name = item.has("name") ? item.get("name").getAsString() : "";
+                                String type = item.has("itemType") ? item.get("itemType").getAsString() : "";
+                                String status = item.has("status") ? item.get("status").getAsString() : "";
+                                double price = item.has("startingPrice") ? item.get("startingPrice").getAsDouble() : 0;
+                                String formattedPrice = String.format("%,.0f", price);
+                                
+                                productData.add(new String[]{name, type, formattedPrice, "N/A", "N/A", status});
+                            });
+                        }
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Lỗi", ServerClient.messageOf(res));
+                    }
+                });
+            } catch (IOException e) {
+                Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", "Không thể lấy danh sách sản phẩm"));
+            }
+        });
+        t.setDaemon(true);
+        t.start();
     }
 
     @FXML
@@ -60,16 +99,20 @@ public class ProductManagementController {
         String description = txtDescription.getText().trim();
         String priceText = txtStartPrice.getText().trim();
 
-        if (name.isEmpty() || category == null || priceText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng điền đầy đủ thông tin sản phẩm!");
+        String durationText = txtDuration.getText().trim();
+
+        if (name.isEmpty() || category == null || priceText.isEmpty() || durationText.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng điền đầy đủ thông tin sản phẩm và thời gian!");
             return;
         }
 
         double price;
+        int duration;
         try {
             price = Double.parseDouble(priceText);
+            duration = Integer.parseInt(durationText);
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm phải là số hợp lệ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm và thời gian phải là số hợp lệ!");
             return;
         }
 
@@ -84,6 +127,7 @@ public class ProductManagementController {
                 req.addProperty("name", name);
                 req.addProperty("description", description);
                 req.addProperty("startingPrice", price);
+                req.addProperty("duration", duration);
 
                 // Thêm các thuộc tính giả định cho subclass để tránh lỗi Gson khi deserialize
                 if ("ELECTRONICS".equals(itemType)) req.addProperty("warrantyMonths", 12);
@@ -95,10 +139,11 @@ public class ProductManagementController {
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
                         String formattedPrice = String.format("%,.0f", price);
-                        productData.add(new String[]{name, category, formattedPrice, "N/A", "N/A", "AVAILABLE"});
+                        productData.add(new String[]{name, category, formattedPrice, "N/A", "N/A", "IN_AUCTION"});
                         showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đăng bán sản phẩm \"" + name + "\" thành công!");
                         formPane.setExpanded(false);
                         clearForm();
+                        loadSellerProducts(); // Refresh danh sách sau khi thêm
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Lỗi thêm sản phẩm", ServerClient.messageOf(res));
                     }

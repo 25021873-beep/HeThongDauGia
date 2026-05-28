@@ -32,7 +32,7 @@ public class ItemService {
     }
 
     // Hàm đăng bán
-    public boolean postItem(Item newItem) {
+    public int postItem(Item newItem) {
         if (newItem.getStartingPrice().compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidItemPriceException("Lỗi: Giá Item không được bé hơn 0 ");
         }
@@ -47,7 +47,7 @@ public class ItemService {
 
         newItem.setStatus("AVAILABLE");
 
-        return itemDAO.addItem(newItem)>=0;
+        return itemDAO.addItem(newItem);
     }
 
     // Hàm chỉnh sửa thông tin

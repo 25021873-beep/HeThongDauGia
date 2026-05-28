@@ -59,6 +59,10 @@ public class CommandRouter {
                 return false;
 
             // ── NHÓM LỆNH QUẢN LÝ SẢN PHẨM & PHIÊN ĐẤU GIÁ (DÀNH CHO SELLER/ADMIN) ──
+            case "GET_SELLER_ITEMS":
+                itemController.handleGetSellerItems();
+                return false;
+
             case "POST_ITEM":
                 itemController.handlePostItem(json);
                 return false;
