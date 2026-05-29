@@ -49,7 +49,7 @@ public class AuctionDAO {
             SELECT a.*,
                    i.id AS item_id, i.item_type AS item_item_type,
                    i.name AS item_name, i.description AS item_description,
-                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   a.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
             FROM auctions a
@@ -74,7 +74,7 @@ public class AuctionDAO {
             SELECT a.*,
                    i.id AS item_id, i.item_type AS item_item_type,
                    i.name AS item_name, i.description AS item_description,
-                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   a.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
             FROM auctions a
@@ -167,7 +167,7 @@ public class AuctionDAO {
             SELECT a.*,
                    i.id AS item_id, i.item_type AS item_item_type,
                    i.name AS item_name, i.description AS item_description,
-                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   a.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
             FROM auctions a
@@ -192,7 +192,7 @@ public class AuctionDAO {
             SELECT a.*,
                    i.id AS item_id, i.item_type AS item_item_type,
                    i.name AS item_name, i.description AS item_description,
-                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   a.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
             FROM auctions a
@@ -217,7 +217,7 @@ public class AuctionDAO {
             SELECT a.*,
                    i.id AS item_id, i.item_type AS item_item_type,
                    i.name AS item_name, i.description AS item_description,
-                   i.starting_price AS item_starting_price, i.status AS item_status,
+                   a.starting_price AS item_starting_price, i.status AS item_status,
                    i.warranty_months AS item_warranty_months, i.author AS item_author,
                    i.engine_type AS item_engine_type
             FROM auctions a
