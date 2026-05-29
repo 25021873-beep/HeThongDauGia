@@ -2,6 +2,12 @@ package org.example.dto.response;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializer;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Base wrapper cho mọi response gửi về client qua Socket - JSON format.
@@ -25,6 +31,12 @@ public abstract class BaseResponse {
     // Gson instance dùng chung - thread-safe
     static final Gson GSON = new GsonBuilder()
             .serializeNulls()
+            .registerTypeAdapter(LocalDateTime.class,
+                    (JsonSerializer<LocalDateTime>) (src, type, ctx) ->
+                            new JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+            .registerTypeAdapter(LocalDateTime.class,
+                    (JsonDeserializer<LocalDateTime>) (json, type, ctx) ->
+                            LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME))
             .create(); // KHÔNG dùng prettyPrinting: phải gửi 1 dòng qua socket
 
     protected final String status;

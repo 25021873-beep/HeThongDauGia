@@ -54,6 +54,9 @@ public class RobustClientHandler extends ClientHandler {
         this.autoBidService = autoBidService;
         this.gson = new GsonBuilder()
                 .registerTypeAdapter(LocalDateTime.class,
+                        (com.google.gson.JsonSerializer<LocalDateTime>) (src, type, ctx) ->
+                                new com.google.gson.JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+                .registerTypeAdapter(LocalDateTime.class,
                         (JsonDeserializer<LocalDateTime>) (json, type, ctx) ->
                                 LocalDateTime.parse(json.getAsString(),
                                         DateTimeFormatter.ISO_LOCAL_DATE_TIME))

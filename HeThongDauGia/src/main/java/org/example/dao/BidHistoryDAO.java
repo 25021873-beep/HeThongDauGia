@@ -12,15 +12,13 @@ import java.util.List;
 
 public class BidHistoryDAO {
 
-    private final Connection connection;
-
     public BidHistoryDAO() {
-        this.connection = DatabaseConnection.getInstance().getConnection();
+        // Không lưu connection — mỗi method tự lấy connection mới
     }
 
     // ── INSERT ────────────────────────────────────────────────────────────────
 
-    // Hàm thêm lịch sử bid
+    // Hàm thêm lịch sử bid (dùng trong transaction, nhận connection từ ngoài)
     public void addBidHistory(Connection conn, BidHistory entry) {
         String sql = """
                 INSERT INTO bid_history (auction_id, bidder_id, price, bid_time)
@@ -73,7 +71,8 @@ public class BidHistoryDAO {
                      "ORDER BY bh.bid_time DESC";
                      
         com.google.gson.JsonArray array = new com.google.gson.JsonArray();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, bidderId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -106,7 +105,8 @@ public class BidHistoryDAO {
     public int countByAuctionId(long auctionId) {
         String sql = "SELECT COUNT(*) FROM bid_history WHERE auction_id = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, auctionId);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -125,7 +125,8 @@ public class BidHistoryDAO {
     public void deleteByAuctionId(long auctionId) {
         String sql = "DELETE FROM bid_history WHERE auction_id = ?";
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, auctionId);
             stmt.executeUpdate();
 
@@ -140,7 +141,8 @@ public class BidHistoryDAO {
     private List<BidHistory> queryList(String sql, long auctionId) {
         List<BidHistory> result = new ArrayList<>();
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, auctionId);
 
             try (ResultSet rs = stmt.executeQuery()) {
@@ -167,4 +169,4 @@ public class BidHistoryDAO {
         entry.setBidTime(rs.getTimestamp("bid_time").toLocalDateTime());
         return entry;
     }
-}
+}

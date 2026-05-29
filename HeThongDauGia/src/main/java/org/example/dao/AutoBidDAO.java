@@ -11,10 +11,8 @@ import java.util.List;
 
 public class AutoBidDAO {
 
-    private final Connection connection;
-
     public AutoBidDAO() {
-        this.connection = DatabaseConnection.getInstance().getConnection();
+        // Không lưu connection — mỗi method tự lấy connection mới
     }
 
     // Hàm lưu config mới hoặc cập nhật nếu đã tồn tại
@@ -28,7 +26,8 @@ public class AutoBidDAO {
                     is_active = TRUE
                 """;
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, config.getAuctionId());
             stmt.setInt(2, config.getBidderId());
             stmt.setBigDecimal(3, config.getMaxBid());
@@ -49,7 +48,8 @@ public class AutoBidDAO {
                 """;
 
         List<AutoBidConfig> result = new ArrayList<>();
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, auctionId);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) result.add(mapRow(rs));
@@ -68,7 +68,8 @@ public class AutoBidDAO {
                 WHERE auction_id = ? AND bidder_id = ?
                 """;
 
-        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement stmt = connection.prepareStatement(sql)) {
             stmt.setLong(1, auctionId);
             stmt.setLong(2, bidderId);
             stmt.executeUpdate();
@@ -90,3 +91,4 @@ public class AutoBidDAO {
         return config;
     }
 }
+
