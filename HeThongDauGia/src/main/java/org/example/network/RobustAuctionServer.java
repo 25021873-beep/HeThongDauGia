@@ -83,7 +83,6 @@ public class RobustAuctionServer {
         }
 
         autoBidService.shutdown();
-        DatabaseConnection.getInstance().close();
         System.out.println("[SERVER] Server da tat hoan toan");
     }
 }

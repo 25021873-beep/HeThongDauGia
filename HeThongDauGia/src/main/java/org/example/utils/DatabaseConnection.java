@@ -13,14 +13,13 @@ public class DatabaseConnection {
     private static final String PASSWORD = ConfigManager.getInstance().getString("db.password", "");
 
     private static DatabaseConnection instance;
-    private Connection connection;
 
     private DatabaseConnection() {
-        try {
-            this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        // Kiểm tra kết nối lần đầu
+        try (Connection testConn = DriverManager.getConnection(URL, USER, PASSWORD)) {
             System.out.println("[DB] Ket noi database thanh cong");
         } catch (SQLException e) {
-            throw new DatabaseException("Khong the ket noi database: ",e);
+            throw new DatabaseException("Khong the ket noi database: ", e);
         }
     }
 
@@ -31,26 +30,16 @@ public class DatabaseConnection {
         return instance;
     }
 
+    /**
+     * Tạo connection MỚI mỗi lần gọi.
+     * Caller có trách nhiệm đóng connection sau khi dùng xong (try-with-resources).
+     */
     public Connection getConnection() {
         try {
-            if (connection == null || connection.isClosed()) {
-                instance = new DatabaseConnection();
-                return instance.connection;
-            }
+            Connection conn = DriverManager.getConnection(URL, USER, PASSWORD);
+            return conn;
         } catch (SQLException e) {
-            throw new DatabaseException("Loi kiem tra ket noi: ",e);
-        }
-        return connection;
-    }
-
-    public void close() {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-                System.out.println("[DB] Da dong ket noi database");
-            }
-        } catch (SQLException e) {
-            System.err.println("[DB] Loi khi dong ket noi: " + e.getMessage());
+            throw new DatabaseException("Loi tao ket noi database: ", e);
         }
     }
-}
+}
