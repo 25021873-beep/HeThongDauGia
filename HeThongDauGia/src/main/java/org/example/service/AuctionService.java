@@ -85,9 +85,6 @@ public class AuctionService {
         }
         if (startingPrice.compareTo(BigDecimal.ZERO) <= 0) throw new InvalidItemPriceException("Lỗi: Giá khởi tạo không hợp lệ");
 
-        if (LocalDateTime.now().isAfter(startTime)) throw new InvalidAuctionTimeException("Lỗi: Thời gian bắt đầu phải sau thời điểm hiện tại");
-
-
         Auction newAuction = new Auction();
         newAuction.setItemId(itemId);
         newAuction.setSellerId(sellerId);
@@ -97,6 +94,7 @@ public class AuctionService {
         newAuction.setEndTime(endTime);
         newAuction.setSellerId(sellerId);
         newAuction.setCurrentPrice(startingPrice);
+        newAuction.setItem(item);
 
         if (!startTime.isAfter(LocalDateTime.now())) {
             newAuction.setStatus("RUNNING");
