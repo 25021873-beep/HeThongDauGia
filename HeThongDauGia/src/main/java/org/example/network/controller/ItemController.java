@@ -13,6 +13,7 @@ import org.example.service.AuctionService;
 import org.example.service.ItemService;
 import org.example.dao.item.ItemDAO;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -43,7 +44,6 @@ public class ItemController {
             String itemType = json.get("itemType").getAsString().trim().toUpperCase();
             Item newItem;
 
-            // Áp dụng tính đa hình giải mã JSON thành đúng Object thực tế
             switch (itemType) {
                 case "ELECTRONICS":
                     newItem = gson.fromJson(json, Electronics.class);
@@ -71,7 +71,19 @@ public class ItemController {
                 LocalDateTime startTime = LocalDateTime.parse(json.get("start_time").getAsString(), formatter);
                 LocalDateTime endTime = LocalDateTime.parse(json.get("end_time").getAsString(), formatter);
 
-                AuctionService.getInstance().openAuction(newItemId, startTime, endTime);
+                BigDecimal startingPrice = new BigDecimal(json.get("starting_price").getAsString());
+                BigDecimal stepPrice = new BigDecimal(json.get("step_price").getAsString());
+
+                // 3. GỌI HÀM OPEN AUCTION VỚI ĐẦY ĐỦ 6 THAM SỐ (Cách 1 tao chỉ mày lúc nãy)
+                AuctionService.getInstance().openAuction(
+                        newItemId,
+                        currentUserId,
+                        startingPrice,
+                        stepPrice,
+                        startTime,
+                        endTime
+                );
+
                 session.send(SimpleResponse.success("Dang ban san pham moi va mo phien dau gia thanh cong!"));
             } else {
                 session.send(SimpleResponse.error("Khong the dang ban san pham. Vui long kiem tra lai dữ liệu"));
@@ -105,7 +117,6 @@ public class ItemController {
                 itemJson.addProperty("id", item.getId());
                 itemJson.addProperty("name", item.getName());
                 itemJson.addProperty("description", item.getDescription());
-                itemJson.addProperty("startingPrice", item.getStartingPrice().doubleValue());
                 itemJson.addProperty("status", item.getStatus()); // item status (AVAILABLE, IN_AUCTION, SOLD)
                 
                 // Thuộc tính mới từ bảng auctions

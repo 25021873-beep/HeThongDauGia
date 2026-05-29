@@ -12,9 +12,11 @@ import org.example.entity.user.User;
 import org.example.exception.AuctionSystemException;
 import org.example.exception.auction.AuctionClosedException;
 import org.example.exception.auction.AuctionNotFoundException;
+import org.example.exception.auction.InvalidAuctionTimeException;
 import org.example.exception.auth.UserNotFoundException;
 import org.example.exception.bid.InvalidBidException;
 import org.example.exception.database.DatabaseException;
+import org.example.exception.item.InvalidItemPriceException;
 import org.example.exception.item.InvalidItemStateException;
 import org.example.exception.item.ItemNotFoundException;
 import org.example.utils.ConfigManager;
@@ -69,7 +71,7 @@ public class AuctionService {
 
     // ── Mở phiên đấu giá ─────────────────────────────────────────────────────
 
-    public void openAuction(int itemId, LocalDateTime startTime, LocalDateTime endTime) {
+    public void openAuction(int itemId, int sellerId, BigDecimal startingPrice, BigDecimal stepPrice, LocalDateTime startTime, LocalDateTime endTime) {
         Item item = itemDAO.getItemById(itemId);
         if (item == null)
             throw new ItemNotFoundException("Loi: Khong thay mon hang co ID = " + itemId);
@@ -78,17 +80,24 @@ public class AuctionService {
         if (startTime.isAfter(endTime) || startTime.isEqual(endTime)) {
             throw new IllegalArgumentException("Lỗi: Thời gian bắt đầu phải diễn ra trước thời gian kết thúc!");
         }
+        if (startTime.isBefore(LocalDateTime.now().minusMinutes(2))) {
+            throw new InvalidAuctionTimeException("Lỗi: Không được set thời gian bắt đầu trong quá khứ!");
+        }
+        if (startingPrice.compareTo(BigDecimal.ZERO) <= 0) throw new InvalidItemPriceException("Lỗi: Giá khởi tạo không hợp lệ");
 
         Auction newAuction = new Auction();
         newAuction.setItemId(itemId);
-        newAuction.setCurrentPrice(item.getStartingPrice());
+        newAuction.setSellerId(sellerId);
+        newAuction.setStartingPrice(startingPrice);
         newAuction.setStartTime(startTime);
         newAuction.setEndTime(endTime);
-        newAuction.setSellerId(item.getSellerId()); // Copy sellerId từ Item sang Auction
-        if (startTime.isAfter(LocalDateTime.now())) {
-            newAuction.setStatus("OPEN");
-        } else {
+        newAuction.setSellerId(item.getSellerId());
+        if (LocalDateTime.now().isAfter(startTime)) throw new InvalidAuctionTimeException("Lỗi: Thời gian bắt đầu phải sau thời điểm hiện tại");
+        if (!startTime.isAfter(LocalDateTime.now())) {
             newAuction.setStatus("RUNNING");
+        } else {
+            // Nếu startTime > hiện tại (tương lai xa) -> ĐỂ TRẠNG THÁI CHỜ
+            newAuction.setStatus("OPEN");
         }
 
         int newAuctionId = auctionDAO.createAuction(newAuction);

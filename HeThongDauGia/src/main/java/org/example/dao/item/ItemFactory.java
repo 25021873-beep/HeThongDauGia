@@ -31,7 +31,6 @@ public class ItemFactory {
         item.setId(rs.getInt(prefix + "id"));
         item.setName(rs.getString(prefix + "name"));
         item.setDescription(rs.getString(prefix + "description"));
-        item.setStartingPrice(rs.getBigDecimal(prefix + "starting_price"));
         item.setStatus(rs.getString(prefix + "status"));
 
         return item;
@@ -61,7 +60,6 @@ public class ItemFactory {
         item.setId(rs.getInt("id"));
         item.setName(rs.getString("name"));
         item.setDescription(rs.getString("description"));
-        item.setStartingPrice(rs.getBigDecimal("starting_price"));
         item.setStatus(rs.getString("status"));
 
         return item;

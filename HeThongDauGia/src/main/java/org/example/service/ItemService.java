@@ -33,9 +33,6 @@ public class ItemService {
 
     // Hàm đăng bán
     public int postItem(Item newItem) {
-        if (newItem.getStartingPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new InvalidItemPriceException("Lỗi: Giá Item không được bé hơn 0 ");
-        }
         if (newItem.getName() == null || newItem.getName().trim().isEmpty()) {
             throw new InvalidItemNameException("Lỗi: Không đựợc để trống tên sản phẩm");
         }

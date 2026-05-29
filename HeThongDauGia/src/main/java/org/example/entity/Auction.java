@@ -22,10 +22,12 @@ public class Auction extends BaseEntity {
     // --- CONSTRUCTORS ---
     public Auction() {}
 
-    public Auction(int id, int itemId, BigDecimal currentPrice, LocalDateTime startTime, LocalDateTime endTime, String status, int sellerId, int winnerId, Item item) {
+    public Auction(int id, int itemId, BigDecimal currentPrice, BigDecimal startingPrice, BigDecimal stepPrice, LocalDateTime startTime, LocalDateTime endTime, String status, int sellerId, int winnerId, Item item) {
         this.id = id;
         this.itemId = itemId;
         this.currentPrice = currentPrice;
+        this.startingPrice = startingPrice;
+        this.stepPrice = stepPrice;
         this.startTime = startTime;
         this.endTime = endTime;
         this.status = status;

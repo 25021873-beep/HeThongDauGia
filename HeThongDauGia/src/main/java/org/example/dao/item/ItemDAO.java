@@ -16,8 +16,8 @@ public class ItemDAO {
     // Thêm/Đăng bán sản phẩm mới
     public int addItem(Item item) {
             // Tọng cả 4 cột dữ liệu đặc thù vào chung 1 lệnh INSERT
-            String sql = "INSERT INTO items (name, description, starting_price, seller_id, status, item_type, warranty_months, author, engine_type) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO items (name, description, seller_id, status, item_type, warranty_months, author, engine_type) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (Connection conn = DatabaseConnection.getInstance().getConnection();
                  PreparedStatement pstmt = conn.prepareStatement(sql,PreparedStatement.RETURN_GENERATED_KEYS)) {
@@ -25,29 +25,28 @@ public class ItemDAO {
                 // Tham số chung
                 pstmt.setString(1, item.getName());
                 pstmt.setString(2, item.getDescription());
-                pstmt.setBigDecimal(3, item.getStartingPrice());
-                pstmt.setInt(4, item.getSellerId());
-                pstmt.setString(5, item.getStatus()); // 'AVAILABLE', 'IN_AUCTION', 'SOLD'
+                pstmt.setInt(3, item.getSellerId());
+                pstmt.setString(4, item.getStatus()); // 'AVAILABLE', 'IN_AUCTION', 'SOLD'
 
                 if (item instanceof Electronics) {
-                    pstmt.setString(6, "ELECTRONICS");
-                    pstmt.setInt(7, ((Electronics) item).getWarrantyMonths());
+                    pstmt.setString(5, "ELECTRONICS");
+                    pstmt.setInt(6, ((Electronics) item).getWarrantyMonths());
 
-                    pstmt.setNull(8, Types.VARCHAR);
-                    pstmt.setNull(9, Types.INTEGER);
+                    pstmt.setNull(7, Types.VARCHAR);
+                    pstmt.setNull(8, Types.INTEGER);
                 }
                 else if (item instanceof Art) {
-                    pstmt.setString(6, "ART");
-                    pstmt.setNull(7, Types.INTEGER);
+                    pstmt.setString(5, "ART");
+                    pstmt.setNull(6, Types.INTEGER);
 
-                    pstmt.setString(8, ((Art) item).getAuthor());
-                    pstmt.setNull(9, Types.VARCHAR);
+                    pstmt.setString(7, ((Art) item).getAuthor());
+                    pstmt.setNull(8, Types.VARCHAR);
                 }
                 else if (item instanceof Vehicle) {
-                    pstmt.setString(6, "VEHICLE");
-                    pstmt.setNull(7, Types.INTEGER);
-                    pstmt.setNull(8, Types.VARCHAR);
-                    pstmt.setString(9, ((Vehicle) item).getEngineType());
+                    pstmt.setString(5, "VEHICLE");
+                    pstmt.setNull(6, Types.INTEGER);
+                    pstmt.setNull(7, Types.VARCHAR);
+                    pstmt.setString(8, ((Vehicle) item).getEngineType());
                 }
 
                 int affectedRows = pstmt.executeUpdate();
@@ -129,7 +128,7 @@ public class ItemDAO {
 
     // Sửa thông tin sản phẩm
     public boolean updateItem(Item item) {
-        String sql = "UPDATE items SET name = ?, description = ?, starting_price = ?, " +
+        String sql = "UPDATE items SET name = ?, description = ?, " +
                 "warranty_months = ?, author = ?, engine_type = ? " +
                 "WHERE id = ?";
 
@@ -138,30 +137,29 @@ public class ItemDAO {
 
             pstmt.setString(1, item.getName());
             pstmt.setString(2, item.getDescription());
-            pstmt.setBigDecimal(3, item.getStartingPrice());
 
             if (item instanceof Electronics) {
-                pstmt.setInt(4, ((Electronics) item).getWarrantyMonths());
+                pstmt.setInt(3, ((Electronics) item).getWarrantyMonths());
+                pstmt.setNull(4, java.sql.Types.VARCHAR);
                 pstmt.setNull(5, java.sql.Types.VARCHAR);
-                pstmt.setNull(6, java.sql.Types.VARCHAR);
             }
             else if (item instanceof Art) {
-                pstmt.setNull(4, java.sql.Types.INTEGER);
-                pstmt.setString(5, ((Art) item).getAuthor());
-                pstmt.setNull(6, java.sql.Types.VARCHAR);
+                pstmt.setNull(3, java.sql.Types.INTEGER);
+                pstmt.setString(4, ((Art) item).getAuthor());
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
             }
             else if (item instanceof Vehicle) {
-                pstmt.setNull(4, java.sql.Types.INTEGER);
-                pstmt.setNull(5, java.sql.Types.VARCHAR);
-                pstmt.setString(6, ((Vehicle) item).getEngineType());
+                pstmt.setNull(3, java.sql.Types.INTEGER);
+                pstmt.setNull(4, java.sql.Types.VARCHAR);
+                pstmt.setString(5, ((Vehicle) item).getEngineType());
             }
             else {
-                pstmt.setNull(4, java.sql.Types.INTEGER);
+                pstmt.setNull(3, java.sql.Types.INTEGER);
+                pstmt.setNull(4, java.sql.Types.VARCHAR);
                 pstmt.setNull(5, java.sql.Types.VARCHAR);
-                pstmt.setNull(6, java.sql.Types.VARCHAR);
             }
 
-            pstmt.setInt(7, item.getId());
+            pstmt.setInt(6, item.getId());
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
