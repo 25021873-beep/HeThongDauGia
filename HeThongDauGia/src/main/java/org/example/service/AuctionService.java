@@ -89,10 +89,15 @@ public class AuctionService {
         newAuction.setItemId(itemId);
         newAuction.setSellerId(sellerId);
         newAuction.setStartingPrice(startingPrice);
+        newAuction.setStepPrice(stepPrice);
         newAuction.setStartTime(startTime);
         newAuction.setEndTime(endTime);
         newAuction.setSellerId(sellerId);
         if (LocalDateTime.now().isAfter(startTime)) throw new InvalidAuctionTimeException("Lỗi: Thời gian bắt đầu phải sau thời điểm hiện tại");
+        newAuction.setCurrentPrice(startingPrice);
+
+        // Nếu startTime đã qua hoặc cách now ≤ 2 phút → bắt đầu ngay (RUNNING)
+        // Ngược lại → trạng thái chờ (OPEN)
         if (!startTime.isAfter(LocalDateTime.now())) {
             newAuction.setStatus("RUNNING");
         } else {
