@@ -20,6 +20,8 @@ class AuctionTest {
                 1,                      // id: Giá trị ảo (dummy)
                 2,                      // itemId: Giữ nguyên như cũ (để pass assertEquals 2)
                 new BigDecimal("1000"), // currentPrice: Giữ nguyên
+                new BigDecimal("500"),
+                new BigDecimal("50"),
                 start,                  // startTime: Giữ nguyên
                 end,                    // endTime: Giữ nguyên
                 "RUNNING",              // status: BẮT BUỘC là "RUNNING" để pass cái assertEquals bên dưới
