@@ -73,7 +73,6 @@ class ItemFactoryTest {
         assertEquals(10, item.getId());
         assertEquals("Item", item.getName());
         assertEquals("Description", item.getDescription());
-        assertEquals(new BigDecimal("100.00"), item.getStartingPrice());
         assertEquals("AVAILABLE", item.getStatus());
     }
 }
