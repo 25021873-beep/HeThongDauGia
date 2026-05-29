@@ -28,6 +28,8 @@ public class AuctionDAO {
             pstmt.setBigDecimal(3,auction.getStartingPrice());
             pstmt.setBigDecimal(4,auction.getStepPrice());
 
+            System.out.println("[DEBUG-DAO] Thằng Seller ID đang bị nhét xuống DB là: " + auction.getSellerId());
+
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 try (ResultSet rs = pstmt.getGeneratedKeys()) {
