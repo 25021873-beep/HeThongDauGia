@@ -16,7 +16,7 @@ import static org.example.dao.item.ItemFactory.createItem;
 public class AuctionDAO {
 
     public int createAuction(Auction auction) {
-        String sql = "INSERT INTO auctions (item_id, current_price, starting_price, step_price, start_time, end_time, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auctions (item_id, current_price, starting_price, step_price, start_time, end_time, status, seller_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, auction.getItemId());
