@@ -77,11 +77,19 @@
                                         </VBox>
                                     </children>
                                 </HBox>
-                                <VBox spacing="5.0">
-                                    <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
-                                    <TextArea fx:id="txtDescription" promptText="Nhập mô tả sản phẩm"
-                                              prefRowCount="3" wrapText="true"/>
-                                </VBox>
+                                <HBox spacing="15.0">
+                                    <children>
+                                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                                            <Label text="Mô tả:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextArea fx:id="txtDescription" promptText="Nhập mô tả sản phẩm"
+                                                      prefRowCount="3" wrapText="true"/>
+                                        </VBox>
+                                        <VBox spacing="5.0">
+                                            <Label text="Bước giá tối thiểu (VNĐ):" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
+                                            <TextField fx:id="txtStepPrice" promptText="Ví dụ: 50000" prefWidth="150.0"/>
+                                        </VBox>
+                                    </children>
+                                </HBox>
                                 <HBox spacing="15.0">
                                     <children>
                                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
