@@ -97,6 +97,7 @@ public class AuctionService {
         newAuction.setEndTime(endTime);
         newAuction.setSellerId(sellerId);
         newAuction.setCurrentPrice(startingPrice);
+        newAuction.setItem(item);
 
         if (!startTime.isAfter(LocalDateTime.now())) {
             newAuction.setStatus("RUNNING");
