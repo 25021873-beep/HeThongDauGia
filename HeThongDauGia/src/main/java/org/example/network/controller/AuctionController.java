@@ -139,9 +139,9 @@ public class AuctionController {
             // Đóng gói dữ liệu trả về DTO Response
             AuctionDetailResponse response = new AuctionDetailResponse(
                     "SUCCESS", "Lay chi tiet thanh cong",
-                    auction.getId(), auction.getCurrentPrice(),
+                    auction.getId(), auction.getCurrentPrice(), auction.getStartingPrice(), auction.getStepPrice(),
                     auction.getStartTime(), auction.getEndTime(), auction.getStatus(),
-                    item.getName(), item.getDescription(), item.getStartingPrice(),
+                    item.getName(), item.getDescription(),
                     itemType, warranty, author, engineType
             );
 
