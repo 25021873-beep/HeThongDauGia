@@ -27,6 +27,7 @@ public class ProductManagementController {
     @FXML private ComboBox<String> cboCategory;
     @FXML private TextArea txtDescription;
     @FXML private TextField txtStartPrice;
+    @FXML private TextField txtStepPrice;
     @FXML private TextField txtStartTime;
     @FXML private TextField txtEndTime;
 
@@ -101,6 +102,7 @@ public class ProductManagementController {
         String category = cboCategory.getValue();
         String description = txtDescription.getText().trim();
         String priceText = txtStartPrice.getText().trim();
+        String stepPriceText = txtStepPrice.getText().trim();
 
         String startTimeText = txtStartTime.getText().trim();
         String endTimeText = txtEndTime.getText().trim();
@@ -117,6 +119,21 @@ public class ProductManagementController {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá khởi điểm phải là số hợp lệ!");
             return;
         }
+
+        double parsedStepPrice = 0;
+        if (!stepPriceText.isEmpty()) {
+            try {
+                parsedStepPrice = Double.parseDouble(stepPriceText);
+                if (parsedStepPrice < 0) {
+                    showAlert(Alert.AlertType.ERROR, "Lỗi", "Bước giá tối thiểu không được âm!");
+                    return;
+                }
+            } catch (NumberFormatException e) {
+                showAlert(Alert.AlertType.ERROR, "Lỗi", "Bước giá tối thiểu phải là số hợp lệ!");
+                return;
+            }
+        }
+        final double stepPrice = parsedStepPrice;
 
         java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         java.time.LocalDateTime startTime;
@@ -143,9 +160,10 @@ public class ProductManagementController {
                 req.addProperty("itemType", itemType);
                 req.addProperty("name", name);
                 req.addProperty("description", description);
-                req.addProperty("startingPrice", price);
+                req.addProperty("starting_price", price);
                 req.addProperty("start_time", startTimeText);
                 req.addProperty("end_time", endTimeText);
+                req.addProperty("step_price", stepPrice);
 
                 // Thêm các thuộc tính giả định cho subclass để tránh lỗi Gson khi deserialize
                 if ("ELECTRONICS".equals(itemType)) req.addProperty("warrantyMonths", 12);
@@ -187,6 +205,7 @@ public class ProductManagementController {
         txtStartPrice.clear();
         if (txtStartTime != null) txtStartTime.clear();
         if (txtEndTime != null) txtEndTime.clear();
+        if (txtStepPrice != null) txtStepPrice.clear();
     }
 
     private String mapCategoryToItemType(String category) {
