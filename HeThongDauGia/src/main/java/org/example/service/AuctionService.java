@@ -126,6 +126,7 @@ public class AuctionService {
             // I. KIỂM TRA ĐIỀU KIỆN (VALIDATION)
             // ==========================================================
             Auction auction = auctionDAO.getAuctionById(auctionId);
+
             if (auction == null) throw new AuctionNotFoundException("Phien dau gia khong ton tai.");
 
             if (!"RUNNING".equals(auction.getStatus())) {
@@ -149,6 +150,14 @@ public class AuctionService {
 
             if (!"BIDDER".equals(bidder.getRole())) {
                 throw new InvalidBidException("Lỗi: Bạn không có quyền đặt giá!");
+            }
+
+            BigDecimal current = auction.getCurrentPrice();
+            BigDecimal step = auction.getStepPrice();
+            BigDecimal minRequired = current.add(step);
+
+            if (bidAmount.compareTo(minRequired) < 0) {
+                throw new InvalidBidException("Lỗi: Giá đặt thấp hơn giá hiện tại");
             }
 
 

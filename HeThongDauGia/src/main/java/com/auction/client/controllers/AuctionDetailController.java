@@ -23,8 +23,10 @@ import javafx.scene.control.*;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
+import org.example.entity.Auction;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -238,7 +240,7 @@ public class AuctionDetailController {
         String status = msg.get("status").getAsString();
         
         int msgAuctionId = msg.has("auctionId") ? msg.get("auctionId").getAsInt() : -1;
-        if (msgAuctionId != currentAuctionId) return; // Ignore push from other rooms
+        if (msgAuctionId != currentAuctionId) return;
 
         switch (status) {
             case "UPDATE": // BID_UPDATE
@@ -300,21 +302,24 @@ public class AuctionDetailController {
         }
 
         try {
-            double bidAmount = Double.parseDouble(bidText);
+            BigDecimal bidAmount = new BigDecimal(bidText);
 
             Thread t = new Thread(() -> {
                 try {
                     JsonObject req = new JsonObject();
                     req.addProperty("command", "BID");
+
                     req.addProperty("auctionId", currentAuctionId);
-                    req.addProperty("amount", bidAmount);
-                    
+
+                    req.addProperty("amount", bidAmount.toString());
+
                     JsonObject res = ConnectionManager.getInstance().sendAndWait(req);
-                    
+
                     Platform.runLater(() -> {
                         if (ServerClient.isSuccess(res)) {
                             txtBidAmount.clear();
-                            showAlert(Alert.AlertType.INFORMATION, "Thành công", "Đặt giá thành công: " + String.format("%,.0f VNĐ", bidAmount));
+                            showAlert(Alert.AlertType.INFORMATION, "Thành công",
+                                    "Đặt giá thành công: " + String.format("%,d VNĐ", bidAmount.toBigInteger()));
                         } else {
                             showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", ServerClient.messageOf(res));
                         }
@@ -323,11 +328,12 @@ public class AuctionDetailController {
                     Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", e.getMessage()));
                 }
             });
+
             t.setDaemon(true);
             t.start();
-            
+
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá đấu phải là một số hợp lệ!");
+            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá đấu phải là số hợp lệ!");
         }
     }
 

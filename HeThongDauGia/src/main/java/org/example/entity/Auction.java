@@ -10,9 +10,11 @@ public class Auction extends BaseEntity {
     private int           id;
     private int           itemId;
     private BigDecimal    currentPrice;
+    private BigDecimal    startingPrice;
+    private BigDecimal    stepPrice;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private String        status;   // RUNNING, FINISHED, PAID, CANCELED
+    private String        status;   // OPEN, RUNNING, FINISHED, PAID, CANCELED
     private int           sellerId;
     private int           winnerId;
     private Item          item;
@@ -83,5 +85,21 @@ public class Auction extends BaseEntity {
 
     public void setSellerId(int sellerId) {
         this.sellerId = sellerId;
+    }
+
+    public BigDecimal getStartingPrice() {
+        return startingPrice;
+    }
+
+    public void setStartingPrice(BigDecimal startingPrice) {
+        this.startingPrice = startingPrice;
+    }
+
+    public BigDecimal getStepPrice() {
+        return stepPrice;
+    }
+
+    public void setStepPrice(BigDecimal stepPrice) {
+        this.stepPrice = stepPrice;
     }
 }

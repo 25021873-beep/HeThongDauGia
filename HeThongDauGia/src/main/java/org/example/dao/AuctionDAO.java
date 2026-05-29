@@ -16,15 +16,17 @@ import static org.example.dao.item.ItemFactory.createItem;
 public class AuctionDAO {
 
     public int createAuction(Auction auction) {
-        String sql = "INSERT INTO auctions (item_id, start_time, end_time, current_price, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO auctions (item_id, current_price, starting_price, step_price, start_time, end_time, status, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setInt(1, auction.getItemId());
-            pstmt.setObject(2, auction.getStartTime());
-            pstmt.setObject(3, auction.getEndTime());
-            pstmt.setBigDecimal(4, auction.getCurrentPrice());
-            pstmt.setString(5, auction.getStatus());
-            pstmt.setInt(6, auction.getSellerId());
+            pstmt.setObject(5, auction.getStartTime());
+            pstmt.setObject(6, auction.getEndTime());
+            pstmt.setBigDecimal(2, auction.getCurrentPrice());
+            pstmt.setString(7, auction.getStatus());
+            pstmt.setInt(8, auction.getSellerId());
+            pstmt.setBigDecimal(3,auction.getStartingPrice());
+            pstmt.setBigDecimal(4,auction.getStepPrice());
 
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
@@ -248,6 +250,8 @@ public class AuctionDAO {
         auction.setWinnerId(rs.getInt("winner_id"));
         auction.setItem(createItem(rs, "item_"));
         auction.setSellerId(rs.getInt("seller_id"));
+        auction.setStartingPrice(rs.getBigDecimal("starting_price"));
+        auction.setStepPrice(rs.getBigDecimal("step_price"));
         return auction;
     }
 }
