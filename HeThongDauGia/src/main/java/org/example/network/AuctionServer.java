@@ -113,9 +113,6 @@ public class AuctionServer {
         // 3. Dừng auto-bid executor
         autoBidService.shutdown();
 
-        // 4. Đóng DB
-        DatabaseConnection.getInstance().close();
-
         System.out.println("[SERVER] Server da tat hoan toan");
     }
 }
