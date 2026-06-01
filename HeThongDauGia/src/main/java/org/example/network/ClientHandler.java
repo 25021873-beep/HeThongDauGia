@@ -43,8 +43,11 @@ public class ClientHandler implements Runnable, BidObserver {
         this.auctionService = auctionService;
         this.autoBidService = autoBidService;
 
-        // Cấu hình Gson để xử lý định dạng thời gian thực
+        // Cấu hình Gson để xử lý định dạng thời gian thực (Cả Đọc và Ghi)
         this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class,
+                        (com.google.gson.JsonSerializer<LocalDateTime>) (src, type, ctx) ->
+                                new com.google.gson.JsonPrimitive(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
                 .registerTypeAdapter(LocalDateTime.class,
                         (JsonDeserializer<LocalDateTime>) (json, type, ctx) ->
                                 LocalDateTime.parse(json.getAsString(),
@@ -139,7 +142,12 @@ public class ClientHandler implements Runnable, BidObserver {
 
                 } catch (JsonSyntaxException | IllegalStateException e) {
                     session.send(SimpleResponse.error("Dinh dang JSON khong hop le"));
-                }
+                } catch (Exception e) { // <--- THÊM TỪ ĐOẠN NÀY
+                session.send(SimpleResponse.error(e.getMessage()));
+                System.err.println("[NETWORK] Loi xu ly request: " + e.getMessage()
+                        + " | Nguyen nhan goc: " + rootCauseMessage(e));
+                e.printStackTrace();
+            }
             }
 
         } catch (IOException e) {
@@ -168,5 +176,13 @@ public class ClientHandler implements Runnable, BidObserver {
 
     public String getUsername() {
         return "Client@" + clientSocket.getInetAddress().getHostAddress();
+    }
+
+    private String rootCauseMessage(Throwable throwable) {
+        Throwable current = throwable;
+        while (current.getCause() != null) {
+            current = current.getCause();
+        }
+        return current.getMessage();
     }
 }

@@ -47,7 +47,7 @@ public class RobustAuctionServer {
                 try {
                     Socket clientSocket = serverSocket.accept();
                     System.out.println("[SERVER] Client ket noi: " + clientSocket.getInetAddress());
-                    clientPool.submit(new RobustClientHandler(
+                    clientPool.submit(new ClientHandler(
                             clientSocket, engine, userService, auctionService, autoBidService));
                 } catch (IOException e) {
                     if (running) {
