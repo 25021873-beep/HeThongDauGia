@@ -72,9 +72,10 @@ CREATE TABLE Auto_Bidding (
     auction_id INT NOT NULL,
     bidder_id INT NOT NULL,
     maxBid DECIMAL(15,2) NOT NULL,
-    increment DECIMAL(15,2) NOT NULL,
+    `increment` DECIMAL(15,2) NOT NULL,
     createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
     status ENUM('ACTIVE', 'INACTIVE', 'EXHAUSTED') DEFAULT 'ACTIVE',
+    UNIQUE KEY uk_auction_bidder (auction_id, bidder_id),
     CONSTRAINT FK_AutoBid_Auction FOREIGN KEY (auction_id) REFERENCES Auctions(id) ON DELETE CASCADE,
     CONSTRAINT FK_AutoBid_User FOREIGN KEY (bidder_id) REFERENCES Users(id) ON DELETE CASCADE,
     INDEX idx_active_bids (auction_id, status, createdAt)

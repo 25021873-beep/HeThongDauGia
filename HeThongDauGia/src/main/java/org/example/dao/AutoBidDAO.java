@@ -18,12 +18,12 @@ public class AutoBidDAO {
     // Hàm lưu config mới hoặc cập nhật nếu đã tồn tại
     public void saveOrUpdate(AutoBidConfig config) {
         String sql = """
-                INSERT INTO Auto_Bidding (auction_id, bidder_id, maxBid, increment, createdAt, status)
+                INSERT INTO Auto_Bidding (auction_id, bidder_id, maxBid, `increment`, createdAt, status)
                 VALUES (?, ?, ?, ?, ?, 'ACTIVE')
                 ON DUPLICATE KEY UPDATE
-                    maxBid    = VALUES(maxBid),
-                    increment = VALUES(increment),
-                    status    = 'ACTIVE'
+                    maxBid      = VALUES(maxBid),
+                    `increment` = VALUES(`increment`),
+                    status      = 'ACTIVE'
                 """;
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
