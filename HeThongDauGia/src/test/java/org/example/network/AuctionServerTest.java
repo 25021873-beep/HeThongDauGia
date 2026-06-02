@@ -1,17 +1,31 @@
 package org.example.network;
 
-import org.example.service.AuctionEngine;
-import org.example.service.AuctionService;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.io.IOException;
+import java.net.Socket;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 class AuctionServerTest {
 
     @Test
-    void constructorDoesNotOpenPort() {
-        AuctionEngine engine = AuctionEngine.getInstance();
+    void testServerStartAndConnect() throws InterruptedException {
+        AuctionServer server = new AuctionServer(9999, null, null, null, null);
+        new Thread(server::start).start();
 
-        assertDoesNotThrow(() -> new AuctionServer(0, engine));
+        Thread.sleep(500);
+
+        try (Socket testSocket = new Socket("localhost", 9999)) {
+            assertTrue(testSocket.isConnected(), "Cam cap phai thong!");
+        } catch (IOException e) {
+            fail("Server sap cmnr deo ket noi duoc: " + e.getMessage());
+        } finally {
+            try {
+                server.shutdown();
+            } catch (NullPointerException e) {
+            }
+        }
     }
 }
