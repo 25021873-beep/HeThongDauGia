@@ -4,8 +4,6 @@ import org.example.service.AuctionEngine;
 import org.example.service.AuctionService;
 import org.example.service.AutoBidService;
 import org.example.service.UserService;
-import org.example.utils.ConfigManager;
-import org.example.utils.DatabaseConnection;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -21,7 +19,7 @@ public class AuctionServer {
     private final AutoBidService autoBidService;
     private final UserService userService;
 
-    private final ExecutorService clientPool;
+    private final ExecutorService clientPool = Executors.newFixedThreadPool(50);
 
     private ServerSocket serverSocket;
     private volatile boolean running = false;
@@ -35,9 +33,6 @@ public class AuctionServer {
         this.auctionService = auctionService;
         this.autoBidService = autoBidService;
         this.userService = userService;
-        int maxThreads = ConfigManager.getInstance().getInt("server.max_threads", 100);
-        this.clientPool = Executors.newFixedThreadPool(maxThreads);
-        System.out.println("[SERVER] So luong client thread toi da: " + maxThreads);
     }
 
     public void start() {
@@ -91,7 +86,6 @@ public class AuctionServer {
         }
 
         autoBidService.shutdown();
-        DatabaseConnection.shutdownPool();
         System.out.println("[SERVER] Server da tat hoan toan");
     }
 }

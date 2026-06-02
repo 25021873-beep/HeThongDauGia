@@ -30,7 +30,7 @@ public class ConnectionManager {
 
     private static ConnectionManager instance;
     private static final String DEFAULT_HOST =
-            ConfigManager.getInstance().getString("client.server.host", "26.139.15.134");
+            ConfigManager.getInstance().getString("client.server.host", "104.214.169.224");
     private static final int DEFAULT_PORT =
             ConfigManager.getInstance().getInt("client.server.port", 8888);
     private static final int CONNECT_TIMEOUT = 5000; // 5 giây

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 public class SocketClient {
 
     private static final String HOST = "172.16.66.216";
-    private static final int PORT = 9999;
+    private static final int PORT = 8888;
 
     private static SocketClient instance;
 
