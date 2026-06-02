@@ -169,6 +169,41 @@
     -fx-border-color: #F57D1F;
 }
 
+.combo-box .list-cell {
+    -fx-text-fill: #EEEEEE;
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .arrow-button .arrow {
+    -fx-background-color: #CCCCCC;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: rgba(30,30,30,0.95);
+    -fx-border-color: rgba(245,125,31,0.3);
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-text-fill: #EEEEEE;
+    -fx-background-color: transparent;
+    -fx-padding: 6 12;
+}
+
+.combo-box-popup .list-view .list-cell:hover {
+    -fx-background-color: rgba(245,125,31,0.2);
+}
+
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: rgba(245,125,31,0.35);
+    -fx-text-fill: #FCBF49;
+}
+
 /* === TABLE VIEW === */
 .table-view {
     -fx-background-color: rgba(30,30,30,0.7);
