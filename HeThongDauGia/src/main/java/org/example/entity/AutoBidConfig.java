@@ -17,7 +17,6 @@ public class AutoBidConfig extends BaseEntity{
         this.auctionId = auctionId;
         this.bidderId = bidderId;
         this.maxBid = maxBid;
-        String sql = "UPDATE auto_bids SET is_active = FALSE WHERE id = ?";
         this.increment = increment;
         this.createdAt = createdAt;
         this.active = active;

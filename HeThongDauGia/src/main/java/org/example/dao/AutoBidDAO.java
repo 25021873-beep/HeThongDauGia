@@ -18,12 +18,12 @@ public class AutoBidDAO {
     // Hàm lưu config mới hoặc cập nhật nếu đã tồn tại
     public void saveOrUpdate(AutoBidConfig config) {
         String sql = """
-                INSERT INTO auto_bid_config (auction_id, bidder_id, max_bid, increment, created_at, is_active)
-                VALUES (?, ?, ?, ?, ?, TRUE)
+                INSERT INTO Auto_Bidding (auction_id, bidder_id, maxBid, increment, createdAt, status)
+                VALUES (?, ?, ?, ?, ?, 'ACTIVE')
                 ON DUPLICATE KEY UPDATE
-                    max_bid   = VALUES(max_bid),
+                    maxBid    = VALUES(maxBid),
                     increment = VALUES(increment),
-                    is_active = TRUE
+                    status    = 'ACTIVE'
                 """;
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -42,9 +42,9 @@ public class AutoBidDAO {
     // Hàm lấy tất cả auto-bid đang active trong một phiên
     public List<AutoBidConfig> getActiveAutoBids(long auctionId) {
         String sql = """
-                SELECT * FROM auto_bid_config
-                WHERE auction_id = ? AND is_active = TRUE
-                ORDER BY created_at ASC
+                SELECT * FROM Auto_Bidding
+                WHERE auction_id = ? AND status = 'ACTIVE'
+                ORDER BY createdAt ASC
                 """;
 
         List<AutoBidConfig> result = new ArrayList<>();
@@ -63,8 +63,8 @@ public class AutoBidDAO {
     // Hàm vô hiệu hóa auto-bid của 1 người khi họ đã thắng hoặc vượt maxBid
     public void deactivate(long auctionId, long bidderId) {
         String sql = """
-                UPDATE auto_bid_config
-                SET is_active = FALSE
+                UPDATE Auto_Bidding
+                SET status = 'INACTIVE'
                 WHERE auction_id = ? AND bidder_id = ?
                 """;
 
@@ -84,10 +84,10 @@ public class AutoBidDAO {
         config.setId(rs.getInt("id"));
         config.setAuctionId(rs.getInt("auction_id"));
         config.setBidderId(rs.getInt("bidder_id"));
-        config.setMaxBid(rs.getBigDecimal("max_bid"));
+        config.setMaxBid(rs.getBigDecimal("maxBid"));
         config.setIncrement(rs.getBigDecimal("increment"));
-        config.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        config.setActive(rs.getBoolean("is_active"));
+        config.setCreatedAt(rs.getTimestamp("createdAt").toLocalDateTime());
+        config.setActive("ACTIVE".equals(rs.getString("status")));
         return config;
     }
 }
