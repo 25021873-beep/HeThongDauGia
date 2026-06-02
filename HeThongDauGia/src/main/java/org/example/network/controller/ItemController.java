@@ -111,6 +111,7 @@ public class ItemController {
             
             java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
             JsonArray itemsArray = new JsonArray();
+            LocalDateTime now = LocalDateTime.now();
             for (org.example.entity.Auction auction : auctions) {
                 Item item = auction.getItem();
                 JsonObject itemJson = new JsonObject();
@@ -119,8 +120,29 @@ public class ItemController {
                 itemJson.addProperty("description", item.getDescription());
                 itemJson.addProperty("status", item.getStatus()); // item status (AVAILABLE, IN_AUCTION, SOLD)
                 
-                // Thuộc tính mới từ bảng auctions
-                itemJson.addProperty("auction_status", auction.getStatus()); // OPEN, RUNNING, FINISHED, CANCELED
+                // Kiểm tra trạng thái thực tế dựa trên thời gian
+                String rawStatus = auction.getStatus();
+                if (("RUNNING".equals(rawStatus) || "OPEN".equals(rawStatus))
+                        && auction.getEndTime() != null && now.isAfter(auction.getEndTime())) {
+                    rawStatus = "FINISHED"; // Phiên đã hết giờ nhưng DB chưa cập nhật
+                }
+                if ("OPEN".equals(rawStatus) && auction.getStartTime() != null 
+                        && !now.isBefore(auction.getStartTime())) {
+                    rawStatus = "RUNNING"; // Phiên đã đến giờ bắt đầu
+                }
+                
+                // Chuyển đổi sang tiếng Việt
+                String displayStatus;
+                switch (rawStatus) {
+                    case "RUNNING":  displayStatus = "Đang diễn ra"; break;
+                    case "OPEN":     displayStatus = "Sắp bắt đầu"; break;
+                    case "FINISHED": displayStatus = "Đã kết thúc"; break;
+                    case "CANCELED": displayStatus = "Đã hủy"; break;
+                    case "PAID":     displayStatus = "Đã thanh toán"; break;
+                    default:         displayStatus = rawStatus; break;
+                }
+                
+                itemJson.addProperty("auction_status", displayStatus);
                 itemJson.addProperty("start_time", auction.getStartTime().format(formatter));
                 itemJson.addProperty("end_time", auction.getEndTime().format(formatter));
                 itemJson.addProperty("startingPrice", auction.getStartingPrice()); // Thêm giá khởi điểm

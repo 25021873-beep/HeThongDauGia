@@ -225,7 +225,7 @@ public class AuctionDetailController {
             } else {
                 countdownTimeline.stop();
                 lblCountdown.setText("⏱ HẾT GIỜ");
-                lblStatus.setText("🔴 FINISHED");
+                lblStatus.setText("🔴 Đã kết thúc");
                 lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #888888;");
                 btnPlaceBid.setDisable(true);
                 btnAutoBid.setDisable(true);
@@ -271,7 +271,7 @@ public class AuctionDetailController {
                 
                 if (countdownTimeline != null) countdownTimeline.stop();
                 lblCountdown.setText("⏱ HẾT GIỜ");
-                lblStatus.setText("🔴 FINISHED");
+                lblStatus.setText("🔴 Đã kết thúc");
                 currentLeader = winner + " (Chiến thắng)";
                 currentPrice = finalPrice;
                 updatePriceDisplay();
@@ -341,9 +341,9 @@ public class AuctionDetailController {
     private void handleAutoBid() {
         if (autoBidEnabled) { // Client-side disable toggle, server might need a DISABLE_AUTO_BID command, but SET_AUTO_BID with 0 or negative can handle it? Wait, let's just toggle locally and not send anything if backend doesn't support disabling. Backend deactivate autobid on invalid bid.
             autoBidEnabled = false;
-            btnAutoBid.setText("⚡ Bật Auto-Bid");
+            btnAutoBid.setText("⚡ Bật tự động đấu");
             btnAutoBid.setStyle("-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
-            showAlert(Alert.AlertType.INFORMATION, "Auto-Bid", "Đã tắt Auto-Bid cục bộ.");
+            showAlert(Alert.AlertType.INFORMATION, "Tự động đấu giá", "Đã tắt chế độ tự động đấu giá.");
             return;
         }
 
@@ -372,12 +372,12 @@ public class AuctionDetailController {
                     Platform.runLater(() -> {
                         if (ServerClient.isSuccess(res)) {
                             autoBidEnabled = true;
-                            btnAutoBid.setText("🛑 Tắt Auto-Bid");
+                            btnAutoBid.setText("🛑 Tắt tự động đấu");
                             btnAutoBid.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
-                            showAlert(Alert.AlertType.INFORMATION, "Auto-Bid",
-                                    String.format("Đã bật Auto-Bid!\nGiá tối đa: %,.0f VNĐ\nBước giá: %,.0f VNĐ", maxBid, increment));
+                            showAlert(Alert.AlertType.INFORMATION, "Tự động đấu giá",
+                                    String.format("Đã bật tự động đấu giá!\nGiá tối đa: %,.0f VNĐ\nBước giá: %,.0f VNĐ", maxBid, increment));
                         } else {
-                            showAlert(Alert.AlertType.ERROR, "Lỗi Auto-Bid", ServerClient.messageOf(res));
+                            showAlert(Alert.AlertType.ERROR, "Lỗi tự động đấu", ServerClient.messageOf(res));
                         }
                     });
                 } catch (IOException e) {

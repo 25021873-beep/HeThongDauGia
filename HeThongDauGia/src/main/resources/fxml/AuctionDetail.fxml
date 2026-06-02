@@ -42,11 +42,11 @@
                                         <!-- Countdown Box -->
                                         <VBox fx:id="countdownBox" spacing="8.0" alignment="CENTER" minWidth="200.0"
                                               style="-fx-background-color: #1A1A1A; -fx-background-radius: 12; -fx-padding: 18;">
-                                            <Label fx:id="lblStatus" text="🟢 RUNNING" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2E8B57;"/>
+                                            <Label fx:id="lblStatus" text="🟢 Đang diễn ra" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2E8B57;"/>
                                             <Label fx:id="lblCountdown" text="⏱ 00:15:30" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #FCBF49;"/>
                                             <Label text="Thời gian còn lại" style="-fx-text-fill: #888888; -fx-font-size: 12px;"/>
                                             <!-- Anti-sniping UI additions -->
-                                            <Label fx:id="lblAntiSniping" text="🛡 Anti-Sniping: Bật (Gia hạn nếu bid &lt; 1p)" style="-fx-text-fill: #00BFFF; -fx-font-size: 11px;"/>
+                                            <Label fx:id="lblAntiSniping" text="🛡 Chống cượp giây: Bật (Gia hạn nếu đặt giá &lt; 1p)" style="-fx-text-fill: #00BFFF; -fx-font-size: 11px;"/>
                                             <Label fx:id="lblTimeExtended" text="+60s Gia hạn!" visible="false" managed="false" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FF4500;"/>
                                         </VBox>
                                     </children>
@@ -89,12 +89,12 @@
                                         <Insets bottom="20.0" left="24.0" right="24.0" top="20.0"/>
                                     </padding>
                                     <children>
-                                        <Label text="🤖 Auto-Bid" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F57D1F;"/>
+                                        <Label text="🤖 Tự động đấu giá" style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #F57D1F;"/>
                                         <Label text="Giá tối đa:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                         <TextField fx:id="txtMaxBid" promptText="Giá tối đa (VNĐ)"/>
                                         <Label text="Bước giá:" style="-fx-font-weight: bold; -fx-text-fill: #CCCCCC;"/>
                                         <TextField fx:id="txtIncrement" promptText="Bước nhảy (VNĐ)"/>
-                                        <Button fx:id="btnAutoBid" onAction="#handleAutoBid" text="⚡ Bật Auto-Bid"
+                                        <Button fx:id="btnAutoBid" onAction="#handleAutoBid" text="⚡ Bật tự động đấu"
                                                 style="-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;"
                                                 maxWidth="Infinity">
                                             <padding>
