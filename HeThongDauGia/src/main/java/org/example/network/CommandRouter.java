@@ -14,7 +14,7 @@ public class CommandRouter {
     private final AuctionController  auctionController;
     private final BidController      bidController;
     private final UserController     userController;
-    private final ItemController     itemController; // Đã thêm ItemController
+    private final ItemController     itemController;
 
     // Giữ lại 1 Constructor đầy đủ nhất
     public CommandRouter(SessionContext session,
@@ -48,7 +48,7 @@ public class CommandRouter {
 
             case "LOGOUT":
                 authController.handleLogout();
-                return true; // Tín hiệu ClientHandler thoát vòng lặp
+                return true;
 
             case "CHANGE_PASSWORD":
                 authController.handleChangePassword(json);

@@ -49,6 +49,7 @@ public class UserController {
             session.send(SimpleResponse.error("Nap tien that bai"));
         }
     }
+
     public void handleGetAllUsers() {
         if (!session.requireLogin()) return;
 
@@ -61,11 +62,10 @@ public class UserController {
             for (User u : users) {
                 JsonObject obj = new JsonObject();
                 obj.addProperty("username", u.getUsername());
-                // Chú ý: CSDL hiện tại chưa có fullname nên tạm thời dùng username hoặc mock name
-                obj.addProperty("fullName", u.getUsername()); 
+                obj.addProperty("fullName", u.getUsername());
                 obj.addProperty("email", u.getEmail());
                 obj.addProperty("role", u.getRole());
-                obj.addProperty("status", "Hoạt động"); // Tạm thời mặc định là hoạt động vì db chưa có trường trạng thái block
+                obj.addProperty("status", "Hoạt động");
                 usersArray.add(obj);
             }
             response.add("users", usersArray);
