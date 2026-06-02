@@ -140,7 +140,7 @@ public class DashboardController {
         lblName.setMaxHeight(40);
 
         // status
-        Label lblStatus = new Label("RUNNING".equals(status) ? "🟢 Đang diễn ra" : ("OPEN".equals(status) ? "🟡 Sắp bắt đầu" : "🔴 Đã kết thúc"));
+        Label lblStatus = new Label("RUNNING".equals(status) ? "● Đang diễn ra" : ("OPEN".equals(status) ? "● Sắp bắt đầu" : "● Đã kết thúc"));
         lblStatus.setTextFill("RUNNING".equals(status) ? Color.web("#2E8B57") : ("OPEN".equals(status) ? Color.web("#F57D1F") : Color.web("#888888")));
         lblStatus.setFont(Font.font("System", FontWeight.BOLD, 12));
 

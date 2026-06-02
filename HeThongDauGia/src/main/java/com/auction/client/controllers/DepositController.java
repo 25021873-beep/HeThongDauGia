@@ -26,8 +26,13 @@ public class DepositController {
     }
 
     @FXML
+    public void initialize() {
+        MoneyFieldFormatter.apply(txtAmount);
+    }
+
+    @FXML
     private void handleDeposit(ActionEvent event) {
-        String amountText = txtAmount.getText().trim();
+        String amountText = MoneyFieldFormatter.getRawValue(txtAmount);
         if (amountText.isEmpty()) {
             showAlert("Lỗi", "Vui lòng nhập số tiền cần nạp.");
             return;

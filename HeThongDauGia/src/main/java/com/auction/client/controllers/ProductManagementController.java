@@ -46,6 +46,10 @@ public class ProductManagementController {
         productData = FXCollections.observableArrayList();
         tableProducts.setItems(productData);
 
+        // Tự động format số tiền với dấu phẩy
+        MoneyFieldFormatter.apply(txtStartPrice);
+        MoneyFieldFormatter.apply(txtStepPrice);
+
         // Gọi API lấy danh sách sản phẩm của Seller
         loadSellerProducts();
     }
@@ -101,8 +105,8 @@ public class ProductManagementController {
         String name = txtProductName.getText().trim();
         String category = cboCategory.getValue();
         String description = txtDescription.getText().trim();
-        String priceText = txtStartPrice.getText().trim();
-        String stepPriceText = txtStepPrice.getText().trim();
+        String priceText = MoneyFieldFormatter.getRawValue(txtStartPrice);
+        String stepPriceText = MoneyFieldFormatter.getRawValue(txtStepPrice);
 
         String startTimeText = txtStartTime.getText().trim();
         String endTimeText = txtEndTime.getText().trim();

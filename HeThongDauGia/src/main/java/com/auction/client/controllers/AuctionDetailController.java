@@ -41,6 +41,7 @@ public class AuctionDetailController {
     @FXML private Label lblCountdown;
     @FXML private Label lblCurrentPrice;
     @FXML private Label lblLeader;
+    @FXML private Label lblStepPrice;
 
     @FXML private VBox countdownBox;
     @FXML private Label lblAntiSniping;
@@ -83,6 +84,11 @@ public class AuctionDetailController {
         tableBids.setItems(bidData);
         setupPriceChart();
 
+        // Tự động format số tiền với dấu phẩy
+        MoneyFieldFormatter.apply(txtBidAmount);
+        MoneyFieldFormatter.apply(txtMaxBid);
+        MoneyFieldFormatter.apply(txtIncrement);
+
         // Lắng nghe sự kiện realtime từ server
         ConnectionManager.getInstance().setOnPushMessage(this::handlePushMessage);
     }
@@ -122,7 +128,7 @@ public class AuctionDetailController {
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
                         String status = res.has("auctionStatus") ? res.get("auctionStatus").getAsString() : "OPEN";
-                        lblStatus.setText("RUNNING".equals(status) ? "🟢 Đang diễn ra" : ("OPEN".equals(status) ? "🟡 Sắp bắt đầu" : "🔴 Đã kết thúc"));
+                        lblStatus.setText("RUNNING".equals(status) ? "● Đang diễn ra" : ("OPEN".equals(status) ? "● Sắp bắt đầu" : "● Đã kết thúc"));
                         if (res.has("endTime")) {
                             String endTimeStr = res.get("endTime").getAsString();
                             this.endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -150,6 +156,10 @@ public class AuctionDetailController {
                     if (ServerClient.isSuccess(res)) {
                         if (res.has("description")) lblDescription.setText(res.get("description").getAsString());
                         if (res.has("itemType")) lblCategory.setText("Danh mục: " + res.get("itemType").getAsString());
+                        if (res.has("stepPrice") && lblStepPrice != null) {
+                            double step = res.get("stepPrice").getAsDouble();
+                            lblStepPrice.setText("Bước giá tối thiểu: " + String.format("%,.0f VNĐ", step));
+                        }
                     }
                 });
             } catch (IOException e) {
@@ -225,7 +235,7 @@ public class AuctionDetailController {
             } else {
                 countdownTimeline.stop();
                 lblCountdown.setText("⏱ HẾT GIỜ");
-                lblStatus.setText("🔴 Đã kết thúc");
+                lblStatus.setText("● Đã kết thúc");
                 lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #888888;");
                 btnPlaceBid.setDisable(true);
                 btnAutoBid.setDisable(true);
@@ -271,7 +281,7 @@ public class AuctionDetailController {
                 
                 if (countdownTimeline != null) countdownTimeline.stop();
                 lblCountdown.setText("⏱ HẾT GIỜ");
-                lblStatus.setText("🔴 Đã kết thúc");
+                lblStatus.setText("● Đã kết thúc");
                 currentLeader = winner + " (Chiến thắng)";
                 currentPrice = finalPrice;
                 updatePriceDisplay();
@@ -284,7 +294,7 @@ public class AuctionDetailController {
                 break;
                 
             case "AUCTION_STARTED":
-                lblStatus.setText("🟢 Đang diễn ra");
+                lblStatus.setText("● Đang diễn ra");
                 break;
         }
     }
@@ -295,7 +305,7 @@ public class AuctionDetailController {
 
     @FXML
     private void handlePlaceBid() {
-        String bidText = txtBidAmount.getText().trim();
+        String bidText = MoneyFieldFormatter.getRawValue(txtBidAmount);
         if (bidText.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng nhập giá đấu!");
             return;
@@ -347,8 +357,8 @@ public class AuctionDetailController {
             return;
         }
 
-        String maxBidText = txtMaxBid.getText().trim();
-        String incrementText = txtIncrement.getText().trim();
+        String maxBidText = MoneyFieldFormatter.getRawValue(txtMaxBid);
+        String incrementText = MoneyFieldFormatter.getRawValue(txtIncrement);
 
         if (maxBidText.isEmpty() || incrementText.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng nhập giá tối đa và bước giá!");
