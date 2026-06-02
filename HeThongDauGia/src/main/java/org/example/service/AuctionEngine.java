@@ -56,10 +56,23 @@ public class AuctionEngine {
 
         List<Auction> running = auctionDAO.getActiveAuctions();
         if (running != null && !running.isEmpty()) {
-            activeAuctions.addAll(running);
-            // Khởi tạo phòng cho các phiên đang chạy
+            LocalDateTime now = LocalDateTime.now();
             for (Auction a : running) {
-                roomManager.getOrCreateRoom(a);
+                // Phiên đã quá hạn nhưng DB vẫn RUNNING/OPEN → đóng ngay
+                if (a.getEndTime() != null && now.isAfter(a.getEndTime())) {
+                    System.out.println("[ENGINE] Phien ID " + a.getId() + " da qua han, dang dong...");
+                    if (auctionService != null) {
+                        boolean closed = auctionService.closeAuction(a.getId());
+                        if (closed) {
+                            System.out.println("[ENGINE] Da dong phien qua han ID " + a.getId());
+                        } else {
+                            System.err.println("[ENGINE] Khong the dong phien qua han ID " + a.getId());
+                        }
+                    }
+                } else {
+                    activeAuctions.add(a);
+                    roomManager.getOrCreateRoom(a);
+                }
             }
         }
         System.out.println("[ENGINE] Da nap " + activeAuctions.size() + " phien dang chay.");

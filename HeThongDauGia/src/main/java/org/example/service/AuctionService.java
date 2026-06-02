@@ -274,8 +274,8 @@ public class AuctionService {
             Auction auction = auctionDAO.getAuctionById(auctionId);
             if (auction == null)
                 throw new AuctionNotFoundException("Loi: Khong ton tai auction");
-            if (!AuctionEngine.STATUS_OPEN.equals(auction.getStatus()))
-                throw new AuctionClosedException("Loi: Auction hien dang khong mo");
+            if (!"RUNNING".equals(auction.getStatus()) && !"OPEN".equals(auction.getStatus()))
+                throw new AuctionClosedException("Loi: Auction da ket thuc hoac bi huy");
 
             BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
             if (highestBid != null) {
