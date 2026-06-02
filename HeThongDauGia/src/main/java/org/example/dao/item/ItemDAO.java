@@ -15,7 +15,6 @@ public class ItemDAO {
 
     // Thêm/Đăng bán sản phẩm mới
     public int addItem(Item item) {
-            // Tọng cả 4 cột dữ liệu đặc thù vào chung 1 lệnh INSERT
             String sql = "INSERT INTO items (name, description, seller_id, status, item_type, warranty_months, author, engine_type) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 

@@ -3,7 +3,7 @@ package org.example;
 import org.example.dao.AuctionDAO;
 import org.example.dao.AutoBidDAO;
 import org.example.dao.user.UserDAO;
-import org.example.network.RobustAuctionServer;
+import org.example.network.AuctionServer;
 import org.example.service.AuctionEngine;
 import org.example.service.AuctionService;
 import org.example.service.AutoBidService;
@@ -29,6 +29,6 @@ public class ServerMain {
         engine.setAuctionService(auctionService);
         engine.startEngine();
 
-        new RobustAuctionServer(port, engine, auctionService, autoBidService, userService).start();
+        new AuctionServer(port, engine, auctionService, autoBidService, userService).start();
     }
 }

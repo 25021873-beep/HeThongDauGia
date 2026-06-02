@@ -111,8 +111,6 @@ public class ClientHandler implements Runnable, BidObserver {
             AuctionController auction  = new AuctionController(session, engine, auctionService, this, gson);
             BidController     bid      = new BidController(session, engine, auctionService, this, gson);
             UserController    user     = new UserController(session, userService, gson);
-
-            // Khởi tạo ItemController phục vụ thêm/xóa đồ đấu giá
             ItemController    itemCtrl = new ItemController(session, ItemService.getInstance(), gson);
 
             // 2. Gắn AutoBidService vào BidController (Sử dụng service đã tiêm từ Server, không new mới)
