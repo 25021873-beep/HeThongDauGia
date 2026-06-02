@@ -9,7 +9,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 public class SocketConsoleClient {
-    private static final String HOST = "127.0.0.1";
+    private static final String HOST = "104.214.169.224";
     private static final int PORT = 8888;
 
     public static void main(String[] args) throws IOException {
