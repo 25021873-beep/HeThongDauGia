@@ -123,6 +123,7 @@ public class ItemController {
                 itemJson.addProperty("auction_status", auction.getStatus()); // OPEN, RUNNING, FINISHED, CANCELED
                 itemJson.addProperty("start_time", auction.getStartTime().format(formatter));
                 itemJson.addProperty("end_time", auction.getEndTime().format(formatter));
+                itemJson.addProperty("startingPrice", auction.getStartingPrice()); // Thêm giá khởi điểm
                 
                 if (item instanceof Electronics) itemJson.addProperty("itemType", "Điện tử");
                 else if (item instanceof Art) itemJson.addProperty("itemType", "Nghệ thuật");

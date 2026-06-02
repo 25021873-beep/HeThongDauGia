@@ -18,15 +18,17 @@ class AuctionEngineTest {
 
         // Bơm đủ 9 tham số, đút luôn 7, STATUS_OPEN và testItem() vào đây
         Auction auction = new Auction(
-                7,                                  // id: Nhét số 7 vào đây luôn
+                7,                                  // id
                 3,                                  // itemId
                 BigDecimal.TEN,                     // currentPrice
+                BigDecimal.TEN,                     // startingPrice
+                BigDecimal.ONE,                     // stepPrice
                 LocalDateTime.now(),                // startTime
                 LocalDateTime.now().plusMinutes(5), // endTime
                 AuctionEngine.STATUS_OPEN,          // status
-                1,                                  // sellerId: Dummy data
-                0,                                  // winnerId: Dummy data
-                testItem()                          // item: Gọi luôn hàm testItem()
+                1,                                  // sellerId
+                0,                                  // winnerId
+                testItem()                          // item
         );
 
         // Mấy dòng auction.setId(), setStatus(), setItem() cũ xóa hết đi vì đã truyền ở trên rồi

@@ -61,13 +61,15 @@ public class BidHistoryDAO {
         return queryList(sql, auctionId);
     }
 
-    // Hàm lấy lịch sử đấu giá của một user cụ thể
+    // Hàm lấy lịch sử đấu giá của một user cụ thể (chỉ lần bid gần nhất mỗi phiên)
     public com.google.gson.JsonArray getUserBidHistory(long bidderId) {
         String sql = "SELECT i.name AS product_name, bh.price, bh.bid_time, a.status, a.winner_id " +
                      "FROM bid_history bh " +
                      "JOIN auctions a ON bh.auction_id = a.id " +
                      "JOIN items i ON a.item_id = i.id " +
                      "WHERE bh.bidder_id = ? " +
+                     "AND bh.id = (SELECT MAX(bh2.id) FROM bid_history bh2 " +
+                     "             WHERE bh2.auction_id = bh.auction_id AND bh2.bidder_id = bh.bidder_id) " +
                      "ORDER BY bh.bid_time DESC";
                      
         com.google.gson.JsonArray array = new com.google.gson.JsonArray();

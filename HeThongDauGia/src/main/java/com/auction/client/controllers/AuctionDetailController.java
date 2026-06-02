@@ -174,7 +174,7 @@ public class AuctionDetailController {
                         priceSeries.getData().clear();
                         JsonArray history = res.getAsJsonArray("history");
                         
-                        for (int i = history.size() - 1; i >= 0; i--) {
+                        for (int i = 0; i < history.size(); i++) {
                             JsonObject point = history.get(i).getAsJsonObject();
                             String bidder = point.get("bidderUsername").getAsString();
                             double price = point.get("price").getAsDouble();
