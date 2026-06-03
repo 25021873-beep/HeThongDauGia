@@ -15,20 +15,20 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<StackPane fx:id="rootPane" prefHeight="768.0" prefWidth="1366.0" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.MainController">
+<StackPane fx:id="rootPane" xmlns="http://javafx.com/javafx/17.0.6" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.auction.client.controllers.MainController">
 
     <!-- Layer 1: Gradient background -->
     <Region style="-fx-background-color: linear-gradient(to bottom right, #0D0D0D, #1A1000, #2B1400, #1A0A00, #0D0D0D);"/>
 
     <!-- Layer 2: Background image texture -->
-    <ImageView fx:id="bgTexture" fitHeight="768.0" fitWidth="1366.0" opacity="0.06" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
+    <ImageView fx:id="bgTexture" opacity="0.06" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
         <image>
             <Image url="@../images/360_F_203669387_m7IvXlkV0FQwA69Xpt8AwlAdO5Ih05Mc.jpg"/>
         </image>
     </ImageView>
 
     <!-- Layer 3: Geometric pattern overlay -->
-    <ImageView fx:id="bgPattern" fitHeight="768.0" fitWidth="1366.0" opacity="0.03" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
+    <ImageView fx:id="bgPattern" opacity="0.03" pickOnBounds="true" mouseTransparent="true" preserveRatio="false">
         <image>
             <Image url="@../images/pattern.png"/>
         </image>

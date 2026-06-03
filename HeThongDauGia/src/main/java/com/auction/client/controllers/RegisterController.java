@@ -12,11 +12,17 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class RegisterController {
+
+    @FXML private StackPane rootPane;
+    @FXML private ImageView bgTexture;
+    @FXML private ImageView bgPattern;
 
     @FXML private TextField txtFullName;
     @FXML private TextField txtUsername;
@@ -29,6 +35,14 @@ public class RegisterController {
     public void initialize() {
         cboRole.setItems(FXCollections.observableArrayList("Bidder", "Seller"));
         cboRole.getSelectionModel().selectFirst();
+
+        // Bind background images to root pane size for fullscreen stretching
+        if (rootPane != null && bgTexture != null && bgPattern != null) {
+            bgTexture.fitWidthProperty().bind(rootPane.widthProperty());
+            bgTexture.fitHeightProperty().bind(rootPane.heightProperty());
+            bgPattern.fitWidthProperty().bind(rootPane.widthProperty());
+            bgPattern.fitHeightProperty().bind(rootPane.heightProperty());
+        }
     }
 
     @FXML
@@ -106,11 +120,9 @@ public class RegisterController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            // Swap root để giữ nguyên kích thước cửa sổ
+            stage.getScene().setRoot(root);
             stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
-            stage.setScene(scene);
-            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Lỗi hệ thống", "Không thể tải màn hình đăng nhập!");

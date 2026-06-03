@@ -13,18 +13,34 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class LoginController {
 
+    @FXML private StackPane rootPane;
+    @FXML private ImageView bgTexture;
+    @FXML private ImageView bgPattern;
 
     @FXML
     private TextField txtUsername;
 
     @FXML
     private PasswordField txtPassword;
+
+    @FXML
+    public void initialize() {
+        // Bind background images to root pane size for fullscreen stretching
+        if (rootPane != null && bgTexture != null && bgPattern != null) {
+            bgTexture.fitWidthProperty().bind(rootPane.widthProperty());
+            bgTexture.fitHeightProperty().bind(rootPane.heightProperty());
+            bgPattern.fitWidthProperty().bind(rootPane.widthProperty());
+            bgPattern.fitHeightProperty().bind(rootPane.heightProperty());
+        }
+    }
 
     @FXML
     public void handleLogin(ActionEvent event) {
@@ -94,14 +110,9 @@ public class LoginController {
             //lay stage tu button
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
 
-            // Tạo Scene mới với MainLayout và thiết lập lên Stage
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            // Swap root của Scene hiện tại để giữ nguyên kích thước cửa sổ
+            stage.getScene().setRoot(root);
             stage.setTitle("Hệ thống Đấu giá trực tuyến - " + role);
-            stage.setScene(scene);
-            stage.setResizable(true);
-            stage.centerOnScreen(); // Đưa cửa sổ ra giữa màn hình
-            stage.show();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -115,12 +126,9 @@ public class LoginController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/Register.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            // Swap root để giữ nguyên kích thước cửa sổ
+            stage.getScene().setRoot(root);
             stage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng ký");
-            stage.setScene(scene);
-            stage.centerOnScreen();
-            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Lỗi hệ thống", "Không thể tải màn hình đăng ký: " + e.getMessage());

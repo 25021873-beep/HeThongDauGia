@@ -106,13 +106,9 @@ public class ConnectedLoginController {
             mainController.configureSidebar(role);
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
+            // Swap root để giữ nguyên kích thước cửa sổ
+            stage.getScene().setRoot(root);
             stage.setTitle("He thong Dau gia - " + role);
-            stage.setScene(scene);
-            stage.setResizable(true);
-            stage.centerOnScreen();
-            stage.show();
         } catch (IOException e) {
             showAlert(Alert.AlertType.ERROR, "Loi giao dien", "Khong the tai MainLayout: " + e.getMessage());
         }

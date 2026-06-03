@@ -11,8 +11,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<StackPane prefHeight="460.0" prefWidth="680.0"
-           xmlns="http://javafx.com/javafx/17"
+<StackPane xmlns="http://javafx.com/javafx/17"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="com.auction.client.controllers.ConnectedLoginController">
     <Region style="-fx-background-color: linear-gradient(to bottom right, #151515, #2A1608, #141414);" />

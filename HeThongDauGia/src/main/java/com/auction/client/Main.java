@@ -15,13 +15,14 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/fxml/Login.fxml")));
 
         // Nhét bộ khung giao diện vào Scene
-        Scene scene = new Scene(root);
+        Scene scene = new Scene(root, 800, 600);
         scene.getStylesheets().add(getClass().getResource("/css/styles.css").toExternalForm());
 
         primaryStage.setTitle("Hệ thống Đấu giá trực tuyến - Đăng nhập");
         primaryStage.setScene(scene);
-        primaryStage.setResizable(false); // Khóa người dùng kéo giãn màn hình lung tung
+        primaryStage.setResizable(true);
         primaryStage.show();
+        primaryStage.setMaximized(true); // Gọi sau show() để hoạt động trên Windows
     }
 
     public static void main(String[] args) {
