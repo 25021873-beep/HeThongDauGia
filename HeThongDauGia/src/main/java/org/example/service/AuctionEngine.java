@@ -97,7 +97,7 @@ public class AuctionEngine {
 
         for (Auction auction : activeAuctions) {
 
-            // Mở phòng
+            // NHỊP 1: Mở phòng (OPEN → RUNNING)
             if ("OPEN".equals(auction.getStatus()) && auction.getStartTime() != null) {
                 if (!now.isBefore(auction.getStartTime())) {
                     auction.setStatus("RUNNING");
@@ -107,10 +107,13 @@ public class AuctionEngine {
                         System.out.println("[ENGINE] Phong ID " + auction.getId() + " da den gio, chinh thuc RUNNING!");
 
                         // Broadcast báo cho các khách đang đợi trong phòng biết để lao vào bid
-                        AuctionRoom room = roomManager.getRoom(auction.getId());
-                        if (room != null) {
-                            // Gọi hàm gửi tin nhắn (nếu m có hàm broadcast trong RoomManager)
-                            room.notifyAuctionStarted();
+                        try {
+                            AuctionRoom room = roomManager.getRoom(auction.getId());
+                            if (room != null) {
+                                room.notifyAuctionStarted();
+                            }
+                        } catch (Exception e) {
+                            System.err.println("[ENGINE] Loi broadcast start phien " + auction.getId() + ": " + e.getMessage());
                         }
                     } else {
                         System.err.println("[ENGINE] Loi: Khong the update DB de mo phong ID " + auction.getId());
@@ -118,15 +121,22 @@ public class AuctionEngine {
                 }
             }
 
-            // Đóng phòng
-            else if ("RUNNING".equals(auction.getStatus()) && auction.getEndTime() != null) {
+            // NHỊP 2: Đóng phòng (RUNNING và hết giờ)
+            // Dùng if riêng (KHÔNG dùng else if) để phiên vừa chuyển RUNNING cũng được check
+            if ("RUNNING".equals(auction.getStatus()) && auction.getEndTime() != null) {
                 if (now.isAfter(auction.getEndTime())) {
+                    // Luôn đánh dấu remove — dù close thành công hay thất bại
+                    toRemove.add(auction);
 
-                    boolean closed = auctionService.closeAuction(auction.getId());
+                    try {
+                        boolean closed = auctionService.closeAuction(auction.getId());
 
-                    if (closed) {
-                        String winnerUsername = resolveWinnerUsername(auction.getId());
+                        String winnerUsername = null;
                         BigDecimal finalPrice = auction.getCurrentPrice();
+
+                        if (closed) {
+                            winnerUsername = resolveWinnerUsername(auction.getId());
+                        }
 
                         // Bắn Socket thông báo cho toàn bộ viewer
                         AuctionRoom room = roomManager.getRoom(auction.getId());
@@ -134,13 +144,15 @@ public class AuctionEngine {
                             room.notifyAuctionEnded(winnerUsername, finalPrice);
                         }
 
-                        toRemove.add(auction);
                         roomManager.removeRoom(auction.getId());
 
                         System.out.println("[ENGINE] Da chot phien ID " + auction.getId()
                                 + " | Winner: " + (winnerUsername != null ? winnerUsername : "Khong co ai mua"));
-                    } else {
-                        System.err.println("[ENGINE] Khong the chot phien ID: " + auction.getId());
+
+                    } catch (Exception e) {
+                        System.err.println("[ENGINE] Loi khi dong phien ID " + auction.getId() + ": " + e.getMessage());
+                        // Vẫn remove khỏi activeAuctions để không bị stuck vĩnh viễn
+                        roomManager.removeRoom(auction.getId());
                     }
                 }
             }
