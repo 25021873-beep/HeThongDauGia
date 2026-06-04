@@ -18,7 +18,7 @@ public class AutoBidDAO {
     // Hàm lưu config mới hoặc cập nhật nếu đã tồn tại
     public void saveOrUpdate(AutoBidConfig config) {
         String sql = """
-                INSERT INTO Auto_Bidding (auction_id, bidder_id, maxBid, `increment`, createdAt, status)
+                INSERT INTO auto_bidding (auction_id, bidder_id, maxBid, `increment`, createdAt, status)
                 VALUES (?, ?, ?, ?, ?, 'ACTIVE')
                 ON DUPLICATE KEY UPDATE
                     maxBid      = VALUES(maxBid),
@@ -42,7 +42,7 @@ public class AutoBidDAO {
     // Hàm lấy tất cả auto-bid đang active trong một phiên
     public List<AutoBidConfig> getActiveAutoBids(long auctionId) {
         String sql = """
-                SELECT * FROM Auto_Bidding
+                SELECT * FROM auto_bidding
                 WHERE auction_id = ? AND status = 'ACTIVE'
                 ORDER BY createdAt ASC
                 """;
@@ -63,7 +63,7 @@ public class AutoBidDAO {
     // Hàm vô hiệu hóa auto-bid của 1 người khi họ đã thắng hoặc vượt maxBid
     public void deactivate(long auctionId, long bidderId) {
         String sql = """
-                UPDATE Auto_Bidding
+                UPDATE auto_bidding
                 SET status = 'INACTIVE'
                 WHERE auction_id = ? AND bidder_id = ?
                 """;
