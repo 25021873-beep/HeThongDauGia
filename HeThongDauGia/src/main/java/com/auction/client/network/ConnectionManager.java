@@ -51,6 +51,9 @@ public class ConnectionManager {
     // Callback cho push messages (BID_UPDATE, AUCTION_END, AUCTION_EXTENDED, AUCTION_STARTED)
     private Consumer<JsonObject> onPushMessage;
 
+    // Global callback — luôn chạy bất kể đang ở màn hình nào (dùng cho toast notification)
+    private Consumer<JsonObject> globalPushHandler;
+
     // Queue chứa các CompletableFuture đang chờ response
     private final ConcurrentLinkedQueue<CompletableFuture<JsonObject>> pendingRequests = new ConcurrentLinkedQueue<>();
 
@@ -118,10 +121,17 @@ public class ConnectionManager {
                 // Phân biệt: push message vs response cho request đang chờ
                 if (isPushMessage(status)) {
                     // Push message → gọi callback trên JavaFX thread
-                    if (onPushMessage != null) {
-                        final JsonObject msg = json;
-                        Platform.runLater(() -> onPushMessage.accept(msg));
-                    }
+                    final JsonObject msg = json;
+                    Platform.runLater(() -> {
+                        // 1. Global handler (toast notification) — luôn chạy
+                        if (globalPushHandler != null) {
+                            globalPushHandler.accept(msg);
+                        }
+                        // 2. Local handler (cập nhật UI màn hình hiện tại)
+                        if (onPushMessage != null) {
+                            onPushMessage.accept(msg);
+                        }
+                    });
                 } else {
                     // Response cho request → complete future đang chờ
                     CompletableFuture<JsonObject> future = pendingRequests.poll();
@@ -202,10 +212,25 @@ public class ConnectionManager {
     }
 
     /**
-     * Xóa push callback (khi rời màn hình AuctionDetail).
+     * Xóa push callback cục bộ (khi rời màn hình AuctionDetail).
      */
     public void clearPushCallback() {
         this.onPushMessage = null;
+    }
+
+    /**
+     * Đăng ký global push handler — luôn nhận push bất kể đang ở màn hình nào.
+     * Dùng cho toast notification trong MainController.
+     */
+    public void setGlobalPushHandler(Consumer<JsonObject> handler) {
+        this.globalPushHandler = handler;
+    }
+
+    /**
+     * Xóa global push handler (khi logout).
+     */
+    public void clearGlobalPushHandler() {
+        this.globalPushHandler = null;
     }
 
     // ── Ngắt kết nối ─────────────────────────────────────────────────────────
@@ -224,6 +249,7 @@ public class ConnectionManager {
 
         connected = false;
         clearPushCallback();
+        clearGlobalPushHandler();
         pendingRequests.clear();
         userId = 0;
         username = null;

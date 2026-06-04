@@ -138,10 +138,6 @@ public class UserManagementController {
     }
 
     private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Thông báo");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        ToastManager.showInfo(message);
     }
 }

@@ -1,6 +1,7 @@
 package com.auction.client.controllers;
 
 import com.auction.client.network.ConnectionManager;
+import com.google.gson.JsonObject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,6 +19,13 @@ import java.io.IOException;
 
 public class MainController {
 
+    // Static instance để các controller con truy cập dễ dàng
+    private static MainController instance;
+
+    public static MainController getInstance() {
+        return instance;
+    }
+
     @FXML private Label lblUserInfo;
     @FXML private Label lblBalance;
     @FXML private StackPane contentArea;
@@ -30,6 +38,9 @@ public class MainController {
 
     private static final String ACTIVE_STYLE = "-fx-background-color: #F57D1F; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;";
     private static final String INACTIVE_STYLE = "-fx-background-color: transparent; -fx-text-fill: #CCCCCC; -fx-font-size: 14px; -fx-cursor: hand; -fx-background-radius: 8;";
+
+    // ID phiên đấu giá mà user đang xem chi tiết (-1 = không xem phiên nào)
+    private volatile int currentViewingAuctionId = -1;
 
     @FXML
     public void initialize() {
@@ -52,6 +63,7 @@ public class MainController {
 
 //ham dc goi de truyen role sau khi dang nhap
     public void configureSidebar(String role) {
+        instance = this; // lưu static instance để controller con truy cập
         lblUserInfo.setText("Xin chào, " + ConnectionManager.getInstance().getUsername());
 
         //bat cac menu tuong ung role
@@ -75,6 +87,9 @@ public class MainController {
             setButtonVisible(btnUserMgmt, true);
             handleShowUserMgmt(); // mac dinh qly user cho admin
         }
+
+        // Đăng ký global push handler để nhận thông báo bid từ mọi phiên
+        ConnectionManager.getInstance().setGlobalPushHandler(this::handleGlobalPush);
     }
 
     //ham bat/tat nut
@@ -103,6 +118,8 @@ public class MainController {
      * Public để các controller con (VD: AuctionDetailController) có thể gọi.
      */
     public void loadContent(String fxmlFileName) {
+        // Khi chuyển màn hình, clear trạng thái "đang xem phiên" để toast hoạt động
+        clearCurrentViewingAuctionId();
         try {
             // Nạp file giao diện con từ thư mục /fxml/
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/" + fxmlFileName));
@@ -129,6 +146,74 @@ public class MainController {
         if (lblBalance != null) {
             double balance = ConnectionManager.getInstance().getBalance();
             lblBalance.setText(String.format("Số dư: %,.0f VND", balance));
+        }
+    }
+
+    // =========================================================
+    // --- QUẢN LÝ CURRENT VIEWING AUCTION ID ---
+    // =========================================================
+
+    /**
+     * Đặt ID phiên đấu giá đang xem (khi vào AuctionDetail).
+     * Push BID_UPDATE cho phiên này sẽ KHÔNG hiện toast.
+     */
+    public void setCurrentViewingAuctionId(int auctionId) {
+        this.currentViewingAuctionId = auctionId;
+    }
+
+    /**
+     * Xóa ID phiên đang xem (khi rời AuctionDetail).
+     */
+    public void clearCurrentViewingAuctionId() {
+        this.currentViewingAuctionId = -1;
+    }
+
+    // =========================================================
+    // --- GLOBAL PUSH HANDLER (TOAST NOTIFICATION) ---
+    // =========================================================
+
+    /**
+     * Xử lý push message toàn cục.
+     * Chỉ hiện toast khi user KHÔNG đang xem phiên tương ứng.
+     */
+    private void handleGlobalPush(JsonObject msg) {
+        if (!msg.has("status")) return;
+        String status = msg.get("status").getAsString();
+        int msgAuctionId = msg.has("auctionId") ? msg.get("auctionId").getAsInt() : -1;
+
+        // Nếu user đang xem đúng phiên này → SKIP (AuctionDetailController đã xử lý UI)
+        if (msgAuctionId == currentViewingAuctionId) return;
+
+        switch (status) {
+            case "UPDATE": // BID_UPDATE
+                String bidder = msg.has("bidderUsername") ? msg.get("bidderUsername").getAsString() : "Ai đó";
+                double newPrice = msg.has("newPrice") ? msg.get("newPrice").getAsDouble() : 0;
+                String productName = msg.has("auctionName") ? msg.get("auctionName").getAsString()
+                        : ("Phiên #" + msgAuctionId);
+                ToastManager.showBidNotification(productName, bidder, newPrice);
+                break;
+
+            case "AUCTION_END":
+                String winner = msg.has("winnerUsername") ? msg.get("winnerUsername").getAsString() : "Không rõ";
+                double finalPrice = msg.has("finalPrice") ? msg.get("finalPrice").getAsDouble() : 0;
+                String auctionName = msg.has("auctionName") ? msg.get("auctionName").getAsString()
+                        : ("Phiên #" + msgAuctionId);
+                ToastManager.showWarning(
+                        "⏱ Phiên \"" + auctionName + "\" đã kết thúc!\n"
+                        + "Người thắng: " + winner + " | Giá: " + String.format("%,.0f VNĐ", finalPrice));
+                break;
+
+            case "AUCTION_EXTENDED":
+                String extName = msg.has("auctionName") ? msg.get("auctionName").getAsString()
+                        : ("Phiên #" + msgAuctionId);
+                ToastManager.showWarning("⏱ Phiên \"" + extName + "\" đã được gia hạn thời gian!");
+                break;
+
+            case "AUCTION_STARTED":
+                String startName = msg.has("auctionName") ? msg.get("auctionName").getAsString()
+                        : ("Phiên #" + msgAuctionId);
+                ToastManager.showInfo("🔔 Phiên \"" + startName + "\" đã bắt đầu!");
+                break;
         }
     }
 
@@ -188,7 +273,10 @@ public class MainController {
 
     @FXML
     private void handleLogout(ActionEvent event) {
-        // 1. Gửi command LOGOUT và đóng kết nối (không cần đợi)
+        // 1. Xóa static instance
+        instance = null;
+
+        // 2. Gửi command LOGOUT và đóng kết nối (không cần đợi)
         Thread logoutThread = new Thread(() -> {
             ConnectionManager.getInstance().disconnect();
         });
