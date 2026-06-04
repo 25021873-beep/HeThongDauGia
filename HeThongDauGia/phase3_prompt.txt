@@ -1,0 +1,482 @@
+Review the assembled graph at E:/HeThongDauGia/HeThongDauGia/.understand-anything/intermediate/assembled-graph.json.
+Project root: E:/HeThongDauGia/HeThongDauGia
+Batch files are at: E:/HeThongDauGia/HeThongDauGia/.understand-anything/intermediate/batch-*.json
+Write review output to: E:/HeThongDauGia/HeThongDauGia/.understand-anything/intermediate/assemble-review.json
+
+**Merge script report:**
+```
+Found 20 batch files (11 logical batches, 6 multi-part):
+Input: 575 nodes, 968 edges
+
+Fixed (8 corrections):
+     5 - duplicate node IDs removed (kept last)
+     2 - tested_by edges flipped
+     1 - tested_by edges dropped
+
+Tested-by linker:
+     2 - tested_by edges produced
+    24 - production nodes tagged "tested"
+
+Could not fix (2 issues - needs agent review):
+  - Edge config:src/main/resources/application-template.properties -> file:src/main/java/org/example/Main.java (configures): dropped, missing target 'file:src/main/java/org/example/Main.java'
+  - Edge config:src/main/resources/application.properties -> file:src/main/java/org/example/Main.java (configures): dropped, missing target 'file:src/main/java/org/example/Main.java'
+
+Output: 570 nodes, 957 edges
+
+Imports edge recovery:
+  Recovered 17 `imports` edges from importMap (153 entries scanned)
+
+Written to E:\HeThongDauGia\HeThongDauGia\.understand-anything\intermediate\assembled-graph.json (514 KB)
+```
+
+**Import map for cross-batch edge verification:**
+```json
+{
+  ".github/workflows/backend-ci.yml": [],
+  ".understand-anything/.understandignore": [],
+  ".understand-anything/config.json": [],
+  "application.properties": [],
+  "pom.xml": [],
+  "sources.txt": [],
+  "src/main/java/com/auction/client/controllers/AuctionDetailController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java",
+    "src/main/java/org/example/entity/Auction.java"
+  ],
+  "src/main/java/com/auction/client/controllers/BidHistoryController.java": [],
+  "src/main/java/com/auction/client/controllers/ConnectedLoginController.java": [
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/DashboardController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/DepositController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/LoginController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/MainController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java"
+  ],
+  "src/main/java/com/auction/client/controllers/ProductManagementController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/RegisterController.java": [
+    "src/main/java/com/auction/client/network/ConnectionManager.java",
+    "src/main/java/com/auction/client/network/ServerClient.java"
+  ],
+  "src/main/java/com/auction/client/controllers/UserManagementController.java": [],
+  "src/main/java/com/auction/client/Launcher.java": [],
+  "src/main/java/com/auction/client/Main.java": [],
+  "src/main/java/com/auction/client/Message.java": [],
+  "src/main/java/com/auction/client/network/ConnectionManager.java": [
+    "src/main/java/org/example/utils/ConfigManager.java"
+  ],
+  "src/main/java/com/auction/client/network/ServerClient.java": [
+    "src/main/java/org/example/utils/ConfigManager.java"
+  ],
+  "src/main/java/com/auction/client/SocketClient.java": [],
+  "src/main/java/org/example/dao/AuctionDAO.java": [
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/AutoBidDAO.java": [
+    "src/main/java/org/example/entity/AutoBidConfig.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/BidHistoryDAO.java": [
+    "src/main/java/org/example/entity/BidHistory.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/BidTransactionDAO.java": [
+    "src/main/java/org/example/entity/BidTransaction.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/item/ItemDAO.java": [
+    "src/main/java/org/example/entity/item/Art.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/item/Vehicle.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/item/ItemFactory.java": [],
+  "src/main/java/org/example/dao/user/UserDAO.java": [
+    "src/main/java/org/example/entity/user/Bidder.java",
+    "src/main/java/org/example/entity/user/Seller.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/dao/user/UserFactory.java": [
+    "src/main/java/org/example/entity/user/Admin.java",
+    "src/main/java/org/example/entity/user/Bidder.java",
+    "src/main/java/org/example/entity/user/Seller.java",
+    "src/main/java/org/example/entity/user/User.java"
+  ],
+  "src/main/java/org/example/dto/BidResult.java": [],
+  "src/main/java/org/example/dto/request/AutoBidRequest.java": [],
+  "src/main/java/org/example/dto/request/BaseRequest.java": [],
+  "src/main/java/org/example/dto/request/BidRequest.java": [],
+  "src/main/java/org/example/dto/request/ChangePasswordRequest.java": [],
+  "src/main/java/org/example/dto/request/CreateAuctionRequest.java": [],
+  "src/main/java/org/example/dto/request/GetAuctionDetailRequest.java": [],
+  "src/main/java/org/example/dto/request/GetBidHistoryRequest.java": [],
+  "src/main/java/org/example/dto/request/JoinRequest.java": [],
+  "src/main/java/org/example/dto/request/LoginRequest.java": [],
+  "src/main/java/org/example/dto/request/RegisterRequest.java": [],
+  "src/main/java/org/example/dto/request/TopUpRequest.java": [],
+  "src/main/java/org/example/dto/response/AuctionDetailResponse.java": [],
+  "src/main/java/org/example/dto/response/AuctionExtendedResponse.java": [],
+  "src/main/java/org/example/dto/response/AuctionListResponse.java": [],
+  "src/main/java/org/example/dto/response/AuctionResultResponse.java": [],
+  "src/main/java/org/example/dto/response/AuctionStartedResponse.java": [],
+  "src/main/java/org/example/dto/response/AuctionSummary.java": [],
+  "src/main/java/org/example/dto/response/AutoBidResponse.java": [],
+  "src/main/java/org/example/dto/response/BaseResponse.java": [],
+  "src/main/java/org/example/dto/response/BidHistoryResponse.java": [],
+  "src/main/java/org/example/dto/response/BidResponse.java": [],
+  "src/main/java/org/example/dto/response/BidUpdateResponse.java": [],
+  "src/main/java/org/example/dto/response/ChangePasswordResponse.java": [],
+  "src/main/java/org/example/dto/response/CreateAuctionResponse.java": [],
+  "src/main/java/org/example/dto/response/JoinResponse.java": [],
+  "src/main/java/org/example/dto/response/LoginResponse.java": [],
+  "src/main/java/org/example/dto/response/RegisterResponse.java": [],
+  "src/main/java/org/example/dto/response/SimpleResponse.java": [],
+  "src/main/java/org/example/dto/response/TopUpResponse.java": [],
+  "src/main/java/org/example/entity/Auction.java": [
+    "src/main/java/org/example/entity/item/Item.java"
+  ],
+  "src/main/java/org/example/entity/AutoBidConfig.java": [],
+  "src/main/java/org/example/entity/BaseEntity.java": [],
+  "src/main/java/org/example/entity/BidHistory.java": [],
+  "src/main/java/org/example/entity/BidTransaction.java": [],
+  "src/main/java/org/example/entity/item/Art.java": [],
+  "src/main/java/org/example/entity/item/Electronics.java": [],
+  "src/main/java/org/example/entity/item/Item.java": [
+    "src/main/java/org/example/entity/BaseEntity.java"
+  ],
+  "src/main/java/org/example/entity/item/Vehicle.java": [],
+  "src/main/java/org/example/entity/user/Admin.java": [],
+  "src/main/java/org/example/entity/user/Bidder.java": [],
+  "src/main/java/org/example/entity/user/Seller.java": [],
+  "src/main/java/org/example/entity/user/User.java": [
+    "src/main/java/org/example/entity/BaseEntity.java"
+  ],
+  "src/main/java/org/example/exception/auction/AuctionClosedException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auction/AuctionNotFoundException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auction/InvalidAuctionTimeException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/AuctionSystemException.java": [],
+  "src/main/java/org/example/exception/auth/DuplicateUsernameException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auth/InvalidCredentialsException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auth/InvalidRoleException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auth/NotLoggedInException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auth/SellersRatingException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/auth/UserNotFoundException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/balance/InvalidTopUpAmountException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/bid/InsufficientBalanceException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/bid/InvalidBidException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/bid/SelfBidException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/database/DatabaseException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/item/InvalidItemNameException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/item/InvalidItemPriceException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/item/InvalidItemStateException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/item/ItemNotFoundException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/item/UnauthorizedAccessException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/systemANDconcurrency/ConcurrentBidException.java": [
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/exception/systemANDconcurrency/InvalidRequestException.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java"
+  ],
+  "src/main/java/org/example/network/AuctionServer.java": [
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/AutoBidService.java",
+    "src/main/java/org/example/service/UserService.java"
+  ],
+  "src/main/java/org/example/network/ClientHandler.java": [
+    "src/main/java/org/example/network/controller/AuctionController.java",
+    "src/main/java/org/example/network/controller/AuthController.java",
+    "src/main/java/org/example/network/controller/BidController.java",
+    "src/main/java/org/example/network/controller/ItemController.java",
+    "src/main/java/org/example/network/controller/UserController.java",
+    "src/main/java/org/example/observer/BidObserver.java",
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/AutoBidService.java",
+    "src/main/java/org/example/service/ItemService.java",
+    "src/main/java/org/example/service/UserService.java"
+  ],
+  "src/main/java/org/example/network/CommandRouter.java": [
+    "src/main/java/org/example/dto/response/SimpleResponse.java"
+  ],
+  "src/main/java/org/example/network/controller/AuctionController.java": [
+    "src/main/java/org/example/dto/request/GetAuctionDetailRequest.java",
+    "src/main/java/org/example/dto/request/GetBidHistoryRequest.java",
+    "src/main/java/org/example/dto/request/JoinRequest.java",
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/BidHistory.java",
+    "src/main/java/org/example/entity/item/Art.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/item/Vehicle.java",
+    "src/main/java/org/example/network/ClientHandler.java",
+    "src/main/java/org/example/network/SessionContext.java",
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionService.java"
+  ],
+  "src/main/java/org/example/network/controller/AuthController.java": [
+    "src/main/java/org/example/dto/request/ChangePasswordRequest.java",
+    "src/main/java/org/example/dto/request/LoginRequest.java",
+    "src/main/java/org/example/dto/request/RegisterRequest.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/network/SessionContext.java",
+    "src/main/java/org/example/service/UserService.java"
+  ],
+  "src/main/java/org/example/network/controller/BidController.java": [
+    "src/main/java/org/example/dto/BidResult.java",
+    "src/main/java/org/example/dto/request/AutoBidRequest.java",
+    "src/main/java/org/example/dto/request/BidRequest.java",
+    "src/main/java/org/example/dto/response/AutoBidResponse.java",
+    "src/main/java/org/example/dto/response/BidResponse.java",
+    "src/main/java/org/example/dto/response/SimpleResponse.java",
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/network/ClientHandler.java",
+    "src/main/java/org/example/network/SessionContext.java",
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionRoom.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/AutoBidService.java"
+  ],
+  "src/main/java/org/example/network/controller/ItemController.java": [
+    "src/main/java/org/example/dao/item/ItemDAO.java",
+    "src/main/java/org/example/dto/response/SimpleResponse.java",
+    "src/main/java/org/example/entity/item/Art.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/item/Vehicle.java",
+    "src/main/java/org/example/network/SessionContext.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/ItemService.java"
+  ],
+  "src/main/java/org/example/network/controller/UserController.java": [
+    "src/main/java/org/example/dto/request/TopUpRequest.java",
+    "src/main/java/org/example/dto/response/SimpleResponse.java",
+    "src/main/java/org/example/dto/response/TopUpResponse.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/network/SessionContext.java",
+    "src/main/java/org/example/service/UserService.java"
+  ],
+  "src/main/java/org/example/network/SessionContext.java": [
+    "src/main/java/org/example/dto/response/BaseResponse.java",
+    "src/main/java/org/example/dto/response/SimpleResponse.java",
+    "src/main/java/org/example/entity/user/User.java"
+  ],
+  "src/main/java/org/example/observer/BidObserver.java": [],
+  "src/main/java/org/example/ServerMain.java": [
+    "src/main/java/org/example/dao/AuctionDAO.java",
+    "src/main/java/org/example/dao/AutoBidDAO.java",
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/network/AuctionServer.java",
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/AutoBidService.java",
+    "src/main/java/org/example/service/UserService.java",
+    "src/main/java/org/example/utils/ConfigManager.java"
+  ],
+  "src/main/java/org/example/service/AuctionEngine.java": [
+    "src/main/java/org/example/dao/AuctionDAO.java",
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/user/User.java"
+  ],
+  "src/main/java/org/example/service/AuctionRoom.java": [
+    "src/main/java/org/example/observer/BidObserver.java"
+  ],
+  "src/main/java/org/example/service/AuctionRoomManager.java": [
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/observer/BidObserver.java"
+  ],
+  "src/main/java/org/example/service/AuctionService.java": [
+    "src/main/java/org/example/dao/item/ItemDAO.java",
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/dto/BidResult.java",
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/BidHistory.java",
+    "src/main/java/org/example/entity/BidTransaction.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/exception/auction/AuctionClosedException.java",
+    "src/main/java/org/example/exception/auction/AuctionNotFoundException.java",
+    "src/main/java/org/example/exception/auction/InvalidAuctionTimeException.java",
+    "src/main/java/org/example/exception/AuctionSystemException.java",
+    "src/main/java/org/example/exception/auth/UserNotFoundException.java",
+    "src/main/java/org/example/exception/bid/InvalidBidException.java",
+    "src/main/java/org/example/exception/database/DatabaseException.java",
+    "src/main/java/org/example/exception/item/InvalidItemPriceException.java",
+    "src/main/java/org/example/exception/item/InvalidItemStateException.java",
+    "src/main/java/org/example/exception/item/ItemNotFoundException.java",
+    "src/main/java/org/example/utils/ConfigManager.java",
+    "src/main/java/org/example/utils/DatabaseConnection.java"
+  ],
+  "src/main/java/org/example/service/AutoBidService.java": [
+    "src/main/java/org/example/dao/AuctionDAO.java",
+    "src/main/java/org/example/dao/AutoBidDAO.java",
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/AutoBidConfig.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/exception/auction/AuctionClosedException.java",
+    "src/main/java/org/example/exception/auction/AuctionNotFoundException.java",
+    "src/main/java/org/example/exception/bid/InsufficientBalanceException.java",
+    "src/main/java/org/example/exception/bid/InvalidBidException.java"
+  ],
+  "src/main/java/org/example/service/ItemService.java": [
+    "src/main/java/org/example/dao/item/ItemDAO.java",
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/entity/item/Art.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/item/Vehicle.java",
+    "src/main/java/org/example/entity/user/Seller.java",
+    "src/main/java/org/example/entity/user/User.java"
+  ],
+  "src/main/java/org/example/service/UserService.java": [
+    "src/main/java/org/example/dao/user/UserDAO.java",
+    "src/main/java/org/example/dto/request/RegisterRequest.java",
+    "src/main/java/org/example/entity/user/Bidder.java",
+    "src/main/java/org/example/entity/user/Seller.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/main/java/org/example/exception/AuctionSystemException.java",
+    "src/main/java/org/example/exception/balance/InvalidTopUpAmountException.java"
+  ],
+  "src/main/java/org/example/SocketConsoleClient.java": [],
+  "src/main/java/org/example/utils/ConfigManager.java": [],
+  "src/main/java/org/example/utils/DatabaseConnection.java": [
+    "src/main/java/org/example/exception/database/DatabaseException.java"
+  ],
+  "src/main/resources/application-template.properties": [],
+  "src/main/resources/application.properties": [],
+  "src/main/resources/css/styles.css": [],
+  "src/main/resources/fxml/AuctionDetail.fxml": [],
+  "src/main/resources/fxml/BidHistory.fxml": [],
+  "src/main/resources/fxml/ConnectedLogin.fxml": [],
+  "src/main/resources/fxml/Dashboard.fxml": [],
+  "src/main/resources/fxml/Deposit.fxml": [],
+  "src/main/resources/fxml/Login.fxml": [],
+  "src/main/resources/fxml/ProductManagement.fxml": [],
+  "src/main/resources/fxml/Register.fxml": [],
+  "src/main/resources/fxml/UserManagement.fxml": [],
+  "src/main/resources/META-INF/MANIFEST.MF": [],
+  "src/main/resources/views/MainLayout.fxml": [],
+  "src/test/java/org/example/AuctionEngineTest.java": [
+    "src/main/java/org/example/entity/Auction.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/service/AuctionEngine.java"
+  ],
+  "src/test/java/org/example/dao/AuctionDAOTest.java": [
+    "src/test/java/org/example/testutil/SqlTestSupport.java"
+  ],
+  "src/test/java/org/example/dao/BidTransactionDAOTest.java": [
+    "src/main/java/org/example/entity/BidTransaction.java",
+    "src/test/java/org/example/testutil/SqlTestSupport.java"
+  ],
+  "src/test/java/org/example/dao/item/ItemDAOTest.java": [],
+  "src/test/java/org/example/dao/item/ItemFactoryTest.java": [
+    "src/main/java/org/example/entity/item/Art.java",
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/entity/item/Item.java",
+    "src/main/java/org/example/entity/item/Vehicle.java",
+    "src/test/java/org/example/testutil/ResultSetStub.java"
+  ],
+  "src/test/java/org/example/dao/user/UserDAOTest.java": [
+    "src/test/java/org/example/testutil/SqlTestSupport.java"
+  ],
+  "src/test/java/org/example/dao/user/UserFactoryTest.java": [
+    "src/main/java/org/example/entity/user/Admin.java",
+    "src/main/java/org/example/entity/user/Bidder.java",
+    "src/main/java/org/example/entity/user/Seller.java",
+    "src/main/java/org/example/entity/user/User.java",
+    "src/test/java/org/example/testutil/ResultSetStub.java"
+  ],
+  "src/test/java/org/example/entity/AuctionTest.java": [],
+  "src/test/java/org/example/entity/BaseEntityTest.java": [],
+  "src/test/java/org/example/entity/BidTransactionTest.java": [],
+  "src/test/java/org/example/entity/user/AdminTest.java": [],
+  "src/test/java/org/example/entity/user/BidderTest.java": [],
+  "src/test/java/org/example/entity/user/SellerTest.java": [],
+  "src/test/java/org/example/entity/user/UserTest.java": [],
+  "src/test/java/org/example/MainTest.java": [],
+  "src/test/java/org/example/network/AuctionServerTest.java": [],
+  "src/test/java/org/example/network/ClientHandlerTest.java": [
+    "src/main/java/org/example/dto/response/SimpleResponse.java",
+    "src/main/java/org/example/service/AuctionEngine.java",
+    "src/main/java/org/example/service/AuctionService.java",
+    "src/main/java/org/example/service/UserService.java"
+  ],
+  "src/test/java/org/example/service/AuctionServiceTest.java": [],
+  "src/test/java/org/example/service/ItemServiceTest.java": [
+    "src/main/java/org/example/entity/item/Electronics.java",
+    "src/main/java/org/example/exception/item/InvalidItemNameException.java",
+    "src/main/java/org/example/exception/item/InvalidItemPriceException.java"
+  ],
+  "src/test/java/org/example/service/UserServiceTest.java": [
+    "src/main/java/org/example/exception/AuctionSystemException.java",
+    "src/main/java/org/example/exception/auth/SellersRatingException.java",
+    "src/main/java/org/example/exception/balance/InvalidTopUpAmountException.java"
+  ],
+  "src/test/java/org/example/testutil/ResultSetStub.java": [],
+  "src/test/java/org/example/testutil/SqlTestSupport.java": [],
+  "src/test/java/org/example/utils/DatabaseConnectionTest.java": []
+}
+```

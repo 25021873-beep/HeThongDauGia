@@ -1,0 +1,736 @@
+classDiagram
+    class AutoBidDAO {
+        +saveOrUpdate()
+        +mapRow()
+        +deactivate()
+        +getActiveAutoBids()
+    }
+    class AutoBidConfig {
+        +isActive()
+        +getBidderId()
+        +getIncrement()
+        +getMaxBid()
+        +getAuctionId()
+        +setAuctionId()
+        +getCreatedAt()
+        +setCreatedAt()
+        +setBidderId()
+        +setActive()
+        +setMaxBid()
+        +setIncrement()
+    }
+    class AuctionSystemException {
+    }
+    class AuctionClosedException {
+    }
+    class AuctionNotFoundException {
+    }
+    class InvalidAuctionTimeException {
+    }
+    class DuplicateUsernameException {
+    }
+    class InvalidCredentialsException {
+    }
+    class InvalidRoleException {
+    }
+    class NotLoggedInException {
+    }
+    class SellersRatingException {
+    }
+    class UserNotFoundException {
+    }
+    class InvalidTopUpAmountException {
+    }
+    class InsufficientBalanceException {
+    }
+    class InvalidBidException {
+    }
+    class SelfBidException {
+    }
+    class InvalidItemNameException {
+    }
+    class InvalidItemPriceException {
+    }
+    class InvalidItemStateException {
+    }
+    class ItemNotFoundException {
+    }
+    class UnauthorizedAccessException {
+    }
+    class InvalidRequestException {
+    }
+    class AuctionService {
+        +closeAuction()
+        +placeBid()
+        +getLock()
+        +getBidHistory()
+        +getInstance()
+        +openAuction()
+        +getAuctionById()
+        +setEngine()
+        +setAutoBidService()
+    }
+    class AutoBidService {
+        +triggerAutoBid()
+        +triggerAsync()
+        +registerAutoBid()
+        +shutdown()
+    }
+    class ItemServiceTest {
+    }
+    class UserServiceTest {
+        +changePasswordRejectsBlankNewPasswordBeforeDatabaseLookup()
+        +topUpBalanceRejectsNullAndNonPositiveAmountsBeforeDatabaseLookup()
+    }
+    class UserDAO {
+        +updateUser()
+        +getUserById()
+        +checkUsernameExists()
+        +getUserByUsername()
+        +getAllUsers()
+        +addUser()
+        +checkLogin()
+        +changePassword()
+    }
+    class UserFactory {
+        +createUser()
+    }
+    class ChangePasswordRequest {
+    }
+    class LoginRequest {
+    }
+    class RegisterRequest {
+    }
+    class TopUpRequest {
+    }
+    class BaseResponse {
+    }
+    class SimpleResponse {
+    }
+    class TopUpResponse {
+    }
+    class BaseEntity {
+    }
+    class Admin {
+    }
+    class Bidder {
+    }
+    class Seller {
+    }
+    class User {
+    }
+    class CommandRouter {
+        +dispatch()
+    }
+    class SessionContext {
+    }
+    class AuthController {
+        +handleRegister()
+        +handleChangePassword()
+        +handleLogin()
+    }
+    class UserController {
+        +handleGetAllUsers()
+        +handleTopUp()
+    }
+    class UserService {
+        +passwordMatches()
+        +topUpBalance()
+        +updateSellerRating()
+        +login()
+        +register()
+        +changePassword()
+    }
+    class UserFactoryTest {
+    }
+    class ClientHandlerTest {
+    }
+    class ResultSetStub {
+    }
+    class ServerMain {
+        +main()
+    }
+    class AuctionDAO {
+        +getWonAuctions()
+        +closeAuction()
+        +getAuctionsBySeller()
+        +createAuction()
+        +mapRow()
+        +updateCurrentPrice()
+        +updateAuctionStatus()
+        +getAuctionsByItem()
+        +updateEndTime()
+        +getAuctionById()
+        +getActiveAuctions()
+    }
+    class BidResult {
+    }
+    class AutoBidRequest {
+    }
+    class BidRequest {
+    }
+    class AutoBidResponse {
+    }
+    class BidResponse {
+    }
+    class Auction {
+    }
+    class ConcurrentBidException {
+    }
+    class AuctionServer {
+        +shutdown()
+        +start()
+    }
+    class ClientHandler {
+        +run()
+    }
+    class BidController {
+        +handleGetUserBidHistory()
+        +handleAutoBid()
+        +handleBid()
+    }
+    class BidObserver {
+    }
+    class AuctionEngine {
+        +startEngine()
+        +updateAuctionStates()
+        +stopEngine()
+    }
+    class AuctionRoom {
+    }
+    class AuctionRoomManager {
+    }
+    class AuctionEngineTest {
+    }
+    class ItemDAO {
+        +deleteItem()
+        +updateItemStatus()
+        +getAllItems()
+        +updateItem()
+        +getItemsByStatus()
+        +addItem()
+        +searchItems()
+        +getItemsBySeller()
+        +getItemById()
+    }
+    class GetAuctionDetailRequest {
+        +getAuctionId()
+        +setAuctionId()
+    }
+    class GetBidHistoryRequest {
+        +getAuctionId()
+        +setAuctionId()
+    }
+    class JoinRequest {
+        +getAuctionId()
+        +toString()
+        +setAuctionId()
+    }
+    class BidHistory {
+        +setBidderUsername()
+        +setBidTime()
+        +getBidderId()
+        +getBidderUsername()
+        +getAuctionId()
+        +setAuctionId()
+        +getPrice()
+        +setBidderId()
+        +getBidTime()
+        +setPrice()
+    }
+    class Art {
+        +setAuthor()
+        +getAuthor()
+    }
+    class Electronics {
+        +getWarrantyMonths()
+        +setWarrantyMonths()
+    }
+    class Item {
+        +getItemType()
+        +setDescription()
+        +setStatus()
+        +setItemType()
+        +setName()
+        +getStatus()
+        +getName()
+        +getSellerId()
+        +setSellerId()
+        +getDescription()
+    }
+    class Vehicle {
+        +setEngineType()
+        +getEngineType()
+    }
+    class AuctionController {
+        +handleGetBidHistory()
+        +handleGetAuctionDetail()
+        +handleJoin()
+        +handleGetAllAuctions()
+    }
+    class ItemController {
+        +handlePostItem()
+        +handleGetSellerItems()
+        +handleDeleteItem()
+    }
+    class ItemService {
+        +deleteItem()
+        +changeItemStatus()
+        +updateItem()
+        +getHomepageItems()
+        +getInstance()
+        +postItem()
+    }
+    class ItemFactoryTest {
+        +createsVehicleFromResultSet()
+        +createsArtFromResultSet()
+        +baseValues()
+        +createsElectronicsFromResultSet()
+    }
+    class AuctionDetailController {
+        +setProductInfo()
+        +handlePlaceBid()
+        +handleBack()
+        +showTimeExtendedAnimation()
+        +joinAuctionRoom()
+        +fetchAuctionDetail()
+        +fetchBidHistory()
+        +handlePushMessage()
+        +initialize()
+        +handleAutoBid()
+        +startCountdown()
+    }
+    class ConnectedLoginController {
+        +initialize()
+        +handleRegister()
+        +handleLogin()
+        +loadMainLayout()
+        +sendAsync()
+    }
+    class DashboardController {
+        +createProductCard()
+        +loadAuctionsFromServer()
+        +openAuctionDetail()
+        +filterProducts()
+        +initialize()
+        +displayAuctions()
+    }
+    class DepositController {
+        +setMainController()
+        +showAlert()
+        +handleDeposit()
+    }
+    class LoginController {
+        +handleGoToRegister()
+        +handleLogin()
+        +loadMainLayout()
+    }
+    class MainController {
+        +getContentArea()
+        +setActiveButton()
+        +loadContent()
+        +handleShowDeposit()
+        +configureSidebar()
+        +handleLogout()
+        +initialize()
+        +updateBalanceDisplay()
+    }
+    class ProductManagementController {
+        +handleSaveProduct()
+        +initialize()
+        +loadSellerProducts()
+    }
+    class RegisterController {
+        +handleRegister()
+        +initialize()
+        +handleGoToLogin()
+    }
+    class ConnectionManager {
+        +getUsername()
+        +clearPushCallback()
+        +connectDefault()
+        +listenLoop()
+        +setUserInfo()
+        +isConnected()
+        +disconnect()
+        +sendOnly()
+        +getBalance()
+        +sendAndWait()
+        +getDefaultEndpoint()
+        +getUserId()
+        +getInstance()
+        +getRole()
+        +setBalance()
+        +setOnPushMessage()
+        +connect()
+    }
+    class ServerClient {
+        +endpoint()
+        +isSuccess()
+        +messageOf()
+        +sendRequest()
+    }
+    class ConfigManager {
+        +loadExternalConfig()
+        +getInt()
+        +loadClasspathConfig()
+        +getInstance()
+        +getString()
+    }
+    class BidHistoryDAO {
+        +getUserBidHistory()
+        +getHistoryByAuctionId()
+        +deleteByAuctionId()
+        +addBidHistory()
+        +queryList()
+        +countByAuctionId()
+    }
+    class BidTransactionDAO {
+        +addBid()
+        +getBidsByAuction()
+        +getBidsByUser()
+        +getHighestBid()
+    }
+    class BidTransaction {
+    }
+    class DatabaseException {
+    }
+    class DatabaseConnection {
+        +getConnection()
+        +getInstance()
+    }
+    class AuctionDAOTest {
+        +updateCurrentPriceUsesProvidedConnectionAndBindsParameters()
+    }
+    class BidTransactionDAOTest {
+        +addBidUsesProvidedConnectionAndBindsParameters()
+    }
+    class UserDAOTest {
+        +updateBalanceUsesProvidedConnectionAndBindsParameters()
+    }
+    class SqlTestSupport {
+        +recordingConnection()
+    }
+    class BidHistoryController {
+        +initialize()
+        +loadBidHistoryFromServer()
+    }
+    class UserManagementController {
+        +initialize()
+        +loadUsersFromServer()
+    }
+    class Launcher {
+        +main()
+    }
+    class Main {
+        +main()
+        +start()
+    }
+    class Message {
+        +toJson()
+        +fromJson()
+    }
+    class SocketClient {
+        +connect()
+        +listenFromServer()
+        +login()
+        +getInstance()
+    }
+    class ItemFactory {
+        +createItem()
+    }
+    class BaseRequest {
+    }
+    class CreateAuctionRequest {
+    }
+    class AuctionDetailResponse {
+    }
+    class AuctionExtendedResponse {
+    }
+    class AuctionListResponse {
+    }
+    class AuctionResultResponse {
+        +noWinner()
+    }
+    class AuctionStartedResponse {
+    }
+    class AuctionSummary {
+    }
+    class BidHistoryResponse {
+    }
+    class BidUpdateResponse {
+    }
+    class ChangePasswordResponse {
+    }
+    class CreateAuctionResponse {
+    }
+    class JoinResponse {
+    }
+    class LoginResponse {
+    }
+    class RegisterResponse {
+    }
+    class SocketConsoleClient {
+        +toJsonCommand()
+        +main()
+    }
+    class ItemDAOTest {
+        +canBeConstructedWithoutOpeningDatabaseConnection()
+    }
+    class AuctionTest {
+        +setCurrentPriceRejectsNegativePrice()
+        +constructorCreatesRunningAuctionAndActiveStatusReflectsStatus()
+        +extendTimeAddsSecondsWhenEndTimeExists()
+    }
+    class BaseEntityTest {
+        +idCanBeSetAndRead()
+    }
+    class BidTransactionTest {
+        +constructorAndSettersExposeValues()
+    }
+    class AdminTest {
+        +constructorSetsAdminRole()
+    }
+    class BidderTest {
+        +constructorSetsRoleAndBalanceCanBeChanged()
+    }
+    class SellerTest {
+        +constructorSetsRoleAndRatingCanBeChanged()
+    }
+    class UserTest {
+        +commonUserFieldsCanBeSetAndRead()
+    }
+    class MainTest {
+        +placeholderDocumentsMainIsDatabaseDemoEntryPoint()
+    }
+    class AuctionServerTest {
+        +testServerStartAndConnect()
+    }
+    class AuctionServiceTest {
+        +setEngineAcceptsEngineInstance()
+    }
+    AutoBidDAO --> AutoBidConfig
+    AutoBidDAO --> DatabaseException
+    AutoBidDAO --> DatabaseConnection
+    AuctionClosedException --> AuctionSystemException
+    AuctionNotFoundException --> AuctionSystemException
+    InvalidAuctionTimeException --> AuctionSystemException
+    DuplicateUsernameException --> AuctionSystemException
+    InvalidCredentialsException --> AuctionSystemException
+    InvalidRoleException --> AuctionSystemException
+    NotLoggedInException --> AuctionSystemException
+    SellersRatingException --> AuctionSystemException
+    UserNotFoundException --> AuctionSystemException
+    InvalidTopUpAmountException --> AuctionSystemException
+    InsufficientBalanceException --> AuctionSystemException
+    InvalidBidException --> AuctionSystemException
+    SelfBidException --> AuctionSystemException
+    InvalidItemNameException --> AuctionSystemException
+    InvalidItemPriceException --> AuctionSystemException
+    InvalidItemStateException --> AuctionSystemException
+    ItemNotFoundException --> AuctionSystemException
+    UnauthorizedAccessException --> AuctionSystemException
+    InvalidRequestException --> AuctionSystemException
+    AuctionService --> ItemDAO
+    AuctionService --> UserDAO
+    AuctionService --> BidResult
+    AuctionService --> Auction
+    AuctionService --> BidHistory
+    AuctionService --> BidTransaction
+    AuctionService --> Item
+    AuctionService --> User
+    AuctionService --> AuctionClosedException
+    AuctionService --> AuctionNotFoundException
+    AuctionService --> InvalidAuctionTimeException
+    AuctionService --> AuctionSystemException
+    AuctionService --> UserNotFoundException
+    AuctionService --> InvalidBidException
+    AuctionService --> DatabaseException
+    AuctionService --> InvalidItemPriceException
+    AuctionService --> InvalidItemStateException
+    AuctionService --> ItemNotFoundException
+    AuctionService --> ConfigManager
+    AuctionService --> DatabaseConnection
+    AutoBidService --> AuctionDAO
+    AutoBidService --> AutoBidDAO
+    AutoBidService --> UserDAO
+    AutoBidService --> Auction
+    AutoBidService --> AutoBidConfig
+    AutoBidService --> User
+    AutoBidService --> AuctionClosedException
+    AutoBidService --> AuctionNotFoundException
+    AutoBidService --> InsufficientBalanceException
+    AutoBidService --> InvalidBidException
+    ItemServiceTest --> Electronics
+    ItemServiceTest --> InvalidItemNameException
+    ItemServiceTest --> InvalidItemPriceException
+    UserServiceTest --> AuctionSystemException
+    UserServiceTest --> SellersRatingException
+    UserServiceTest --> InvalidTopUpAmountException
+    UserDAO --> Bidder
+    UserDAO --> Seller
+    UserDAO --> User
+    UserDAO --> DatabaseException
+    UserDAO --> DatabaseConnection
+    UserFactory --> Admin
+    UserFactory --> Bidder
+    UserFactory --> Seller
+    UserFactory --> User
+    User --> BaseEntity
+    CommandRouter --> SimpleResponse
+    SessionContext --> BaseResponse
+    SessionContext --> SimpleResponse
+    SessionContext --> User
+    AuthController --> ChangePasswordRequest
+    AuthController --> LoginRequest
+    AuthController --> RegisterRequest
+    AuthController --> User
+    AuthController --> SessionContext
+    AuthController --> UserService
+    UserController --> TopUpRequest
+    UserController --> SimpleResponse
+    UserController --> TopUpResponse
+    UserController --> User
+    UserController --> SessionContext
+    UserController --> UserService
+    UserService --> UserDAO
+    UserService --> RegisterRequest
+    UserService --> Bidder
+    UserService --> Seller
+    UserService --> User
+    UserService --> AuctionSystemException
+    UserService --> InvalidTopUpAmountException
+    UserFactoryTest --> Admin
+    UserFactoryTest --> Bidder
+    UserFactoryTest --> Seller
+    UserFactoryTest --> User
+    UserFactoryTest --> ResultSetStub
+    ClientHandlerTest --> SimpleResponse
+    ClientHandlerTest --> AuctionEngine
+    ClientHandlerTest --> AuctionService
+    ClientHandlerTest --> UserService
+    ServerMain --> AuctionDAO
+    ServerMain --> AutoBidDAO
+    ServerMain --> UserDAO
+    ServerMain --> AuctionServer
+    ServerMain --> AuctionEngine
+    ServerMain --> AuctionService
+    ServerMain --> AutoBidService
+    ServerMain --> UserService
+    ServerMain --> ConfigManager
+    AuctionDAO --> Auction
+    AuctionDAO --> Item
+    AuctionDAO --> DatabaseException
+    AuctionDAO --> DatabaseConnection
+    Auction --> Item
+    ConcurrentBidException --> Auction
+    ConcurrentBidException --> AuctionSystemException
+    AuctionServer --> AuctionEngine
+    AuctionServer --> AuctionService
+    AuctionServer --> AutoBidService
+    AuctionServer --> UserService
+    ClientHandler --> AuctionController
+    ClientHandler --> AuthController
+    ClientHandler --> BidController
+    ClientHandler --> ItemController
+    ClientHandler --> UserController
+    ClientHandler --> BidObserver
+    ClientHandler --> AuctionEngine
+    ClientHandler --> AuctionService
+    ClientHandler --> AutoBidService
+    ClientHandler --> ItemService
+    ClientHandler --> UserService
+    BidController --> BidResult
+    BidController --> AutoBidRequest
+    BidController --> BidRequest
+    BidController --> AutoBidResponse
+    BidController --> BidResponse
+    BidController --> SimpleResponse
+    BidController --> Auction
+    BidController --> ClientHandler
+    BidController --> SessionContext
+    BidController --> AuctionEngine
+    BidController --> AuctionRoom
+    BidController --> AuctionService
+    BidController --> AutoBidService
+    AuctionEngine --> AuctionDAO
+    AuctionEngine --> UserDAO
+    AuctionEngine --> Auction
+    AuctionEngine --> User
+    AuctionRoom --> BidObserver
+    AuctionRoomManager --> Auction
+    AuctionRoomManager --> BidObserver
+    AuctionEngineTest --> Auction
+    AuctionEngineTest --> Electronics
+    AuctionEngineTest --> AuctionEngine
+    ItemDAO --> Art
+    ItemDAO --> Electronics
+    ItemDAO --> Item
+    ItemDAO --> Vehicle
+    ItemDAO --> DatabaseException
+    ItemDAO --> DatabaseConnection
+    Item --> BaseEntity
+    AuctionController --> GetAuctionDetailRequest
+    AuctionController --> GetBidHistoryRequest
+    AuctionController --> JoinRequest
+    AuctionController --> Auction
+    AuctionController --> BidHistory
+    AuctionController --> Art
+    AuctionController --> Electronics
+    AuctionController --> Item
+    AuctionController --> Vehicle
+    AuctionController --> ClientHandler
+    AuctionController --> SessionContext
+    AuctionController --> AuctionEngine
+    AuctionController --> AuctionService
+    ItemController --> ItemDAO
+    ItemController --> SimpleResponse
+    ItemController --> Art
+    ItemController --> Electronics
+    ItemController --> Item
+    ItemController --> Vehicle
+    ItemController --> SessionContext
+    ItemController --> AuctionService
+    ItemController --> ItemService
+    ItemService --> ItemDAO
+    ItemService --> UserDAO
+    ItemService --> Art
+    ItemService --> Electronics
+    ItemService --> Item
+    ItemService --> Vehicle
+    ItemService --> Seller
+    ItemService --> User
+    ItemFactoryTest --> Art
+    ItemFactoryTest --> Electronics
+    ItemFactoryTest --> Item
+    ItemFactoryTest --> Vehicle
+    ItemFactoryTest --> ResultSetStub
+    BidHistoryDAO --> BidHistory
+    BidHistoryDAO --> DatabaseException
+    BidHistoryDAO --> DatabaseConnection
+    BidTransactionDAO --> BidTransaction
+    BidTransactionDAO --> DatabaseException
+    BidTransactionDAO --> DatabaseConnection
+    DatabaseException --> AuctionSystemException
+    DatabaseConnection --> DatabaseException
+    AuctionDAOTest --> SqlTestSupport
+    BidTransactionDAOTest --> BidTransaction
+    BidTransactionDAOTest --> SqlTestSupport
+    UserDAOTest --> SqlTestSupport
+    AuctionDetailController --> ConnectionManager
+    AuctionDetailController --> ServerClient
+    AuctionDetailController --> Auction
+    ConnectedLoginController --> ServerClient
+    DashboardController --> ConnectionManager
+    DashboardController --> ServerClient
+    DepositController --> ConnectionManager
+    DepositController --> ServerClient
+    LoginController --> ConnectionManager
+    LoginController --> ServerClient
+    MainController --> ConnectionManager
+    ProductManagementController --> ConnectionManager
+    ProductManagementController --> ServerClient
+    RegisterController --> ConnectionManager
+    RegisterController --> ServerClient
+    ConnectionManager --> ConfigManager
+    ServerClient --> ConfigManager
