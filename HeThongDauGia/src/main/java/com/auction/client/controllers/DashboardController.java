@@ -88,6 +88,11 @@ public class DashboardController {
             double currentPrice = auction.has("currentPrice") ? auction.get("currentPrice").getAsDouble() : 0;
             String status = auction.has("status") ? auction.get("status").getAsString() : "OPEN";
 
+            // Lọc bỏ phiên đã kết thúc hoặc hủy — Dashboard chỉ hiện phiên đang mở
+            if ("FINISHED".equals(status) || "CANCELED".equals(status)) {
+                continue;
+            }
+
             // Giả lập description, countdown, category, seller vì list summary chưa có đủ
             String description = "Chi tiết phiên đấu giá " + id;
             String countdown = "N/A";
