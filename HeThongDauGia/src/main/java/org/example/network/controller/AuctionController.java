@@ -174,13 +174,23 @@ public class AuctionController {
                 effectiveStatus = "RUNNING";
             }
 
+            // Resolve tên người bán từ sellerId
+            String sellerUsername = "Không rõ";
+            try {
+                org.example.entity.user.User seller = new org.example.dao.user.UserDAO().getUserById(auction.getSellerId());
+                if (seller != null) {
+                    sellerUsername = seller.getUsername();
+                }
+            } catch (Exception ignored) {}
+
             // Đóng gói dữ liệu trả về DTO Response
             AuctionDetailResponse response = new AuctionDetailResponse(
                     "SUCCESS", "Lay chi tiet thanh cong",
                     auction.getId(), auction.getCurrentPrice(), auction.getStartingPrice(), auction.getStepPrice(),
                     auction.getStartTime(), auction.getEndTime(), effectiveStatus,
                     item.getName(), item.getDescription(),
-                    itemType, warranty, author, engineType
+                    itemType, warranty, author, engineType,
+                    sellerUsername
             );
 
             session.send(response);

@@ -62,10 +62,19 @@ public class BidController {
             if (result.isSuccess()) {
                 String username = session.getCurrentUser().getUsername();
 
+                // Lấy số dư mới sau khi bid
+                java.math.BigDecimal newBalance = java.math.BigDecimal.ZERO;
+                try {
+                    org.example.entity.user.User updatedUser = new org.example.dao.user.UserDAO().getUserById(session.getCurrentUser().getId());
+                    if (updatedUser != null) {
+                        newBalance = updatedUser.getBalance();
+                    }
+                } catch (Exception ignored) {}
+
                 // 1. Confirm cá nhân cho người đặt
                 session.send(new BidResponse(
                         req.getAuctionId(), username,
-                        req.getAmount(), LocalDateTime.now()));
+                        req.getAmount(), LocalDateTime.now(), newBalance));
 
                 AuctionRoom room = engine.getRoomManager().getRoom(auction.getId());
                 if (room != null) {

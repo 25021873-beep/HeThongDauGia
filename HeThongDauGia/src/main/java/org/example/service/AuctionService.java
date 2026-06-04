@@ -249,10 +249,13 @@ public class AuctionService {
             autoBidService.triggerAsync(auctionId, bidderId);
 
             // Cập nhật Object trên RAM cho Engine chạy nền
-            if (isExtended && engine != null) {
+            if (engine != null) {
                 Auction liveAuction = engine.findActiveAuctionById(auctionId);
                 if (liveAuction != null) {
-                    liveAuction.setEndTime(newEndTime);
+                    liveAuction.setCurrentPrice(bidAmount); // Cập nhật giá mới nhất
+                    if (isExtended) {
+                        liveAuction.setEndTime(newEndTime);
+                    }
                 }
             }
 
