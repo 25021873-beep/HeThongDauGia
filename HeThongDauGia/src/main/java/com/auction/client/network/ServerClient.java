@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 
 public final class ServerClient {
     private static final String HOST =
-            ConfigManager.getInstance().getString("client.server.host", "104.214.169.224");
+            ConfigManager.getInstance().getString("client.server.host", "26.139.15.134");
     private static final int PORT =
             ConfigManager.getInstance().getInt("client.server.port", 8888);
     private static final int CONNECT_TIMEOUT_MS = 3000;
