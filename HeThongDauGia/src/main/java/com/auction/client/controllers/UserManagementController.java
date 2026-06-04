@@ -138,6 +138,10 @@ public class UserManagementController {
     }
 
     private void showAlert(String message) {
-        ToastManager.showInfo(message);
+        if (message.contains("Lỗi") || message.contains("lỗi")) {
+            ToastManager.showError(message);
+        } else {
+            ToastManager.showInfo(message);
+        }
     }
 }

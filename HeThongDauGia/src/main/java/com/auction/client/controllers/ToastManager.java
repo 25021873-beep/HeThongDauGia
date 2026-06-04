@@ -107,7 +107,7 @@ public class ToastManager {
 
         switch (type) {
             case ERROR:
-                icon = "✕";
+                icon = "✘";
                 bgColor = "rgba(30, 30, 30, 0.95)";
                 borderColor = "rgba(192, 57, 43, 0.6)";
                 iconBgColor = "#C0392B";
