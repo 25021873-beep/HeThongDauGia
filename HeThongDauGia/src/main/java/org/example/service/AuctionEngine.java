@@ -97,9 +97,28 @@ public class AuctionEngine {
 
         for (Auction auction : activeAuctions) {
 
-            // NHỊP 1: Mở phòng (OPEN → RUNNING)
+            // NHỊP 1: Mở phòng (OPEN → RUNNING) hoặc đóng trực tiếp nếu đã quá hạn
             if ("OPEN".equals(auction.getStatus()) && auction.getStartTime() != null) {
                 if (!now.isBefore(auction.getStartTime())) {
+                    // Kiểm tra nếu phiên đã quá endTime luôn → đóng trực tiếp, không cần qua RUNNING
+                    if (auction.getEndTime() != null && now.isAfter(auction.getEndTime())) {
+                        toRemove.add(auction);
+                        try {
+                            boolean closed = auctionService.closeAuction(auction.getId());
+                            AuctionRoom room = roomManager.getRoom(auction.getId());
+                            if (room != null) {
+                                String winnerUsername = closed ? resolveWinnerUsername(auction.getId()) : null;
+                                room.notifyAuctionEnded(winnerUsername, auction.getCurrentPrice());
+                            }
+                            roomManager.removeRoom(auction.getId());
+                            System.out.println("[ENGINE] Phien OPEN ID " + auction.getId() + " da qua ca endTime, dong truc tiep.");
+                        } catch (Exception e) {
+                            System.err.println("[ENGINE] Loi dong phien OPEN qua han ID " + auction.getId() + ": " + e.getMessage());
+                            roomManager.removeRoom(auction.getId());
+                        }
+                        continue; // Bỏ qua phần check RUNNING bên dưới
+                    }
+
                     auction.setStatus("RUNNING");
                     boolean isUpdated = auctionDAO.updateAuctionStatus("RUNNING", auction.getId());
 

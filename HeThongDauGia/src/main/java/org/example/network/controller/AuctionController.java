@@ -61,7 +61,14 @@ public class AuctionController {
                     return new AuctionSummary(
                             a.getId(), a.getItem().getName(), a.getCurrentPrice(), effectiveStatus);
                 })
+                // Lọc bỏ các phiên đã kết thúc — Dashboard chỉ hiện phiên đang mở/sắp mở
+                .filter(s -> !"FINISHED".equals(s.getStatus()) && !"CANCELED".equals(s.getStatus()))
                 .collect(Collectors.toList());
+
+        if (summaries.isEmpty()) {
+            session.send(SimpleResponse.info("Hien khong co phien dau gia nao dang mo"));
+            return;
+        }
         session.send(new AuctionListResponse(summaries));
     }
 
@@ -157,11 +164,22 @@ public class AuctionController {
                 engineType = ((Vehicle) item).getEngineType();
             }
 
+            // Tính status thực tế dựa trên thời gian (tránh lệch do Engine cycle 5s)
+            String effectiveStatus = auction.getStatus();
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if (("RUNNING".equals(effectiveStatus) || "OPEN".equals(effectiveStatus))
+                    && auction.getEndTime() != null && now.isAfter(auction.getEndTime())) {
+                effectiveStatus = "FINISHED";
+            } else if ("OPEN".equals(effectiveStatus) 
+                    && auction.getStartTime() != null && !now.isBefore(auction.getStartTime())) {
+                effectiveStatus = "RUNNING";
+            }
+
             // Đóng gói dữ liệu trả về DTO Response
             AuctionDetailResponse response = new AuctionDetailResponse(
                     "SUCCESS", "Lay chi tiet thanh cong",
                     auction.getId(), auction.getCurrentPrice(), auction.getStartingPrice(), auction.getStepPrice(),
-                    auction.getStartTime(), auction.getEndTime(), auction.getStatus(),
+                    auction.getStartTime(), auction.getEndTime(), effectiveStatus,
                     item.getName(), item.getDescription(),
                     itemType, warranty, author, engineType
             );
