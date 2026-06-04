@@ -128,7 +128,7 @@ public class AuctionDetailController {
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
                         String status = res.has("auctionStatus") ? res.get("auctionStatus").getAsString() : "OPEN";
-                        lblStatus.setText("RUNNING".equals(status) ? "● Đang diễn ra" : ("OPEN".equals(status) ? "● Sắp bắt đầu" : "● Đã kết thúc"));
+                        updateStatusLabel(status);
                         if (res.has("endTime")) {
                             String endTimeStr = res.get("endTime").getAsString();
                             this.endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
@@ -294,7 +294,7 @@ public class AuctionDetailController {
                 break;
                 
             case "AUCTION_STARTED":
-                lblStatus.setText("● Đang diễn ra");
+                updateStatusLabel("RUNNING");
                 break;
         }
     }
@@ -436,6 +436,19 @@ public class AuctionDetailController {
             lblTimeExtended.setOpacity(1.0);
         });
         ft.play();
+    }
+
+    private void updateStatusLabel(String status) {
+        if ("RUNNING".equals(status)) {
+            lblStatus.setText("● Đang diễn ra");
+            lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #2E8B57;");
+        } else if ("OPEN".equals(status)) {
+            lblStatus.setText("● Sắp bắt đầu");
+            lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #FCBF49;");
+        } else {
+            lblStatus.setText("● Đã kết thúc");
+            lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #888888;");
+        }
     }
 
     private void updatePriceDisplay() {

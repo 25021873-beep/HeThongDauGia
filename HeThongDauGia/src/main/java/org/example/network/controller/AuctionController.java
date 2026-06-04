@@ -67,12 +67,21 @@ public class AuctionController {
 
         engine.getRoomManager().joinRoom(auction, handler);
 
+        // Fix race condition: Engine chạy mỗi 5s, nếu client JOIN đúng lúc OPEN->RUNNING
+        // thì status trên RAM có thể chưa cập nhật
+        String effectiveStatus = auction.getStatus();
+        if ("OPEN".equals(effectiveStatus) 
+                && auction.getStartTime() != null 
+                && !java.time.LocalDateTime.now().isBefore(auction.getStartTime())) {
+            effectiveStatus = "RUNNING";
+        }
+
         session.send(new JoinResponse(
                 auction.getId(),
                 auction.getItem().getName(),
                 auction.getCurrentPrice(),
                 auction.getEndTime(),
-                auction.getStatus()));
+                effectiveStatus));
     }
 
     // ── GET_BID_HISTORY (Phục vụ Visualization) ───────────────────────────────
