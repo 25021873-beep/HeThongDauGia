@@ -176,7 +176,7 @@ public class AuctionDetailController {
                 
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
-                        if (res.has("description")) lblDescription.setText(res.get("description").getAsString());
+                        if (res.has("itemDescription")) lblDescription.setText(res.get("itemDescription").getAsString());
                         if (res.has("itemType")) lblCategory.setText("Danh mục: " + res.get("itemType").getAsString());
                         if (res.has("sellerUsername")) lblSeller.setText("Người bán: " + res.get("sellerUsername").getAsString());
                         if (res.has("stepPrice") && lblStepPrice != null) {
@@ -386,16 +386,6 @@ public class AuctionDetailController {
                             txtBidAmount.clear();
                             ToastManager.showInfo(
                                     "Đặt giá thành công: " + String.format("%,d VNĐ", bidAmount.toBigInteger()));
-
-                            // Cập nhật số dư hiển thị
-                            ConnectionManager conn2 = ConnectionManager.getInstance();
-                            if (res.has("newBalance")) {
-                                conn2.setBalance(res.get("newBalance").getAsDouble());
-                            } else {
-                                conn2.setBalance(conn2.getBalance() - bidAmount.doubleValue());
-                            }
-                            MainController mc = MainController.getInstance();
-                            if (mc != null) mc.updateBalanceDisplay();
                         } else {
                             ToastManager.showError(ServerClient.messageOf(res));
                         }
