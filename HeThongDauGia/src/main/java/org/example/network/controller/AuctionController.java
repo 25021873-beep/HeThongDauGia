@@ -99,6 +99,7 @@ public class AuctionController {
                 auction.getId(),
                 auction.getItem().getName(),
                 auction.getCurrentPrice(),
+                auction.getStartTime(),
                 auction.getEndTime(),
                 effectiveStatus));
     }

@@ -18,15 +18,17 @@ public class JoinResponse extends BaseResponse {
     private final int        auctionId;
     private final String     auctionName;
     private final BigDecimal currentPrice;
+    private final String     startTime;
     private final String     endTime;      // String để Gson serialize gọn
     private final String     auctionStatus;
 
     public JoinResponse(int auctionId, String auctionName,
-                        BigDecimal currentPrice, LocalDateTime endTime, String auctionStatus) {
+                        BigDecimal currentPrice, LocalDateTime startTime, LocalDateTime endTime, String auctionStatus) {
         super(STATUS_SUCCESS, "Vao phong thanh cong");
         this.auctionId     = auctionId;
         this.auctionName   = auctionName;
         this.currentPrice  = currentPrice;
+        this.startTime     = startTime != null ? startTime.format(FMT) : null;
         this.endTime       = endTime != null ? endTime.format(FMT) : null;
         this.auctionStatus = auctionStatus;
     }
@@ -34,6 +36,7 @@ public class JoinResponse extends BaseResponse {
     public int        getAuctionId()    { return auctionId; }
     public String     getAuctionName()  { return auctionName; }
     public BigDecimal getCurrentPrice() { return currentPrice; }
+    public String     getStartTime()    { return startTime; }
     public String     getEndTime()      { return endTime; }
     public String     getAuctionStatus(){ return auctionStatus; }
 }

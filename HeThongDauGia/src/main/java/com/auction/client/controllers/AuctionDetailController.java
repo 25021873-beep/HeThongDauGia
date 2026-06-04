@@ -147,9 +147,9 @@ public class AuctionDetailController {
                             this.endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
                         }
 
-                        // Nếu server nói OPEN nhưng startTime đã qua hoặc không có → thực tế là RUNNING
-                        if ("OPEN".equals(this.currentStatus)) {
-                            if (this.startTime == null || !LocalDateTime.now().isBefore(this.startTime)) {
+                        // Nếu server nói OPEN nhưng startTime đã qua → thực tế là RUNNING
+                        if ("OPEN".equals(this.currentStatus) && this.startTime != null) {
+                            if (!LocalDateTime.now().isBefore(this.startTime)) {
                                 this.currentStatus = "RUNNING";
                                 updateStatusLabel("RUNNING");
                             }

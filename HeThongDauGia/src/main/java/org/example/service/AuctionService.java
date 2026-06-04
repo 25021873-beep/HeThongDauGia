@@ -192,17 +192,8 @@ public class AuctionService {
 
             // ==========================================================
             // II. XỬ LÝ GIAO DỊCH CHÍNH (TRANSACTION)
+            // Chỉ ghi nhận bid — tiền chỉ trừ khi thắng đấu giá (closeAuction)
             // ==========================================================
-
-            boolean isDeducted = userDAO.deductBalance(conn, bidderId, bidAmount);
-            if (!isDeducted) {
-                throw new InvalidBidException("Số dư không đủ! (Lỗi giao dịch)");
-            }
-
-            BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
-            if (highestBid != null) {
-                userDAO.addBalance(conn, highestBid.getBidderId(), highestBid.getBidPrice());
-            }
 
             auctionDAO.updateCurrentPrice(conn, auctionId, bidAmount);
 
@@ -300,6 +291,16 @@ public class AuctionService {
 
             BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
             if (highestBid != null) {
+                // Trừ tiền người thắng đấu giá
+                try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
+                    boolean deducted = userDAO.deductBalance(conn, highestBid.getBidderId(), highestBid.getBidPrice());
+                    if (!deducted) {
+                        System.err.println("[CLOSE] CANH BAO: Khong the tru tien nguoi thang ID "
+                                + highestBid.getBidderId() + " - so du khong du!");
+                    }
+                } catch (SQLException e) {
+                    System.err.println("[CLOSE] Loi tru tien nguoi thang: " + e.getMessage());
+                }
                 auctionDAO.closeAuction(auctionId, highestBid.getBidderId());
                 itemDAO.updateItemStatus(auction.getItemId(), "SOLD");
             } else {
