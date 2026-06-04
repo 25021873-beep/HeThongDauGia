@@ -178,6 +178,7 @@ public class AuctionDetailController {
                     if (ServerClient.isSuccess(res)) {
                         if (res.has("description")) lblDescription.setText(res.get("description").getAsString());
                         if (res.has("itemType")) lblCategory.setText("Danh mục: " + res.get("itemType").getAsString());
+                        if (res.has("sellerUsername")) lblSeller.setText("Người bán: " + res.get("sellerUsername").getAsString());
                         if (res.has("stepPrice") && lblStepPrice != null) {
                             double step = res.get("stepPrice").getAsDouble();
                             lblStepPrice.setText("Bước giá tối thiểu: " + String.format("%,.0f VNĐ", step));

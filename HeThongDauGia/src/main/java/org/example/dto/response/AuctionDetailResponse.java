@@ -23,11 +23,13 @@ public class AuctionDetailResponse extends BaseResponse {
     private final Integer warrantyMonths;
     private final String author;
     private final String engineType;
+    private final String sellerUsername;
 
     public AuctionDetailResponse(String status, String message, int auctionId, BigDecimal currentPrice, BigDecimal startingPrice, BigDecimal stepPrice,
                                  LocalDateTime startTime, LocalDateTime endTime, String auctionStatus,
                                  String itemName, String itemDescription,
-                                 String itemType, Integer warrantyMonths, String author, String engineType) {
+                                 String itemType, Integer warrantyMonths, String author, String engineType,
+                                 String sellerUsername) {
         super(status, message);
         this.auctionId = auctionId;
         this.currentPrice = currentPrice;
@@ -43,6 +45,7 @@ public class AuctionDetailResponse extends BaseResponse {
         this.warrantyMonths = warrantyMonths;
         this.author = author;
         this.engineType = engineType;
+        this.sellerUsername = sellerUsername;
     }
 
     public int getAuctionId() {
@@ -95,5 +98,9 @@ public class AuctionDetailResponse extends BaseResponse {
 
     public String getEngineType() {
         return engineType;
+    }
+
+    public String getSellerUsername() {
+        return sellerUsername;
     }
 }
