@@ -141,7 +141,25 @@ public class AuctionService {
             if (auction == null) throw new AuctionNotFoundException("Phien dau gia khong ton tai.");
 
             if (!"RUNNING".equals(auction.getStatus())) {
-                throw new InvalidBidException("Phòng chưa mở hoặc đã kết thúc!");
+                // Nếu phiên đang OPEN nhưng đã qua startTime → tự chuyển sang RUNNING
+                // (AuctionEngine chạy mỗi 5s nên có thể chưa kịp cập nhật)
+                if ("OPEN".equals(auction.getStatus()) 
+                        && auction.getStartTime() != null 
+                        && !LocalDateTime.now().isBefore(auction.getStartTime())) {
+                    auctionDAO.updateAuctionStatus("RUNNING", auctionId);
+                    auction.setStatus("RUNNING");
+                    System.out.println("[BID] Tu dong chuyen phien " + auctionId + " tu OPEN sang RUNNING (da qua startTime)");
+                    
+                    // Cập nhật object trên RAM cho Engine
+                    if (engine != null) {
+                        Auction liveAuction = engine.findActiveAuctionById(auctionId);
+                        if (liveAuction != null) {
+                            liveAuction.setStatus("RUNNING");
+                        }
+                    }
+                } else {
+                    throw new InvalidBidException("Phòng chưa mở hoặc đã kết thúc!");
+                }
             }
 
             if (auction.getEndTime().isBefore(LocalDateTime.now())) {

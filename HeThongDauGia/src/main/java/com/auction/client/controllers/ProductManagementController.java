@@ -74,6 +74,8 @@ public class ProductManagementController {
                                 String name = item.has("name") ? item.get("name").getAsString() : "";
                                 String type = item.has("itemType") ? item.get("itemType").getAsString() : "";
                                 String status = item.has("auction_status") ? item.get("auction_status").getAsString() : (item.has("status") ? item.get("status").getAsString() : "");
+                                // Dịch mã trạng thái tiếng Anh sang tiếng Việt (phòng trường hợp server trả mã thô)
+                                status = translateStatus(status);
                                 double price = item.has("startingPrice") ? item.get("startingPrice").getAsDouble() : 0;
                                 String formattedPrice = String.format("%,.0f", price);
                                 String startT = item.has("start_time") ? item.get("start_time").getAsString() : "N/A";
@@ -217,6 +219,18 @@ public class ProductManagementController {
             case "Nghệ thuật": return "ART";
             case "Xe cộ": return "VEHICLE";
             default: return "ELECTRONICS";
+        }
+    }
+
+    private String translateStatus(String status) {
+        if (status == null) return "";
+        switch (status) {
+            case "OPEN":     return "Sắp bắt đầu";
+            case "RUNNING":  return "Đang diễn ra";
+            case "FINISHED": return "Đã kết thúc";
+            case "CANCELED": return "Đã hủy";
+            case "PAID":     return "Đã thanh toán";
+            default:         return status; // Giữ nguyên nếu đã là tiếng Việt
         }
     }
 

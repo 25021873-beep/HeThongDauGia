@@ -46,10 +46,29 @@ public class AuctionController {
             session.send(SimpleResponse.info("Hien khong co phien dau gia nao"));
             return;
         }
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
         List<AuctionSummary> summaries = active.stream()
-                .map(a -> new AuctionSummary(
-                        a.getId(), a.getItem().getName(), a.getCurrentPrice(), a.getStatus()))
+                .map(a -> {
+                    // Tính status thực tế dựa trên thời gian (tránh lệch do Engine cycle 5s)
+                    String effectiveStatus = a.getStatus();
+                    if (("RUNNING".equals(effectiveStatus) || "OPEN".equals(effectiveStatus))
+                            && a.getEndTime() != null && now.isAfter(a.getEndTime())) {
+                        effectiveStatus = "FINISHED";
+                    } else if ("OPEN".equals(effectiveStatus) 
+                            && a.getStartTime() != null && !now.isBefore(a.getStartTime())) {
+                        effectiveStatus = "RUNNING";
+                    }
+                    return new AuctionSummary(
+                            a.getId(), a.getItem().getName(), a.getCurrentPrice(), effectiveStatus);
+                })
+                // Lọc bỏ các phiên đã kết thúc — Dashboard chỉ hiện phiên đang mở/sắp mở
+                .filter(s -> !"FINISHED".equals(s.getStatus()) && !"CANCELED".equals(s.getStatus()))
                 .collect(Collectors.toList());
+
+        if (summaries.isEmpty()) {
+            session.send(SimpleResponse.info("Hien khong co phien dau gia nao dang mo"));
+            return;
+        }
         session.send(new AuctionListResponse(summaries));
     }
 
@@ -67,12 +86,21 @@ public class AuctionController {
 
         engine.getRoomManager().joinRoom(auction, handler);
 
+        // Fix race condition: Engine chạy mỗi 5s, nếu client JOIN đúng lúc OPEN->RUNNING
+        // thì status trên RAM có thể chưa cập nhật
+        String effectiveStatus = auction.getStatus();
+        if ("OPEN".equals(effectiveStatus) 
+                && auction.getStartTime() != null 
+                && !java.time.LocalDateTime.now().isBefore(auction.getStartTime())) {
+            effectiveStatus = "RUNNING";
+        }
+
         session.send(new JoinResponse(
                 auction.getId(),
                 auction.getItem().getName(),
                 auction.getCurrentPrice(),
                 auction.getEndTime(),
-                auction.getStatus()));
+                effectiveStatus));
     }
 
     // ── GET_BID_HISTORY (Phục vụ Visualization) ───────────────────────────────
@@ -135,11 +163,22 @@ public class AuctionController {
                 engineType = ((Vehicle) item).getEngineType();
             }
 
+            // Tính status thực tế dựa trên thời gian (tránh lệch do Engine cycle 5s)
+            String effectiveStatus = auction.getStatus();
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            if (("RUNNING".equals(effectiveStatus) || "OPEN".equals(effectiveStatus))
+                    && auction.getEndTime() != null && now.isAfter(auction.getEndTime())) {
+                effectiveStatus = "FINISHED";
+            } else if ("OPEN".equals(effectiveStatus) 
+                    && auction.getStartTime() != null && !now.isBefore(auction.getStartTime())) {
+                effectiveStatus = "RUNNING";
+            }
+
             // Đóng gói dữ liệu trả về DTO Response
             AuctionDetailResponse response = new AuctionDetailResponse(
                     "SUCCESS", "Lay chi tiet thanh cong",
                     auction.getId(), auction.getCurrentPrice(), auction.getStartingPrice(), auction.getStepPrice(),
-                    auction.getStartTime(), auction.getEndTime(), auction.getStatus(),
+                    auction.getStartTime(), auction.getEndTime(), effectiveStatus,
                     item.getName(), item.getDescription(),
                     itemType, warranty, author, engineType
             );
