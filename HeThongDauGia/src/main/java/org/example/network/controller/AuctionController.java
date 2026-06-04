@@ -82,7 +82,6 @@ public class AuctionController {
         GetBidHistoryRequest req = gson.fromJson(json, GetBidHistoryRequest.class);
 
         try {
-            // Tối ưu: Sử dụng biến cục bộ của lớp đã tiêm thay vì gọi qua phương thức static
             List<BidHistory> history = auctionService.getBidHistory((int) req.getAuctionId());
 
             // Chuyển đổi Entity sang DTO cho Response

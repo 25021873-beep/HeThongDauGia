@@ -3,10 +3,6 @@ package org.example.dto;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Kết quả trả về từ AuctionService.placeBid().
- * Thay thế boolean để mang thêm thông tin gia hạn anti-snipe.
- */
 public class BidResult {
 
     private final boolean       success;
