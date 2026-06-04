@@ -67,7 +67,9 @@ public class AuctionDetailController {
     private int currentAuctionId = -1;
     private double currentPrice = 0;
     private String currentLeader = "Chưa có";
+    private LocalDateTime startTime;
     private LocalDateTime endTime;
+    private String currentStatus = "OPEN";
     private Timeline countdownTimeline;
     private XYChart.Series<String, Number> priceSeries;
     private ObservableList<String[]> bidData = FXCollections.observableArrayList();
@@ -104,6 +106,12 @@ public class AuctionDetailController {
         
         updatePriceDisplay();
 
+        // Thông báo MainController đang xem phiên này (để không hiện toast)
+        MainController mc = MainController.getInstance();
+        if (mc != null) {
+            mc.setCurrentViewingAuctionId(auctionId);
+        }
+
         // 1. Join room để nhận realtime push
         joinAuctionRoom(auctionId);
         
@@ -128,12 +136,17 @@ public class AuctionDetailController {
                 Platform.runLater(() -> {
                     if (ServerClient.isSuccess(res)) {
                         String status = res.has("auctionStatus") ? res.get("auctionStatus").getAsString() : "OPEN";
+                        this.currentStatus = status;
                         updateStatusLabel(status);
+                        if (res.has("startTime")) {
+                            String startTimeStr = res.get("startTime").getAsString();
+                            this.startTime = LocalDateTime.parse(startTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                        }
                         if (res.has("endTime")) {
                             String endTimeStr = res.get("endTime").getAsString();
                             this.endTime = LocalDateTime.parse(endTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-                            startCountdown();
                         }
+                        startCountdown();
                     }
                 });
             } catch (IOException e) {
@@ -225,20 +238,47 @@ public class AuctionDetailController {
         }
 
         countdownTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            if (endTime == null) return;
-            long remainingSeconds = LocalDateTime.now().until(endTime, ChronoUnit.SECONDS);
-            
-            if (remainingSeconds > 0) {
-                long minutes = remainingSeconds / 60;
-                long seconds = remainingSeconds % 60;
-                lblCountdown.setText(String.format("⏱ %02d:%02d", minutes, seconds));
+            if ("OPEN".equals(currentStatus) && startTime != null) {
+                // Phiên chưa mở → đếm ngược đến lúc bắt đầu
+                long remainingSeconds = LocalDateTime.now().until(startTime, ChronoUnit.SECONDS);
+                if (remainingSeconds > 0) {
+                    long hours = remainingSeconds / 3600;
+                    long minutes = (remainingSeconds % 3600) / 60;
+                    long seconds = remainingSeconds % 60;
+                    if (hours > 0) {
+                        lblCountdown.setText(String.format("🕐 Bắt đầu sau: %02d:%02d:%02d", hours, minutes, seconds));
+                    } else {
+                        lblCountdown.setText(String.format("🕐 Bắt đầu sau: %02d:%02d", minutes, seconds));
+                    }
+                } else {
+                    // Đã đến giờ bắt đầu → chuyển sang đếm ngược kết thúc
+                    currentStatus = "RUNNING";
+                    updateStatusLabel("RUNNING");
+                    btnPlaceBid.setDisable(false);
+                    btnAutoBid.setDisable(false);
+                    // Countdown sẽ tự chuyển sang nhánh RUNNING ở tick tiếp theo
+                }
             } else {
-                countdownTimeline.stop();
-                lblCountdown.setText("⏱ HẾT GIỜ");
-                lblStatus.setText("● Đã kết thúc");
-                lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #888888;");
-                btnPlaceBid.setDisable(true);
-                btnAutoBid.setDisable(true);
+                // Phiên đang chạy → đếm ngược đến lúc kết thúc
+                if (endTime == null) return;
+                long remainingSeconds = LocalDateTime.now().until(endTime, ChronoUnit.SECONDS);
+                if (remainingSeconds > 0) {
+                    long hours = remainingSeconds / 3600;
+                    long minutes = (remainingSeconds % 3600) / 60;
+                    long seconds = remainingSeconds % 60;
+                    if (hours > 0) {
+                        lblCountdown.setText(String.format("⏱ Kết thúc sau: %02d:%02d:%02d", hours, minutes, seconds));
+                    } else {
+                        lblCountdown.setText(String.format("⏱ Kết thúc sau: %02d:%02d", minutes, seconds));
+                    }
+                } else {
+                    countdownTimeline.stop();
+                    lblCountdown.setText("⏱ HẾT GIỜ");
+                    lblStatus.setText("● Đã kết thúc");
+                    lblStatus.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #888888;");
+                    btnPlaceBid.setDisable(true);
+                    btnAutoBid.setDisable(true);
+                }
             }
         }));
         countdownTimeline.setCycleCount(Timeline.INDEFINITE);
@@ -294,7 +334,13 @@ public class AuctionDetailController {
                 break;
                 
             case "AUCTION_STARTED":
+                currentStatus = "RUNNING";
                 updateStatusLabel("RUNNING");
+                if (msg.has("endTime")) {
+                    String newEndTimeStr = msg.get("endTime").getAsString();
+                    this.endTime = LocalDateTime.parse(newEndTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                }
+                // Countdown tự chuyển sang đếm ngược kết thúc vì currentStatus đã đổi
                 break;
         }
     }
@@ -328,14 +374,14 @@ public class AuctionDetailController {
                     Platform.runLater(() -> {
                         if (ServerClient.isSuccess(res)) {
                             txtBidAmount.clear();
-                            showAlert(Alert.AlertType.INFORMATION, "Thành công",
+                            ToastManager.showInfo(
                                     "Đặt giá thành công: " + String.format("%,d VNĐ", bidAmount.toBigInteger()));
                         } else {
-                            showAlert(Alert.AlertType.ERROR, "Lỗi đặt giá", ServerClient.messageOf(res));
+                            ToastManager.showError(ServerClient.messageOf(res));
                         }
                     });
                 } catch (IOException e) {
-                    Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", e.getMessage()));
+                    Platform.runLater(() -> ToastManager.showError("Lỗi kết nối: " + e.getMessage()));
                 }
             });
 
@@ -343,7 +389,7 @@ public class AuctionDetailController {
             t.start();
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá đấu phải là số hợp lệ!");
+            ToastManager.showError("Giá đấu phải là số hợp lệ!");
         }
     }
 
@@ -353,7 +399,7 @@ public class AuctionDetailController {
             autoBidEnabled = false;
             btnAutoBid.setText("⚡ Bật tự động đấu");
             btnAutoBid.setStyle("-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
-            showAlert(Alert.AlertType.INFORMATION, "Tự động đấu giá", "Đã tắt chế độ tự động đấu giá.");
+            ToastManager.showInfo("Đã tắt chế độ tự động đấu giá.");
             return;
         }
 
@@ -361,7 +407,7 @@ public class AuctionDetailController {
         String incrementText = MoneyFieldFormatter.getRawValue(txtIncrement);
 
         if (maxBidText.isEmpty() || incrementText.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Vui lòng nhập giá tối đa và bước giá!");
+            ToastManager.showError("Vui lòng nhập giá tối đa và bước giá!");
             return;
         }
 
@@ -384,21 +430,21 @@ public class AuctionDetailController {
                             autoBidEnabled = true;
                             btnAutoBid.setText("🛑 Tắt tự động đấu");
                             btnAutoBid.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
-                            showAlert(Alert.AlertType.INFORMATION, "Tự động đấu giá",
+                            ToastManager.showInfo(
                                     String.format("Đã bật tự động đấu giá!\nGiá tối đa: %,.0f VNĐ\nBước giá: %,.0f VNĐ", maxBid, increment));
                         } else {
-                            showAlert(Alert.AlertType.ERROR, "Lỗi tự động đấu", ServerClient.messageOf(res));
+                            ToastManager.showError(ServerClient.messageOf(res));
                         }
                     });
                 } catch (IOException e) {
-                    Platform.runLater(() -> showAlert(Alert.AlertType.ERROR, "Lỗi kết nối", e.getMessage()));
+                    Platform.runLater(() -> ToastManager.showError("Lỗi kết nối: " + e.getMessage()));
                 }
             });
             t.setDaemon(true);
             t.start();
 
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Lỗi", "Giá tối đa và bước giá phải là số hợp lệ!");
+            ToastManager.showError("Giá tối đa và bước giá phải là số hợp lệ!");
         }
     }
 
@@ -408,6 +454,12 @@ public class AuctionDetailController {
             countdownTimeline.stop();
         }
         ConnectionManager.getInstance().clearPushCallback();
+
+        // Xóa trạng thái đang xem phiên này → toast notification sẽ hoạt động lại
+        MainController mc = MainController.getInstance();
+        if (mc != null) {
+            mc.clearCurrentViewingAuctionId();
+        }
 
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Dashboard.fxml"));
@@ -457,10 +509,12 @@ public class AuctionDetailController {
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        if (type == Alert.AlertType.ERROR) {
+            ToastManager.showError(message);
+        } else if (type == Alert.AlertType.WARNING) {
+            ToastManager.showWarning(message);
+        } else {
+            ToastManager.showInfo(message);
+        }
     }
 }
