@@ -35,9 +35,17 @@ public class DashboardController {
     private TextField txtSearch;
 
     private JsonArray allAuctions = new JsonArray();
+    
+    private static DashboardController instance;
+    private java.util.Map<Integer, Label> priceLabels = new java.util.HashMap<>();
+
+    public static DashboardController getInstance() {
+        return instance;
+    }
 
     @FXML
     public void initialize() {
+        instance = this;
         // Tải danh sách phiên đấu giá từ Server
         loadAuctionsFromServer();
 
@@ -83,6 +91,7 @@ public class DashboardController {
 
     private void displayAuctions(JsonArray auctions) {
         productGridPane.getChildren().clear();
+        priceLabels.clear();
         for (JsonElement elem : auctions) {
             JsonObject auction = elem.getAsJsonObject();
             int id = auction.has("id") ? auction.get("id").getAsInt() : 0;
@@ -164,6 +173,7 @@ public class DashboardController {
         Label lblPrice = new Label(String.format("💰 Giá hiện tại: %,.0f VNĐ", currentPrice));
         lblPrice.setTextFill(Color.web("#F57D1F"));
         lblPrice.setFont(Font.font("System", FontWeight.BOLD, 14));
+        priceLabels.put(id, lblPrice);
 
         // button
         Button btnAction = new Button("🔍 Xem chi tiết / Đấu giá");
@@ -182,6 +192,15 @@ public class DashboardController {
         card.setAlignment(Pos.TOP_LEFT);
 
         return card;
+    }
+
+    public void updatePrice(int auctionId, double newPrice) {
+        Platform.runLater(() -> {
+            Label lbl = priceLabels.get(auctionId);
+            if (lbl != null) {
+                lbl.setText(String.format("💰 Giá hiện tại: %,.0f VNĐ", newPrice));
+            }
+        });
     }
 
     private void openAuctionDetail(int auctionId, String name, String description, double price, String category, String seller) {

@@ -191,6 +191,12 @@ public class MainController {
                 String productName = msg.has("auctionName") ? msg.get("auctionName").getAsString()
                         : ("Phiên #" + msgAuctionId);
                 ToastManager.showBidNotification(productName, bidder, newPrice);
+                
+                // Cập nhật giá realtime trên Dashboard card (nếu đang ở Dashboard)
+                DashboardController dc = DashboardController.getInstance();
+                if (dc != null) {
+                    dc.updatePrice(msgAuctionId, newPrice);
+                }
                 break;
 
             case "AUCTION_END":
