@@ -110,6 +110,10 @@ public class CommandRouter {
                 bidController.handleAutoBid(json);
                 return false;
 
+            case "CANCEL_AUTO_BID":
+                bidController.handleCancelAutoBid(json);
+                return false;
+
             default:
                 session.send(SimpleResponse.error("Lenh khong hop le: " + command));
                 return false;

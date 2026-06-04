@@ -125,6 +125,26 @@ public class BidController {
         }
     }
 
+    // ── CANCEL_AUTO_BID ───────────────────────────────────────────────────────
+
+    public void handleCancelAutoBid(JsonObject json) {
+        if (!session.requireLogin()) return;
+
+        if (autoBidService == null) {
+            session.send(SimpleResponse.error("He thong Auto-bid chua duoc khoi tao."));
+            return;
+        }
+
+        try {
+            int auctionId = json.get("auctionId").getAsInt();
+            autoBidService.cancelAutoBid(session.getCurrentUser().getId(), auctionId);
+            session.send(SimpleResponse.success("Da huy dang ky auto-bid."));
+        } catch (Exception e) {
+            System.err.println("[BID_CTRL] Loi huy auto-bid: " + e.getMessage());
+            session.send(SimpleResponse.error("Loi huy auto-bid: " + e.getMessage()));
+        }
+    }
+
     // ── GET_USER_BID_HISTORY ──────────────────────────────────────────────────
 
     public void handleGetUserBidHistory() {

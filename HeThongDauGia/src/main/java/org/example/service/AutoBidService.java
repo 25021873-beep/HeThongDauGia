@@ -77,7 +77,18 @@ public class AutoBidService {
     } finally {
             lock.unlock();
         }
+    }
+
+    // Hàm huỷ đăng ký auto-bid
+    public void cancelAutoBid(int bidderId, int auctionId) {
+        ReentrantLock lock = auctionService.getLock(auctionId);
+        lock.lock();
+        try {
+            autoBidDAO.deactivate(auctionId, bidderId);
+        } finally {
+            lock.unlock();
         }
+    }
 
     // Hàm Trigger bot chạy hàm placeBid() sau mỗi bid thành công
     public void triggerAutoBid(int auctionId, int triggerBidderId) {

@@ -405,11 +405,31 @@ public class AuctionDetailController {
 
     @FXML
     private void handleAutoBid() {
-        if (autoBidEnabled) { // Client-side disable toggle, server might need a DISABLE_AUTO_BID command, but SET_AUTO_BID with 0 or negative can handle it? Wait, let's just toggle locally and not send anything if backend doesn't support disabling. Backend deactivate autobid on invalid bid.
-            autoBidEnabled = false;
-            btnAutoBid.setText("⚡ Bật tự động đấu");
-            btnAutoBid.setStyle("-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
-            ToastManager.showInfo("Đã tắt chế độ tự động đấu giá.");
+        if (autoBidEnabled) { 
+            Thread t = new Thread(() -> {
+                try {
+                    JsonObject req = new JsonObject();
+                    req.addProperty("command", "CANCEL_AUTO_BID");
+                    req.addProperty("auctionId", currentAuctionId);
+                    
+                    JsonObject res = ConnectionManager.getInstance().sendAndWait(req);
+                    
+                    Platform.runLater(() -> {
+                        if (ServerClient.isSuccess(res)) {
+                            autoBidEnabled = false;
+                            btnAutoBid.setText("⚡ Bật tự động đấu");
+                            btnAutoBid.setStyle("-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
+                            ToastManager.showInfo("Đã tắt chế độ tự động đấu giá.");
+                        } else {
+                            ToastManager.showError(ServerClient.messageOf(res));
+                        }
+                    });
+                } catch (IOException e) {
+                    Platform.runLater(() -> ToastManager.showError("Lỗi kết nối: " + e.getMessage()));
+                }
+            });
+            t.setDaemon(true);
+            t.start();
             return;
         }
 
