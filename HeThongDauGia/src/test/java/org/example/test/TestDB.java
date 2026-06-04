@@ -15,8 +15,8 @@ public class TestDB {
              Statement stmt = conn.createStatement()) {
 
             System.out.println("Connected to the database!");
-            ResultSet rs = stmt.executeQuery("DESCRIBE Auto_Bidding");
-            System.out.println("Table Auto_Bidding columns:");
+            ResultSet rs = stmt.executeQuery("DESCRIBE auto_bidding");
+            System.out.println("Table auto_bidding columns:");
             while (rs.next()) {
                 System.out.println(rs.getString("Field") + " | " +
                                    rs.getString("Type") + " | " +

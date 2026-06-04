@@ -18,12 +18,12 @@ public class AutoBidDAO {
     // Hàm lưu config mới hoặc cập nhật nếu đã tồn tại
     public void saveOrUpdate(AutoBidConfig config) {
         String sql = """
-                INSERT INTO auto_bidding (auction_id, bidder_id, maxBid, `increment`, createdAt, status)
-                VALUES (?, ?, ?, ?, ?, 'ACTIVE')
+                INSERT INTO auto_bidding (auction_id, bidder_id, max_bid, increment, created_at, is_active)
+                VALUES (?, ?, ?, ?, ?, 1)
                 ON DUPLICATE KEY UPDATE
-                    maxBid      = VALUES(maxBid),
-                    `increment` = VALUES(`increment`),
-                    status      = 'ACTIVE'
+                    max_bid      = VALUES(max_bid),
+                    increment    = VALUES(increment),
+                    is_active    = 1
                 """;
 
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
@@ -43,8 +43,8 @@ public class AutoBidDAO {
     public List<AutoBidConfig> getActiveAutoBids(long auctionId) {
         String sql = """
                 SELECT * FROM auto_bidding
-                WHERE auction_id = ? AND status = 'ACTIVE'
-                ORDER BY createdAt ASC
+                WHERE auction_id = ? AND is_active = 1
+                ORDER BY created_at ASC
                 """;
 
         List<AutoBidConfig> result = new ArrayList<>();
@@ -64,7 +64,7 @@ public class AutoBidDAO {
     public void deactivate(long auctionId, long bidderId) {
         String sql = """
                 UPDATE auto_bidding
-                SET status = 'INACTIVE'
+                SET is_active = 0
                 WHERE auction_id = ? AND bidder_id = ?
                 """;
 
@@ -84,10 +84,10 @@ public class AutoBidDAO {
         config.setId(rs.getInt("id"));
         config.setAuctionId(rs.getInt("auction_id"));
         config.setBidderId(rs.getInt("bidder_id"));
-        config.setMaxBid(rs.getBigDecimal("maxBid"));
+        config.setMaxBid(rs.getBigDecimal("max_bid"));
         config.setIncrement(rs.getBigDecimal("increment"));
-        config.setCreatedAt(rs.getTimestamp("createdAt").toLocalDateTime());
-        config.setActive("ACTIVE".equals(rs.getString("status")));
+        config.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        config.setActive(rs.getBoolean("is_active"));
         return config;
     }
 }
