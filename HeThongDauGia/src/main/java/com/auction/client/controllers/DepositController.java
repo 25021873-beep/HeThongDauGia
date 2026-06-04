@@ -90,13 +90,10 @@ public class DepositController {
     }
 
     private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
         if (title.contains("Lỗi") || title.contains("thất bại")) {
-            alert.setAlertType(Alert.AlertType.ERROR);
+            ToastManager.showError(message);
+        } else {
+            ToastManager.showInfo(message);
         }
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }
