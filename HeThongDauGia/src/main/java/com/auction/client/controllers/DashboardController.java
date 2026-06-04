@@ -23,6 +23,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class DashboardController {
 
@@ -144,15 +146,12 @@ public class DashboardController {
         lblName.setWrapText(true);
         lblName.setMaxHeight(40);
 
-        // status - xử lý đúng tất cả trạng thái từ server
+        // status - OPEN và RUNNING đều hiển "Đang diễn ra" vì Dashboard chỉ hiện phiên active
         String displayStatus;
         Color statusColor;
-        if ("RUNNING".equals(status)) {
+        if ("RUNNING".equals(status) || "OPEN".equals(status)) {
             displayStatus = "● Đang diễn ra";
             statusColor = Color.web("#2E8B57");
-        } else if ("OPEN".equals(status)) {
-            displayStatus = "● Sắp bắt đầu";
-            statusColor = Color.web("#F57D1F");
         } else {
             displayStatus = "● Đã kết thúc";
             statusColor = Color.web("#888888");
@@ -161,8 +160,8 @@ public class DashboardController {
         lblStatus.setTextFill(statusColor);
         lblStatus.setFont(Font.font("System", FontWeight.BOLD, 12));
 
-        // current price
-        Label lblPrice = new Label(String.format("💰 %,.0f VNĐ", currentPrice));
+        // current price (giá bid cao nhất hiện tại)
+        Label lblPrice = new Label(String.format("💰 Giá hiện tại: %,.0f VNĐ", currentPrice));
         lblPrice.setTextFill(Color.web("#F57D1F"));
         lblPrice.setFont(Font.font("System", FontWeight.BOLD, 14));
 

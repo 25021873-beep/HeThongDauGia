@@ -21,7 +21,7 @@ import java.util.List;
 
 /**
  * Singleton quản lý Toast Notifications.
- * Hiển thị popup ở góc dưới bên trái màn hình, tự động fade out,
+ * Hiển thị popup ở góc dưới bên phải màn hình, tự động fade out,
  * có nút X để đóng ngay.
  */
 public class ToastManager {
@@ -29,7 +29,7 @@ public class ToastManager {
     private static final int MAX_TOASTS = 5;
     private static final double TOAST_WIDTH = 380;
     private static final double TOAST_MARGIN_BOTTOM = 20;
-    private static final double TOAST_MARGIN_LEFT = 20;
+    private static final double TOAST_MARGIN_RIGHT = 20;
     private static final double TOAST_SPACING = 8;
     private static final double TOAST_HEIGHT_ESTIMATE = 70;
     private static final int DEFAULT_DURATION_MS = 5000;
@@ -209,14 +209,14 @@ public class ToastManager {
         // Thêm vào danh sách trước khi show để tính vị trí
         activePopups.add(popup);
 
-        // Tính vị trí: góc dưới bên trái
+        // Tính vị trí: góc dưới bên phải
         repositionAllToasts(owner);
 
         popup.show(owner);
 
         // Opacity ban đầu = 0, animate vào
         content.setOpacity(0);
-        content.setTranslateX(-30);
+        content.setTranslateX(30);
 
         // Slide in + fade in
         FadeTransition fadeIn = new FadeTransition(Duration.millis(300), content);
@@ -224,7 +224,7 @@ public class ToastManager {
         fadeIn.setToValue(1);
 
         TranslateTransition slideIn = new TranslateTransition(Duration.millis(300), content);
-        slideIn.setFromX(-30);
+        slideIn.setFromX(30);
         slideIn.setToX(0);
 
         ParallelTransition enterAnim = new ParallelTransition(fadeIn, slideIn);
@@ -265,7 +265,7 @@ public class ToastManager {
 
         TranslateTransition slideOut = new TranslateTransition(Duration.millis(400), content);
         slideOut.setFromX(0);
-        slideOut.setToX(-30);
+        slideOut.setToX(30);
 
         ParallelTransition exitAnim = new ParallelTransition(fadeOut, slideOut);
         exitAnim.setOnFinished(e -> {
@@ -284,7 +284,7 @@ public class ToastManager {
      * Tính lại vị trí tất cả toast (stack từ dưới lên).
      */
     private static void repositionAllToasts(Window owner) {
-        double baseX = owner.getX() + TOAST_MARGIN_LEFT;
+        double baseX = owner.getX() + owner.getWidth() - TOAST_WIDTH - TOAST_MARGIN_RIGHT;
         double baseY = owner.getY() + owner.getHeight() - TOAST_MARGIN_BOTTOM;
 
         for (int i = activePopups.size() - 1; i >= 0; i--) {
