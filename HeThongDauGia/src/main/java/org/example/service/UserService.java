@@ -36,6 +36,10 @@ public class UserService {
         User existingUser = userDAO.getUserByUsername(username);
         if (existingUser == null) throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
 
+        if (existingUser.isLocked()) {
+            throw new AccountLockedException("Lỗi: Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.");
+        }
+
         if (!BCrypt.checkpw(password, existingUser.getPassword())) {
             throw new InvalidCredentialsException("Lỗi: Sai tài khoản hoặc mật khẩu");
         }
@@ -216,5 +220,18 @@ public class UserService {
         Seller seller = (Seller) user;
         seller.setRating(ratingValue);
         return userDAO.updateUser(seller);
+    }
+
+    // ── Khóa/Mở khóa tài khoản ────────────────────────────────────────────────
+    
+    public boolean toggleUserLock(String targetUsername, boolean lockStatus) {
+        User targetUser = userDAO.getUserByUsername(targetUsername);
+        if (targetUser == null) {
+            throw new UserNotFoundException("Lỗi: Không tìm thấy người dùng");
+        }
+        if ("ADMIN".equalsIgnoreCase(targetUser.getRole())) {
+            throw new AuctionSystemException("Lỗi: Không thể khóa tài khoản ADMIN");
+        }
+        return userDAO.setUserLockStatus(targetUsername, lockStatus);
     }
 }

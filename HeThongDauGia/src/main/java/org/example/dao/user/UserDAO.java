@@ -225,6 +225,23 @@ public class UserDAO {
         }
     }
 
+    // Hàm cập nhật trạng thái khóa tài khoản
+    public boolean setUserLockStatus(String username, boolean locked) {
+        String sql = "UPDATE users SET is_locked = ? WHERE username = ?";
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setBoolean(1, locked);
+            pstmt.setString(2, username);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            throw new DatabaseException("Lỗi khi cập nhật trạng thái khóa cho User: " + username, e);
+        }
+    }
 }
 
 

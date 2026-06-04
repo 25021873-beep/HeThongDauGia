@@ -38,14 +38,37 @@ public class UserManagementController {
                 btnToggle.setPadding(new Insets(4, 10, 4, 10));
                 btnToggle.setOnAction(e -> {
                     String[] row = getTableView().getItems().get(getIndex());
-                    if ("Hoạt động".equals(row[4])) {
-                        row[4] = "Bị khóa";
-                        showAlert("Đã khóa tài khoản: " + row[0]);
-                    } else {
-                        row[4] = "Hoạt động";
-                        showAlert("Đã mở khóa tài khoản: " + row[0]);
-                    }
-                    getTableView().refresh();
+                    String targetUsername = row[0];
+                    boolean currentStatusIsLocked = "Bị khóa".equals(row[4]);
+                    boolean newLockStatus = !currentStatusIsLocked;
+
+                    Thread t = new Thread(() -> {
+                        try {
+                            com.auction.client.network.ConnectionManager conn = com.auction.client.network.ConnectionManager.getInstance();
+                            if (!conn.isConnected()) return;
+
+                            com.google.gson.JsonObject req = new com.google.gson.JsonObject();
+                            req.addProperty("command", "TOGGLE_USER_STATUS");
+                            req.addProperty("targetUsername", targetUsername);
+                            req.addProperty("lockStatus", newLockStatus);
+
+                            com.google.gson.JsonObject res = conn.sendAndWait(req);
+
+                            javafx.application.Platform.runLater(() -> {
+                                if (com.auction.client.network.ServerClient.isSuccess(res)) {
+                                    row[4] = newLockStatus ? "Bị khóa" : "Hoạt động";
+                                    showAlert("Thành công: " + com.auction.client.network.ServerClient.messageOf(res));
+                                    getTableView().refresh();
+                                } else {
+                                    showAlert("Lỗi: " + com.auction.client.network.ServerClient.messageOf(res));
+                                }
+                            });
+                        } catch (java.io.IOException ex) {
+                            javafx.application.Platform.runLater(() -> showAlert("Lỗi kết nối khi thay đổi trạng thái"));
+                        }
+                    });
+                    t.setDaemon(true);
+                    t.start();
                 });
             }
 

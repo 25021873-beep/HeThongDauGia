@@ -65,7 +65,7 @@ public class UserController {
                 obj.addProperty("fullName", u.getUsername());
                 obj.addProperty("email", u.getEmail());
                 obj.addProperty("role", u.getRole());
-                obj.addProperty("status", "Hoạt động");
+                obj.addProperty("status", u.isLocked() ? "Bị khóa" : "Hoạt động");
                 usersArray.add(obj);
             }
             response.add("users", usersArray);
@@ -74,6 +74,33 @@ public class UserController {
         } catch (Exception e) {
             System.err.println("[USER_CTRL] Loi lay danh sach user: " + e.getMessage());
             session.send(SimpleResponse.error("Loi he thong khi lay danh sach user"));
+        }
+    }
+
+    public void handleToggleUserStatus(JsonObject json) {
+        if (!session.requireLogin()) return;
+        if (!"ADMIN".equals(session.getCurrentUser().getRole())) {
+            session.send(SimpleResponse.error("Loi: Chi Admin moi co quyen nay"));
+            return;
+        }
+
+        try {
+            String targetUsername = json.has("targetUsername") ? json.get("targetUsername").getAsString() : null;
+            boolean lockStatus = json.has("lockStatus") && json.get("lockStatus").getAsBoolean();
+
+            if (targetUsername == null || targetUsername.isEmpty()) {
+                session.send(SimpleResponse.error("Loi: Thieu targetUsername"));
+                return;
+            }
+
+            boolean ok = userService.toggleUserLock(targetUsername, lockStatus);
+            if (ok) {
+                session.send(SimpleResponse.success("Da " + (lockStatus ? "khoa" : "mo khoa") + " tai khoan " + targetUsername));
+            } else {
+                session.send(SimpleResponse.error("Loi: Khong the cap nhat trang thai"));
+            }
+        } catch (Exception e) {
+            session.send(SimpleResponse.error(e.getMessage()));
         }
     }
 }

@@ -10,6 +10,7 @@ public abstract class User extends BaseEntity {
     protected String email;
     protected String role;
     protected BigDecimal balance;
+    protected boolean isLocked;
 
     public abstract void doSomething();
 
@@ -51,5 +52,13 @@ public abstract class User extends BaseEntity {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
     }
 }

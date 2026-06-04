@@ -31,6 +31,14 @@ public class UserFactory {
         user.setUsername(rs.getString("username"));
         user.setPassword(rs.getString("password"));
         user.setEmail(rs.getString("email"));
+        
+        // Kiểm tra xem cột is_locked có tồn tại không (nếu bảng chưa update)
+        try {
+            user.setLocked(rs.getBoolean("is_locked"));
+        } catch (SQLException e) {
+            user.setLocked(false);
+        }
+        
         return user;
     }
 }

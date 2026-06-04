@@ -62,6 +62,10 @@ public class CommandRouter {
                 userController.handleGetAllUsers();
                 return false;
 
+            case "TOGGLE_USER_STATUS":
+                userController.handleToggleUserStatus(json);
+                return false;
+
             // ── NHÓM LỆNH QUẢN LÝ SẢN PHẨM & PHIÊN ĐẤU GIÁ (DÀNH CHO SELLER/ADMIN) ──
             case "GET_SELLER_ITEMS":
                 itemController.handleGetSellerItems();
