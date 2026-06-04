@@ -257,6 +257,15 @@ public class AuctionService {
                         liveAuction.setEndTime(newEndTime);
                     }
                 }
+                
+                // Broadcast giá mới tới toàn phòng
+                AuctionRoom room = engine.getRoomManager().getRoom(auctionId);
+                if (room != null) {
+                    room.notifyBidPlaced(bidder.getUsername(), bidAmount);
+                    if (isExtended) {
+                        room.notifyAuctionExtended(newEndTime, EXTEND_SECONDS);
+                    }
+                }
             }
 
             // Trả kết quả

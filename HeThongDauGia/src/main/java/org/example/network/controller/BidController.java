@@ -76,18 +76,7 @@ public class BidController {
                         req.getAuctionId(), username,
                         req.getAmount(), LocalDateTime.now(), newBalance));
 
-                AuctionRoom room = engine.getRoomManager().getRoom(auction.getId());
-                if (room != null) {
-                    // 2. Broadcast giá mới tới toàn phòng
-                    room.notifyBidPlaced(username, req.getAmount());
-
-                    // 3. Nếu bị gia hạn anti-snipe → broadcast thời gian mới
-                    if (result.isExtended()) {
-                        room.notifyAuctionExtended(
-                                result.getNewEndTime(),
-                                result.getExtendedSeconds());
-                    }
-                }
+                // Broadcast đã được AuctionService xử lý nội bộ
 
             } else {
                 session.send(SimpleResponse.error(

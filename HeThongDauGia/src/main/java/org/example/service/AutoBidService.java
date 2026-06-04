@@ -64,6 +64,16 @@ public class AutoBidService {
         config.setMaxBid(maxBid);
         config.setIncrement(increment);
         autoBidDAO.saveOrUpdate(config);
+        
+        // Lấy người đang dẫn đầu hiện tại để bot đánh giá xem có cần bid ngay không
+        org.example.dao.BidTransactionDAO bidDAO = new org.example.dao.BidTransactionDAO();
+        org.example.entity.BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
+        int currentLeaderId = highestBid != null ? highestBid.getBidderId() : -1;
+
+        // Nếu người đăng ký auto-bid KHÔNG PHẢI là người đang dẫn đầu -> Trigger bot ngay lập tức
+        if (bidderId != currentLeaderId) {
+            triggerAsync(auctionId, currentLeaderId);
+        }
     } finally {
             lock.unlock();
         }
