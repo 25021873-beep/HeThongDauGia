@@ -21,18 +21,21 @@ public class BidResponse extends BaseResponse {
     private final String     bidderUsername;
     private final BigDecimal amount;
     private final String     bidTime;
+    private final BigDecimal newBalance;
 
     public BidResponse(int auctionId, String bidderUsername,
-                       BigDecimal amount, LocalDateTime bidTime) {
+                       BigDecimal amount, LocalDateTime bidTime, BigDecimal newBalance) {
         super(STATUS_SUCCESS, "Dat gia thanh cong");
         this.auctionId      = auctionId;
         this.bidderUsername = bidderUsername;
         this.amount         = amount;
         this.bidTime        = bidTime != null ? bidTime.format(FMT) : null;
+        this.newBalance     = newBalance;
     }
 
     public int        getAuctionId()      { return auctionId; }
     public String     getBidderUsername() { return bidderUsername; }
     public BigDecimal getAmount()         { return amount; }
     public String     getBidTime()        { return bidTime; }
+    public BigDecimal getNewBalance()     { return newBalance; }
 }

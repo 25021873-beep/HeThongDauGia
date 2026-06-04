@@ -386,6 +386,16 @@ public class AuctionDetailController {
                             txtBidAmount.clear();
                             ToastManager.showInfo(
                                     "Đặt giá thành công: " + String.format("%,d VNĐ", bidAmount.toBigInteger()));
+
+                            // Cập nhật số dư hiển thị
+                            ConnectionManager conn2 = ConnectionManager.getInstance();
+                            if (res.has("newBalance")) {
+                                conn2.setBalance(res.get("newBalance").getAsDouble());
+                            } else {
+                                conn2.setBalance(conn2.getBalance() - bidAmount.doubleValue());
+                            }
+                            MainController mc = MainController.getInstance();
+                            if (mc != null) mc.updateBalanceDisplay();
                         } else {
                             ToastManager.showError(ServerClient.messageOf(res));
                         }
