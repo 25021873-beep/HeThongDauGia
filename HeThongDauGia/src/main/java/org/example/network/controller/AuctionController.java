@@ -46,9 +46,21 @@ public class AuctionController {
             session.send(SimpleResponse.info("Hien khong co phien dau gia nao"));
             return;
         }
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
         List<AuctionSummary> summaries = active.stream()
-                .map(a -> new AuctionSummary(
-                        a.getId(), a.getItem().getName(), a.getCurrentPrice(), a.getStatus()))
+                .map(a -> {
+                    // Tính status thực tế dựa trên thời gian (tránh lệch do Engine cycle 5s)
+                    String effectiveStatus = a.getStatus();
+                    if (("RUNNING".equals(effectiveStatus) || "OPEN".equals(effectiveStatus))
+                            && a.getEndTime() != null && now.isAfter(a.getEndTime())) {
+                        effectiveStatus = "FINISHED";
+                    } else if ("OPEN".equals(effectiveStatus) 
+                            && a.getStartTime() != null && !now.isBefore(a.getStartTime())) {
+                        effectiveStatus = "RUNNING";
+                    }
+                    return new AuctionSummary(
+                            a.getId(), a.getItem().getName(), a.getCurrentPrice(), effectiveStatus);
+                })
                 .collect(Collectors.toList());
         session.send(new AuctionListResponse(summaries));
     }

@@ -139,9 +139,21 @@ public class DashboardController {
         lblName.setWrapText(true);
         lblName.setMaxHeight(40);
 
-        // status
-        Label lblStatus = new Label("RUNNING".equals(status) ? "● Đang diễn ra" : ("OPEN".equals(status) ? "● Sắp bắt đầu" : "● Đã kết thúc"));
-        lblStatus.setTextFill("RUNNING".equals(status) ? Color.web("#2E8B57") : ("OPEN".equals(status) ? Color.web("#F57D1F") : Color.web("#888888")));
+        // status - xử lý đúng tất cả trạng thái từ server
+        String displayStatus;
+        Color statusColor;
+        if ("RUNNING".equals(status)) {
+            displayStatus = "● Đang diễn ra";
+            statusColor = Color.web("#2E8B57");
+        } else if ("OPEN".equals(status)) {
+            displayStatus = "● Sắp bắt đầu";
+            statusColor = Color.web("#F57D1F");
+        } else {
+            displayStatus = "● Đã kết thúc";
+            statusColor = Color.web("#888888");
+        }
+        Label lblStatus = new Label(displayStatus);
+        lblStatus.setTextFill(statusColor);
         lblStatus.setFont(Font.font("System", FontWeight.BOLD, 12));
 
         // current price
