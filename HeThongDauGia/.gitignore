@@ -49,6 +49,8 @@ target/
 .idea/
 *.iml
 
+application.properties
+application-template.properties
 src/main/resources/application.properties
 
 .understand-anything
