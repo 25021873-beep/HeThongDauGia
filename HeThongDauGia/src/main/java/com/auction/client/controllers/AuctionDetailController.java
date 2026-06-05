@@ -183,6 +183,27 @@ public class AuctionDetailController {
                             double step = res.get("stepPrice").getAsDouble();
                             lblStepPrice.setText("Bước giá tối thiểu: " + String.format("%,.0f VNĐ", step));
                         }
+
+                        // Phục hồi trạng thái AutoBid trên UI
+                        if (res.has("hasAutoBid") && res.get("hasAutoBid").getAsBoolean()) {
+                            autoBidEnabled = true;
+                            if (btnAutoBid != null) {
+                                btnAutoBid.setText("🛑 Tắt tự động đấu");
+                                btnAutoBid.setStyle("-fx-background-color: #C0392B; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
+                            }
+                            if (res.has("autoBidMax") && !res.get("autoBidMax").isJsonNull() && txtMaxBid != null) {
+                                txtMaxBid.setText(String.format("%,.0f", res.get("autoBidMax").getAsDouble()));
+                            }
+                            if (res.has("autoBidIncrement") && !res.get("autoBidIncrement").isJsonNull() && txtIncrement != null) {
+                                txtIncrement.setText(String.format("%,.0f", res.get("autoBidIncrement").getAsDouble()));
+                            }
+                        } else {
+                            autoBidEnabled = false;
+                            if (btnAutoBid != null) {
+                                btnAutoBid.setText("⚡ Bật tự động đấu");
+                                btnAutoBid.setStyle("-fx-background-color: #FCBF49; -fx-text-fill: #1A1A1A; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;");
+                            }
+                        }
                     }
                 });
             } catch (IOException e) {

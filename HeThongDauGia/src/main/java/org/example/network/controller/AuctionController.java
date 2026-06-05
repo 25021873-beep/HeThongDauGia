@@ -184,6 +184,21 @@ public class AuctionController {
                 }
             } catch (Exception ignored) {}
 
+            boolean hasAutoBid = false;
+            java.math.BigDecimal autoBidMax = null;
+            java.math.BigDecimal autoBidIncrement = null;
+            try {
+                java.util.List<org.example.entity.AutoBidConfig> activeBids = new org.example.dao.AutoBidDAO().getActiveAutoBids(auction.getId());
+                for (org.example.entity.AutoBidConfig c : activeBids) {
+                    if (c.getBidderId() == session.getCurrentUser().getId()) {
+                        hasAutoBid = true;
+                        autoBidMax = c.getMaxBid();
+                        autoBidIncrement = c.getIncrement();
+                        break;
+                    }
+                }
+            } catch (Exception ignored) {}
+
             // Đóng gói dữ liệu trả về DTO Response
             AuctionDetailResponse response = new AuctionDetailResponse(
                     "SUCCESS", "Lay chi tiet thanh cong",
@@ -191,7 +206,8 @@ public class AuctionController {
                     auction.getStartTime(), auction.getEndTime(), effectiveStatus,
                     item.getName(), item.getDescription(),
                     itemType, warranty, author, engineType,
-                    sellerUsername
+                    sellerUsername,
+                    hasAutoBid, autoBidMax, autoBidIncrement
             );
 
             session.send(response);

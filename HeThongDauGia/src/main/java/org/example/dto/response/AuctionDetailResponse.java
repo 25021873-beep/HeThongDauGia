@@ -25,11 +25,17 @@ public class AuctionDetailResponse extends BaseResponse {
     private final String engineType;
     private final String sellerUsername;
 
+    // Thông tin AutoBid của người dùng hiện tại (nếu có)
+    private final boolean hasAutoBid;
+    private final BigDecimal autoBidMax;
+    private final BigDecimal autoBidIncrement;
+
     public AuctionDetailResponse(String status, String message, int auctionId, BigDecimal currentPrice, BigDecimal startingPrice, BigDecimal stepPrice,
                                  LocalDateTime startTime, LocalDateTime endTime, String auctionStatus,
                                  String itemName, String itemDescription,
                                  String itemType, Integer warrantyMonths, String author, String engineType,
-                                 String sellerUsername) {
+                                 String sellerUsername,
+                                 boolean hasAutoBid, BigDecimal autoBidMax, BigDecimal autoBidIncrement) {
         super(status, message);
         this.auctionId = auctionId;
         this.currentPrice = currentPrice;
@@ -46,6 +52,9 @@ public class AuctionDetailResponse extends BaseResponse {
         this.author = author;
         this.engineType = engineType;
         this.sellerUsername = sellerUsername;
+        this.hasAutoBid = hasAutoBid;
+        this.autoBidMax = autoBidMax;
+        this.autoBidIncrement = autoBidIncrement;
     }
 
     public int getAuctionId() {
@@ -103,4 +112,8 @@ public class AuctionDetailResponse extends BaseResponse {
     public String getSellerUsername() {
         return sellerUsername;
     }
+
+    public boolean hasAutoBid() { return hasAutoBid; }
+    public BigDecimal getAutoBidMax() { return autoBidMax; }
+    public BigDecimal getAutoBidIncrement() { return autoBidIncrement; }
 }
