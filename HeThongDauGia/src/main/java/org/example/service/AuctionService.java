@@ -192,8 +192,21 @@ public class AuctionService {
 
             // ==========================================================
             // II. XỬ LÝ GIAO DỊCH CHÍNH (TRANSACTION)
-            // Chỉ ghi nhận bid — tiền chỉ trừ khi thắng đấu giá (closeAuction)
             // ==========================================================
+
+            // Lấy người đang giữ giá cao nhất hiện tại để hoàn tiền
+            BidTransaction prevHighest = bidDAO.getHighestBid(conn, auctionId);
+
+            // Trừ tiền người đặt giá
+            boolean deducted = userDAO.deductBalance(conn, bidderId, bidAmount);
+            if (!deducted) {
+                throw new InvalidBidException("Số dư không đủ để đặt giá!");
+            }
+
+            // Hoàn tiền cho người giữ giá cao nhất (nếu có)
+            if (prevHighest != null) {
+                userDAO.addBalance(conn, prevHighest.getBidderId(), prevHighest.getBidPrice());
+            }
 
             auctionDAO.updateCurrentPrice(conn, auctionId, bidAmount);
 
@@ -300,16 +313,7 @@ public class AuctionService {
 
             BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
             if (highestBid != null) {
-                // Trừ tiền người thắng đấu giá
-                try (Connection conn = DatabaseConnection.getInstance().getConnection()) {
-                    boolean deducted = userDAO.deductBalance(conn, highestBid.getBidderId(), highestBid.getBidPrice());
-                    if (!deducted) {
-                        System.err.println("[CLOSE] CANH BAO: Khong the tru tien nguoi thang ID "
-                                + highestBid.getBidderId() + " - so du khong du!");
-                    }
-                } catch (SQLException e) {
-                    System.err.println("[CLOSE] Loi tru tien nguoi thang: " + e.getMessage());
-                }
+                // Tiền đã được trừ khi đặt giá (placeBid), nên ở đây chỉ cần đóng phiên
                 auctionDAO.closeAuction(auctionId, highestBid.getBidderId());
                 itemDAO.updateItemStatus(auction.getItemId(), "SOLD");
             } else {

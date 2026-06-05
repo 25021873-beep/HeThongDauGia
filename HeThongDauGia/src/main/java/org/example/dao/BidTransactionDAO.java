@@ -124,4 +124,24 @@ public class BidTransactionDAO {
         }
         return null;
     }
+
+    // Lấy lượt trả giá cao nhất (Nhận Connection từ ngoài truyền vào)
+    public BidTransaction getHighestBid(Connection conn, int auctionId) throws SQLException {
+        String sql = "SELECT * FROM bid_transactions WHERE auction_id = ? ORDER BY bid_price DESC LIMIT 1";
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, auctionId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    BidTransaction bid = new BidTransaction();
+                    bid.setId(rs.getInt("id"));
+                    bid.setAuctionId(rs.getInt("auction_id"));
+                    bid.setBidderId(rs.getInt("bidder_id"));
+                    bid.setBidPrice(rs.getBigDecimal("bid_price"));
+                    bid.setBidTime(rs.getObject("bid_time", LocalDateTime.class));
+                    return bid;
+                }
+            }
+        }
+        return null;
+    }
 }
