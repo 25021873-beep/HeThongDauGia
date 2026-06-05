@@ -26,7 +26,7 @@
 - **Anti-sniping (Gia hạn phiên đấu giá):** Thuật toán tự động gia hạn thêm 120 giây nếu có lượt đặt giá mới xuất hiện trong vòng 60 giây cuối cùng.
 - **Realtime Update (Observer nâng cao):** Đồng bộ dữ liệu lập tức tới tất cả client đang xem phiên thông qua Socket và Event-based communication, không dùng cơ chế polling.
 - **Xử lý đấu giá đồng thời (Concurrent Bidding):** Sử dụng Transaction Database, ReentrantLock và ConcurrentHashMap để ngăn chặn hoàn toàn các lỗi lost update, rollback giá, đảm bảo có duy nhất một người thắng cuộc.
-- [GHI CHÚ DÀNH CHO BẠN: Nếu nhóm bạn có làm thêm tính năng "Bid History Visualization - Biểu đồ giá realtime" như trong đề bài gợi ý, hãy gạch đầu dòng bổ sung vào đây để làm nổi bật]
+-**Bid History Visualization (Trực quan hóa lịch sử đấu giá):** Tự động vẽ và cập nhật biểu đồ đường (Line Chart) biểu diễn biến động của mức giá cao nhất theo thời gian thực. Trục X hiển thị mốc thời gian (Timestamp) và trục Y hiển thị mức giá đấu hiện tại; biểu đồ tự động nhảy số liệu mới ngay khi có lượt đặt giá hợp lệ mà không cần tải lại giao diện.
 
 ## 3. Kiến trúc và Thiết kế hệ thống
 - **Mô hình Kiến trúc:** Kiến trúc Client-Server đa tầng. Phía Client áp dụng MVC (JavaFX + FXML). Phía Server phân tách Controller - Model - DAO/Database. Đảm bảo nguyên tắc chỉ có Server mới được quyền truy cập trực tiếp vào Database.
@@ -55,8 +55,8 @@
 
 - **Tài khoản Test:**
   - Admin: admin / 123455
-  - Seller: seller1 / 12345
-  - Bidder: bidder1 / 12345
+  - Seller: seller / 12345
+  - Bidder: bidder / 12345
 - **Luồng cơ bản:**
   1. Đăng nhập bằng tài khoản Bidder.
   2. Nạp số dư vào tài khoản.
@@ -66,12 +66,15 @@
 ## 6. Hình ảnh giao diện
 
 ### Trang đăng nhập
-
+<img width="716" height="835" alt="Annotation 2026-06-05 090529" src="https://github.com/user-attachments/assets/927ae383-8bd1-448e-81ca-c064c83514c0" />
 
 ### Chi tiết sản phẩm đấu giá và Đặt giá realtime
+<img width="1876" height="982" alt="Annotation 2026-06-05 090036" src="https://github.com/user-attachments/assets/6c36d161-0f3c-4230-9987-bbd33c4e0523" />
 
+<img width="1920" height="1031" alt="Annotation 2026-06-04 214114" src="https://github.com/user-attachments/assets/ebc76595-7384-44db-9c40-6e366f8e985a" />
 
 ### Trang quản trị
+<img width="1907" height="986" alt="Annotation 2026-06-05 091913" src="https://github.com/user-attachments/assets/6eb5c0d6-843e-4700-b68a-170765e8acd6" />
 
 
 ## 7. Thành viên nhóm
@@ -83,7 +86,3 @@
 | **Trần Thành Trung** | Phát triển JavaFX Client (chuẩn MVC), Controller giao diện, DTO, hỗ trợ kiểm thử tính năng UI. |
 | **Nguyễn Tuấn Dương** | Xử lý Networking (TCP Socket), luồng đồng thời (Concurrency), giao tiếp Real-time (Observer). |
 
-## 8. Định hướng phát triển
-- Tách thông tin cấu hình nhạy cảm (như kết nối Database) ra file cấu hình độc lập (`.env` hoặc `.properties`).
-- Bổ sung cơ chế Heartbeat/Reconnect tự động nếu Client mất kết nối với Server.
-- Tích hợp mã hóa TLS/SSL cho luồng giao tiếp TCP Socket nếu triển khai trên môi trường Internet thực tế.
