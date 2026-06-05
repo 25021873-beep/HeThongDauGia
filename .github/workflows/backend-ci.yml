@@ -1,34 +1,39 @@
 name: Backend CI/CD Pipeline
 
-# Cò súng: Kích hoạt khi có người push hoặc tạo Pull Request vào nhánh main
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest # Thuê một con máy ảo Ubuntu
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Kéo source code mới nhất về
+      - name: Checkout source code
         uses: actions/checkout@v4
 
-      - name: Cài đặt môi trường JDK (chọn bản 17 hoặc 21 tùy team đang xài)
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
+          distribution: temurin
           java-version: '17'
-          distribution: 'temurin'
-          cache: 'maven' # Lưu cache thư viện lại để những lần sau build nhanh hơn
+          cache: maven
 
-      - name: Chạy Test và Đóng gói
-        # Chạy Unit Test (để kiểm tra mấy cái logic hóc búa như bid giá, thanh toán). Pass hết mới đóng gói.
-        run: mvn clean package
+      - name: Check project structure
+        run: |
+          pwd
+          ls -la
+          ls -la HeThongDauGia
+          test -f HeThongDauGia/pom.xml
 
-      - name: Lưu giữ "chiến lợi phẩm"
-        # Lấy cái file .jar vừa build xong lưu lại trên hệ thống
+      - name: Run tests and package
+        run: mvn -B -f HeThongDauGia/pom.xml clean package
+
+      - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
-          name: auction-backend-jar
-          path: target/*.jar
+          name: hethongdaugia-server-jar
+          path: HeThongDauGia/target/*.jar
