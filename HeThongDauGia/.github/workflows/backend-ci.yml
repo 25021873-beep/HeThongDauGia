@@ -23,13 +23,15 @@ jobs:
           cache: maven
 
       - name: Run unit tests
+        working-directory: ./HeThongDauGia
         run: mvn -B clean test
 
       - name: Package application
+        working-directory: ./HeThongDauGia
         run: mvn -B -DskipTests package
 
-      - name: Upload runnable jar
+      - name: Upload jar artifact
         uses: actions/upload-artifact@v4
         with:
           name: hethongdaugia-server-jar
-          path: target/*.jar
+          path: HeThongDauGia/target/*.jar
