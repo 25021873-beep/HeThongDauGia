@@ -140,10 +140,11 @@ public class ClientHandler implements Runnable, BidObserver {
 
                 } catch (JsonSyntaxException | IllegalStateException e) {
                     session.send(SimpleResponse.error("Dinh dang JSON khong hop le"));
-                } catch (Exception e) { // <--- THÊM TỪ ĐOẠN NÀY
-                session.send(SimpleResponse.error(e.getMessage()));
-                System.err.println("[NETWORK] Loi xu ly request: " + e.getMessage()
-                        + " | Nguyen nhan goc: " + rootCauseMessage(e));
+                } catch (Exception e) {
+                    String errorMsg = e.getMessage() != null ? e.getMessage() : "Lỗi không xác định: " + e.getClass().getSimpleName();
+                    session.send(SimpleResponse.error(errorMsg));
+                    System.err.println("[NETWORK] Loi xu ly request: " + errorMsg
+                            + " | Nguyen nhan goc: " + rootCauseMessage(e));
                 e.printStackTrace();
             }
             }

@@ -142,6 +142,11 @@ public class AutoBidService {
                 // Reload auction sau khi bid để kiểm tra lại giá mới
                 auction = auctionDAO.getAuctionById(auctionId);
 
+                // CHỈ CHO PHÉP 1 BOT ĐÁNH TRONG 1 LƯỢT.
+                // Việc bot này vừa đánh xong đã kích hoạt hàm placeBid() -> tự sinh ra triggerAsync() lượt tiếp theo.
+                // Nên ta cần break ở đây để tránh cấp số nhân task trong ThreadPool.
+                break;
+
             } catch (InvalidBidException | InsufficientBalanceException e) {
                 // Giá không còn hợp lệ nữa → deactivate
                 autoBidDAO.deactivate(auctionId, config.getBidderId());
