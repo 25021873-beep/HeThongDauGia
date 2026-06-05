@@ -86,7 +86,3 @@
 | **Trần Thành Trung** | Phát triển JavaFX Client (chuẩn MVC), Controller giao diện, DTO, hỗ trợ kiểm thử tính năng UI. |
 | **Nguyễn Tuấn Dương** | Xử lý Networking (TCP Socket), luồng đồng thời (Concurrency), giao tiếp Real-time (Observer). |
 
-## 8. Định hướng phát triển
-- Tách thông tin cấu hình nhạy cảm (như kết nối Database) ra file cấu hình độc lập (`.env` hoặc `.properties`).
-- Bổ sung cơ chế Heartbeat/Reconnect tự động nếu Client mất kết nối với Server.
-- Tích hợp mã hóa TLS/SSL cho luồng giao tiếp TCP Socket nếu triển khai trên môi trường Internet thực tế.
