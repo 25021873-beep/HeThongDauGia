@@ -63,6 +63,10 @@ public class AuctionServer {
         }
     }
 
+    int getBoundPortForTesting() {
+        return serverSocket == null ? -1 : serverSocket.getLocalPort();
+    }
+
     public void shutdown() {
         running = false;
         System.out.println("[SERVER] Dang tat server...");
@@ -85,7 +89,9 @@ public class AuctionServer {
             Thread.currentThread().interrupt();
         }
 
-        autoBidService.shutdown();
+        if (autoBidService != null) {
+            autoBidService.shutdown();
+        }
         System.out.println("[SERVER] Server da tat hoan toan");
     }
 }

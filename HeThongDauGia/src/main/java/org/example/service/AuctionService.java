@@ -30,6 +30,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 public class AuctionService {
 
@@ -40,6 +41,8 @@ public class AuctionService {
     private BidHistoryDAO   bidHistoryDAO = new BidHistoryDAO();
     private AuctionEngine   engine;
     private AutoBidService  autoBidService;
+    private Supplier<Connection> connectionSupplier =
+            () -> DatabaseConnection.getInstance().getConnection();
 
     private final ConcurrentHashMap<Integer, ReentrantLock> auctionLocks = new ConcurrentHashMap<>();
 
@@ -64,6 +67,32 @@ public class AuctionService {
 
     public void setEngine(AuctionEngine engine)               { this.engine = engine; }
     public void setAutoBidService(AutoBidService s)           { this.autoBidService = s; }
+
+    void setTestDependencies(AuctionDAO auctionDAO,
+                             BidTransactionDAO bidDAO,
+                             ItemDAO itemDAO,
+                             UserDAO userDAO,
+                             BidHistoryDAO bidHistoryDAO,
+                             Supplier<Connection> connectionSupplier) {
+        this.auctionDAO = auctionDAO;
+        this.bidDAO = bidDAO;
+        this.itemDAO = itemDAO;
+        this.userDAO = userDAO;
+        this.bidHistoryDAO = bidHistoryDAO;
+        this.connectionSupplier = connectionSupplier;
+    }
+
+    void resetTestDependencies() {
+        this.auctionDAO = new AuctionDAO();
+        this.bidDAO = new BidTransactionDAO();
+        this.itemDAO = new ItemDAO();
+        this.userDAO = new UserDAO();
+        this.bidHistoryDAO = new BidHistoryDAO();
+        this.connectionSupplier = () -> DatabaseConnection.getInstance().getConnection();
+        this.engine = null;
+        this.autoBidService = null;
+        this.auctionLocks.clear();
+    }
 
     public ReentrantLock getLock(int auctionId) {
         return auctionLocks.computeIfAbsent(auctionId, id -> new ReentrantLock(true));
@@ -130,7 +159,7 @@ public class AuctionService {
         lock.lock();
         Connection conn = null;
         try {
-            conn = DatabaseConnection.getInstance().getConnection();
+            conn = connectionSupplier.get();
             conn.setAutoCommit(false);
 
             // ==========================================================
@@ -250,7 +279,9 @@ public class AuctionService {
             // V. HẬU KỲ (THAO TÁC KHÔNG ẢNH HƯỞNG DATA CORE)
             // ==========================================================
             // Trigger auto-bid bot sau khi đã chốt data thành công
-            autoBidService.triggerAsync(auctionId, bidderId);
+            if (autoBidService != null) {
+                autoBidService.triggerAsync(auctionId, bidderId);
+            }
 
             // Cập nhật Object trên RAM cho Engine chạy nền
             if (engine != null) {

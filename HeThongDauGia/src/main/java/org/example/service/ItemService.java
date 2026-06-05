@@ -31,6 +31,16 @@ public class ItemService {
         return instance;
     }
 
+    void setDaosForTesting(ItemDAO itemDAO, UserDAO userDAO) {
+        this.itemDAO = itemDAO;
+        this.userDAO = userDAO;
+    }
+
+    void resetForTesting() {
+        this.itemDAO = new ItemDAO();
+        this.userDAO = new UserDAO();
+    }
+
     // Hàm đăng bán
     public int postItem(Item newItem) {
         if (newItem.getName() == null || newItem.getName().trim().isEmpty()) {

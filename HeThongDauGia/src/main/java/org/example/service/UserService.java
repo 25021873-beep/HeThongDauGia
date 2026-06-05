@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import java.util.Locale;
 
 public class UserService {
-    private final UserDAO userDAO = new UserDAO();
+    private UserDAO userDAO = new UserDAO();
 
     private static UserService instance;
 
@@ -27,6 +27,14 @@ public class UserService {
             instance = new UserService();
         }
         return instance;
+    }
+
+    void setUserDAOForTesting(UserDAO userDAO) {
+        this.userDAO = userDAO;
+    }
+
+    void resetForTesting() {
+        this.userDAO = new UserDAO();
     }
 
     // ── Đăng nhập ─────────────────────────────────────────────────────────────

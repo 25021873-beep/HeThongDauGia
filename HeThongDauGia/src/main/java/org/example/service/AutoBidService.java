@@ -2,6 +2,7 @@ package org.example.service;
 
 import org.example.dao.AuctionDAO;
 import org.example.dao.AutoBidDAO;
+import org.example.dao.BidTransactionDAO;
 import org.example.dao.user.UserDAO;
 import org.example.entity.Auction;
 import org.example.entity.AutoBidConfig;
@@ -27,14 +28,22 @@ public class AutoBidService {
     private final AuctionService auctionService;
     private final AuctionDAO auctionDAO;
     private final UserDAO userDAO;
+    private final BidTransactionDAO bidTransactionDAO;
 
 
     public AutoBidService(AutoBidDAO autoBidDAO, AuctionService auctionService,
                           AuctionDAO auctionDAO, UserDAO userDAO) {
+        this(autoBidDAO, auctionService, auctionDAO, userDAO, new BidTransactionDAO());
+    }
+
+    public AutoBidService(AutoBidDAO autoBidDAO, AuctionService auctionService,
+                          AuctionDAO auctionDAO, UserDAO userDAO,
+                          BidTransactionDAO bidTransactionDAO) {
         this.autoBidDAO      = autoBidDAO;
         this.auctionService  = auctionService;
         this.auctionDAO      = auctionDAO;
         this.userDAO         = userDAO;
+        this.bidTransactionDAO = bidTransactionDAO;
     }
 
     // Hàm đăng ký auto-bid
@@ -66,8 +75,7 @@ public class AutoBidService {
         autoBidDAO.saveOrUpdate(config);
         
         // Lấy người đang dẫn đầu hiện tại để bot đánh giá xem có cần bid ngay không
-        org.example.dao.BidTransactionDAO bidDAO = new org.example.dao.BidTransactionDAO();
-        org.example.entity.BidTransaction highestBid = bidDAO.getHighestBid(auctionId);
+        org.example.entity.BidTransaction highestBid = bidTransactionDAO.getHighestBid(auctionId);
         int currentLeaderId = highestBid != null ? highestBid.getBidderId() : -1;
 
         // Nếu người đăng ký auto-bid KHÔNG PHẢI là người đang dẫn đầu -> Trigger bot ngay lập tức

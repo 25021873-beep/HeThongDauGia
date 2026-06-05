@@ -49,6 +49,10 @@ public class AuctionEngine {
         return roomManager;
     }
 
+    void clearForTesting() {
+        activeAuctions.clear();
+    }
+
     // ── Lifecycle ─────────────────────────────────────────────────────────────
 
     public void startEngine() {
