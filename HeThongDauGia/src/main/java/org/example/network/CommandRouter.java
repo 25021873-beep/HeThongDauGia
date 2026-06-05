@@ -62,6 +62,10 @@ public class CommandRouter {
                 userController.handleGetAllUsers();
                 return false;
 
+            case "FETCH_BALANCE":
+                userController.handleFetchBalance();
+                return false;
+
             case "TOGGLE_USER_STATUS":
                 userController.handleToggleUserStatus(json);
                 return false;

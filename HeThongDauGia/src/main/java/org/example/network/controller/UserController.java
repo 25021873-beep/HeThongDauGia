@@ -50,6 +50,22 @@ public class UserController {
         }
     }
 
+    // ── FETCH_BALANCE ────────────────────────────────────────────────────────
+
+    public void handleFetchBalance() {
+        if (!session.requireLogin()) return;
+        User updated = userService.getUserProfile(session.getCurrentUser().getId());
+        if (updated != null) {
+            session.setCurrentUser(updated);
+            JsonObject response = new JsonObject();
+            response.addProperty("status", "SUCCESS");
+            response.addProperty("balance", updated.getBalance());
+            session.sendRaw(response.toString());
+        } else {
+            session.send(SimpleResponse.error("Khong tim thay nguoi dung"));
+        }
+    }
+
     public void handleGetAllUsers() {
         if (!session.requireLogin()) return;
 

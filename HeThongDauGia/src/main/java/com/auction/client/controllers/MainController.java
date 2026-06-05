@@ -149,6 +149,30 @@ public class MainController {
         }
     }
 
+    public void fetchAndUpdateBalance() {
+        if (lblBalance == null) return;
+        Thread t = new Thread(() -> {
+            try {
+                JsonObject req = new JsonObject();
+                req.addProperty("command", "FETCH_BALANCE");
+                JsonObject res = ConnectionManager.getInstance().sendAndWait(req);
+                Platform.runLater(() -> {
+                    if (res != null && res.has("status") && "SUCCESS".equals(res.get("status").getAsString())) {
+                        if (res.has("balance") && !res.get("balance").isJsonNull()) {
+                            double newBalance = res.get("balance").getAsDouble();
+                            ConnectionManager.getInstance().setBalance(newBalance);
+                            updateBalanceDisplay();
+                        }
+                    }
+                });
+            } catch (java.io.IOException e) {
+                // Ignore
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+    }
+
     // =========================================================
     // --- QUẢN LÝ CURRENT VIEWING AUCTION ID ---
     // =========================================================
@@ -181,7 +205,12 @@ public class MainController {
         String status = msg.get("status").getAsString();
         int msgAuctionId = msg.has("auctionId") ? msg.get("auctionId").getAsInt() : -1;
 
-        // Nếu user đang xem đúng phiên này → SKIP (AuctionDetailController đã xử lý UI)
+        // Bất kể có xem phiên hay không, khi có event UPDATE (bid mới), ta lấy lại số dư từ server
+        if ("UPDATE".equals(status)) {
+            fetchAndUpdateBalance();
+        }
+
+        // Nếu user đang xem đúng phiên này → SKIP toast (AuctionDetailController đã xử lý UI)
         if (msgAuctionId == currentViewingAuctionId) return;
 
         switch (status) {
