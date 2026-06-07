@@ -1,6 +1,6 @@
 # Hệ thống Đấu giá Trực tuyến
 
-- File báo cáo dự án: https://drive.google.com/file/d/1bgcUyMhMgmeZWfuo__wLY3zJ-MjXDdRh/view?usp=sharing
+- Drive báo cáo dự án và video demo dự án: https://drive.google.com/drive/folders/1oZUdQMB3YBjX16FvfYjvpyBXz3Yz47Ka?usp=drive_link
 
 ## 1. Giới thiệu
 - **Mục tiêu dự án:** Xây dựng một hệ thống đấu giá trực tuyến dạng Desktop Application (Client/Server) cho phép người bán đăng sản phẩm và người mua tham gia trả giá theo thời gian thực. Dự án được phát triển phục vụ bài tập lớn môn Lập trình nâng cao - Trường Đại học Công nghệ, Đại học Quốc gia Hà Nội (UET).
