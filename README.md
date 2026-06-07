@@ -54,7 +54,7 @@
 ## 5. Hướng dẫn sử dụng
 
 - **Tài khoản Test:**
-  - Admin: admin / 123455
+  - Admin: admin / 12345
   - Seller: seller / 12345
   - Bidder: bidder / 12345
 - **Luồng cơ bản:**
