@@ -45,13 +45,8 @@
 
 ## 4. Hướng dẫn cài đặt
 - **Yêu cầu:** JDK 17, Maven và MySQL Server (cổng 3306).
-- **Thiết lập Database:**
-  1. Tạo cơ sở dữ liệu mới với tên: `auction_system`
-  2. Chạy file `init_db.sql` để tạo cấu trúc bảng. 
-  3. Mở file `DatabaseConnection.java`, cấu hình lại thông tin `db.user` và `db.password` cho khớp với MySQL trên máy của bạn.
-- **Khởi chạy:**
-  1. Server: Chạy class `org.example.ServerMain` để bật máy chủ ở cổng 8888.
-  2. Client: Chạy class `com.auction.client.Launcher` để mở giao diện người dùng.
+- **Khởi chạy:** Truy cập vào file dist, tìm đường dẫn dist/HeThongDauGia/HeThongDauGia.exe
+  
 
 ## 5. Hướng dẫn sử dụng
 
